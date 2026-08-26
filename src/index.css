@@ -1,0 +1,176 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Ink and candle-light. Everything is one of five values. */
+  --color-void: #08070a;
+  --color-ink: #100d13;
+  --color-crypt: #17131c;
+  --color-bone: #ece3d2;
+  --color-ash: #857b6d;
+  --color-ember: #c2412a;
+  --color-ember-soft: #e0674a;
+  --color-brass: #c9a227;
+
+  --font-display: 'Cinzel', ui-serif, Georgia, serif;
+  --font-body: 'Cormorant Garamond', ui-serif, Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-bone);
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-ember);
+    color: var(--color-bone);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-brass);
+    outline-offset: 3px;
+  }
+}
+
+/* ---- Atmosphere -------------------------------------------------------- */
+
+/* Fixed film grain. Pointer-events off so it never eats a click. */
+.grain::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-drift 7s steps(6) infinite;
+}
+
+@keyframes grain-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-3%, 2%);
+  }
+  40% {
+    transform: translate(2%, -3%);
+  }
+  60% {
+    transform: translate(-2%, -2%);
+  }
+  80% {
+    transform: translate(3%, 1%);
+  }
+}
+
+/* Candle-glow behind the masthead, vignette at the edges. */
+.altar-glow {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(194, 65, 42, 0.13), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 8%, rgba(201, 162, 39, 0.07), transparent 70%);
+}
+
+.vignette::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 90% 70% at 50% 45%,
+    transparent 45%,
+    rgba(8, 7, 10, 0.75)
+  );
+}
+
+/* ---- Type -------------------------------------------------------------- */
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--color-ash);
+}
+
+.rule-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  color: var(--color-brass);
+}
+
+.rule-ornament::before,
+.rule-ornament::after {
+  content: '';
+  height: 1px;
+  width: min(7rem, 18vw);
+  background: linear-gradient(to right, transparent, currentColor, transparent);
+  opacity: 0.45;
+}
+
+/* ---- Motion ------------------------------------------------------------ */
+
+.rise {
+  opacity: 0;
+  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.flare {
+  animation: flare 5.5s ease-in-out infinite;
+}
+
+@keyframes flare {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  45% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.72;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .flare,
+  .grain::after {
+    animation: none;
+    opacity: 1;
+  }
+
+  .rise {
+    transform: none;
+  }
+
+  .grain::after {
+    opacity: 0.035;
+  }
+}
