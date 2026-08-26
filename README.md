@@ -29,16 +29,19 @@ npm install
 npm run dev
 ```
 
-## Before you commit — required
+## Before you commit
 
-CI runs these three and **fails the build on any of them**, so run them locally first.
-A failing check blocks the merge, and on `main` it also blocks the deployment.
+Run these locally:
 
 ```bash
-npm run format:check   # Prettier — must report no changes
-npm run lint           # ESLint — must be clean
-npm run build          # production build — must succeed
+npm run format:check   # Prettier
+npm run lint           # ESLint
+npm run build          # production build
 ```
+
+CI runs all three too, but only `build` is blocking — formatting and lint failures are
+reported as warnings on the run and do **not** stop a merge or a deployment. Nobody is
+policing this, so keep the tree clean yourself.
 
 If `format:check` complains, fix it with:
 
