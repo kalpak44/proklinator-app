@@ -4,12 +4,48 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Проклинатор — порча под ключ</title>
     <meta
       name="description"
-      content="Порча под ключ. Три тарифа. Возврату не подлежит."
+      content="Порча под ключ: сглаз, порча и родовое проклятие. Три тарифа, разовый обряд или абонемент. Шуточный сайт — ничего не списывается и никто не проклинается."
     />
-    <meta name="theme-color" content="#050406" />
-    <title>Проклинатор</title>
+    <meta name="theme-color" content="#030204" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Apex 301s to www (see docker/nginx.conf), so www is the canonical host. -->
+    <link rel="canonical" href="https://www.proklinator.online/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Проклинатор" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:url" content="https://www.proklinator.online/" />
+    <meta property="og:title" content="Проклинатор — порча под ключ" />
+    <meta
+      property="og:description"
+      content="Три тарифа: Сглаз, Порча, Родовое. Разово или по абонементу. Возврату не подлежит."
+    />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Проклинатор — порча под ключ" />
+    <meta
+      name="twitter:description"
+      content="Три тарифа: Сглаз, Порча, Родовое. Разово или по абонементу. Возврату не подлежит."
+    />
+
+    <!-- WebSite only, deliberately. Marking the tiers up as Product/Offer would feed
+         real prices for products that do not exist into search results. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Проклинатор",
+        "url": "https://www.proklinator.online/",
+        "inLanguage": "ru",
+        "description": "Шуточный сайт с тарифами на порчу. Ничего не продаётся и не списывается."
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Old Standard TT replaces Cinzel: Cinzel ships no Cyrillic subset, so the
