@@ -1,17 +1,18 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Ink and candle-light, shifted toward dried blood. */
-  --color-void: #050406;
-  --color-ink: #0d0a0e;
-  --color-crypt: #150f16;
-  --color-bone: #e6dccb;
-  --color-ash: #7d7364;
-  --color-ember: #a81f1f;
-  --color-ember-soft: #d4432f;
-  --color-brass: #b8912c;
+  /* Near-black, candle-light and dried blood. Deliberately low-key: the page should
+     look like it is lit by one candle, with the red doing all the shouting. */
+  --color-void: #030204;
+  --color-ink: #09060a;
+  --color-crypt: #110a12;
+  --color-bone: #ded2be;
+  --color-ash: #6f6558;
+  --color-ember: #8f1515;
+  --color-ember-soft: #c0301f;
+  --color-brass: #a67f22;
 
-  --font-display: 'Cinzel', ui-serif, Georgia, serif;
+  --font-display: 'Old Standard TT', ui-serif, Georgia, serif;
   --font-body: 'Cormorant Garamond', ui-serif, Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 }
@@ -78,8 +79,8 @@
 /* Candle-glow behind the masthead, vignette at the edges. */
 .altar-glow {
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(168, 31, 31, 0.18), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 50% 8%, rgba(184, 145, 44, 0.06), transparent 70%);
+    radial-gradient(ellipse 75% 45% at 50% 0%, rgba(143, 21, 21, 0.3), transparent 72%),
+    radial-gradient(ellipse 50% 32% at 50% 6%, rgba(166, 127, 34, 0.08), transparent 70%);
 }
 
 /* The altar sigil. Turns once every two minutes — slow enough that you notice it
@@ -116,9 +117,9 @@
   z-index: 40;
   pointer-events: none;
   background: radial-gradient(
-    ellipse 90% 70% at 50% 45%,
-    transparent 45%,
-    rgba(8, 7, 10, 0.75)
+    ellipse 82% 62% at 50% 42%,
+    transparent 32%,
+    rgba(3, 2, 4, 0.92)
   );
 }
 

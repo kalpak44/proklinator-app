@@ -28,13 +28,13 @@ export default function RiteDialog({ tier, billing, onClose }) {
       aria-labelledby="rite-title"
     >
       <button
-        aria-label="Dismiss"
+        aria-label="Закрыть"
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-void/88 backdrop-blur-[3px]"
+        className="absolute inset-0 cursor-default bg-void/92 backdrop-blur-[3px]"
       />
 
       <div className="rise relative w-full max-w-md border border-brass/30 bg-ink p-9 text-center">
-        <p className="eyebrow">Rite pending</p>
+        <p className="eyebrow">Обряд принят в работу</p>
 
         <h2 id="rite-title" className="font-display mt-4 text-3xl text-bone">
           {tier.name}
@@ -43,26 +43,26 @@ export default function RiteDialog({ tier, billing, onClose }) {
         <Ornament className="my-6" />
 
         <p className="text-[1.1rem] leading-relaxed text-ash">
-          The <span className="text-bone italic">{tier.latin}</span> has been entered into
-          the ledger at{' '}
+          «<span className="text-bone italic">{tier.subtitle}</span>» внесён в книгу учёта
+          на сумму{' '}
           <span className="font-mono text-brass">
             €{price} {BILLING[billing].suffix}
           </span>
-          . Our practitioner will contact you by means you did not consent to.
+          . Наш практикующий свяжется с вами способом, на который вы согласия не давали.
         </p>
 
-        <p className="font-mono mt-6 border-t border-bone/10 pt-5 text-[0.66rem] leading-relaxed tracking-[0.14em] text-ash/60 uppercase">
-          No payment was taken. No curse was cast.
+        <p className="font-mono mt-6 border-t border-bone/10 pt-5 text-[0.66rem] leading-relaxed tracking-[0.12em] text-ash/60 uppercase">
+          Оплата не принята. Порча не наложена.
           <br />
-          This is a joke app.
+          Это шуточное приложение.
         </p>
 
         <button
           ref={closeRef}
           onClick={onClose}
-          className="font-mono mt-7 cursor-pointer border border-brass/40 px-7 py-3 text-[0.7rem] tracking-[0.24em] text-brass uppercase transition-colors duration-300 hover:border-brass hover:bg-brass/10"
+          className="font-mono mt-7 cursor-pointer border border-brass/40 px-7 py-3 text-[0.7rem] tracking-[0.2em] text-brass uppercase transition-colors duration-300 hover:border-brass hover:bg-brass/10"
         >
-          So be it
+          Да будет так
         </button>
       </div>
     </div>

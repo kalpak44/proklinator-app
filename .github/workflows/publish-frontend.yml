@@ -68,7 +68,7 @@ jobs:
       - name: Build site
         run: npm run build
 
-  publish-frontend:
+  build-docker-image:
     needs: lint-and-build
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
@@ -127,7 +127,7 @@ jobs:
           done
 
   deploy:
-    needs: publish-frontend
+    needs: build-docker-image
     runs-on: ubuntu-latest
     steps:
       # The image is in GHCR — point the cluster at it. Both inputs are required:

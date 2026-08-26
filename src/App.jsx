@@ -20,21 +20,21 @@ export default function App() {
           <Sigil className="pointer-events-none absolute top-1/2 left-1/2 w-[26rem] max-w-[85vw] -translate-x-1/2 -translate-y-1/2 sm:w-[34rem]" />
 
           <p className="eyebrow rise relative" style={{ animationDelay: '0ms' }}>
-            Est. before records
+            Основано задолго до летописей
           </p>
 
           <h1
-            className="font-display rise relative mt-6 text-6xl leading-none tracking-[0.09em] text-bone sm:text-8xl"
+            className="font-display rise relative mt-6 text-5xl leading-none tracking-[0.08em] text-bone sm:text-7xl"
             style={{ animationDelay: '80ms' }}
           >
-            PROKLINATOR
+            ПРОКЛИНАТОР
           </h1>
 
           <div className="rise relative" style={{ animationDelay: '160ms' }}>
             <Ornament className="mt-8" />
             <p className="mx-auto mt-8 max-w-xl text-xl leading-relaxed text-ash italic">
-              A porcha, properly administered, by arrangement. Choose a severity below.
-              Discretion assured. Results not.
+              Порча, наложенная по всем правилам, по предварительной записи. Выберите
+              степень тяжести. Конфиденциальность гарантируем. Результат — нет.
             </p>
           </div>
         </header>
@@ -46,7 +46,10 @@ export default function App() {
           <BillingToggle value={billing} onChange={setBilling} />
         </div>
 
-        <section className="mt-14 grid gap-6 lg:grid-cols-3" aria-label="Available rites">
+        <section
+          className="mt-14 grid gap-6 lg:grid-cols-3"
+          aria-label="Доступные обряды"
+        >
           {TIERS.map((tier, i) => (
             <TierCard
               key={tier.id}
@@ -60,13 +63,13 @@ export default function App() {
 
         <footer className="rise mt-24 text-center" style={{ animationDelay: '700ms' }}>
           <Ornament />
-          <p className="font-mono mx-auto mt-8 max-w-lg text-[0.68rem] leading-loose tracking-[0.16em] text-ash/55 uppercase">
-            Payable in coin, grain or livestock. Curses are non-transferable and
-            non-refundable. Proklinator accepts no liability for misfortune arriving
-            early, late, or at the wrong address.
+          <p className="font-mono mx-auto mt-8 max-w-lg text-[0.68rem] leading-loose tracking-[0.12em] text-ash/55 uppercase">
+            Оплата монетой, зерном или скотом. Проклятия передаче и возврату не подлежат.
+            «Проклинатор» не несёт ответственности за неприятности, прибывшие раньше
+            срока, позже срока или не по адресу.
           </p>
-          <p className="font-mono mt-6 text-[0.68rem] tracking-[0.2em] text-ash/40 uppercase">
-            This is a joke. Nothing here is real, least of all the pricing.
+          <p className="font-mono mt-6 text-[0.68rem] tracking-[0.16em] text-ash/40 uppercase">
+            Это шутка. Здесь всё ненастоящее, и цены в первую очередь.
           </p>
         </footer>
       </main>
