@@ -1,11 +1,11 @@
-import { useRef } from 'react'
+import { useId } from 'react'
 
 /**
- * Fake uploader. The file is turned into a local object URL for the preview and
- * never leaves the browser — there is no request, and no server to receive one.
+ * The target photo. The file becomes a local object URL for the preview and goes
+ * nowhere before payment: uploading it is the backend's job after confirmation.
  */
-export default function TargetUpload({ photoUrl, fileName, onPick }) {
-  const inputRef = useRef(null)
+export default function TargetUpload({ photo, onPick, onClear }) {
+  const id = useId()
 
   const handle = (e) => {
     const file = e.target.files?.[0]
@@ -14,34 +14,27 @@ export default function TargetUpload({ photoUrl, fileName, onPick }) {
 
   return (
     <div>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        onChange={handle}
-        className="sr-only"
-        id="target-photo"
-      />
+      <input type="file" accept="image/*" onChange={handle} className="sr-only" id={id} />
 
       <label
-        htmlFor="target-photo"
-        className="group flex cursor-pointer flex-col items-center justify-center border border-dashed border-brass/30 bg-void/40 px-6 py-8 transition-colors duration-300 hover:border-ember/60 hover:bg-ember/5"
+        htmlFor={id}
+        className="group border-ink-faint/50 hover:border-marker hover:bg-marker/5 flex cursor-pointer items-center gap-4 border border-dashed px-4 py-3 transition-colors"
       >
-        {photoUrl ? (
+        {photo ? (
           <img
-            src={photoUrl}
-            alt="Объект порчи"
-            className="h-32 w-32 border border-brass/25 object-cover grayscale-[0.75] sepia-[0.25]"
+            src={photo.url}
+            alt="Объект"
+            className="border-ink-faint/40 size-16 shrink-0 border object-cover grayscale-[0.6] sepia-[0.3]"
           />
         ) : (
           <svg
-            width="34"
-            height="34"
+            width="28"
+            height="28"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1"
-            className="text-brass/60 transition-colors duration-300 group-hover:text-ember"
+            strokeWidth="1.1"
+            className="text-ink-faint group-hover:text-marker shrink-0 transition-colors"
             aria-hidden="true"
           >
             <rect x="3" y="5" width="18" height="14" rx="1" />
@@ -50,10 +43,27 @@ export default function TargetUpload({ photoUrl, fileName, onPick }) {
           </svg>
         )}
 
-        <span className="font-mono mt-4 text-[0.76rem] tracking-[0.12em] text-ash uppercase">
-          {fileName ? fileName : 'Выбрать фотографию'}
+        <span className="min-w-0">
+          <span className="text-ink block text-[0.95rem]">
+            {photo ? photo.name : 'Фотография объекта'}
+          </span>
+          <span className="text-ink-soft block text-[0.8rem] leading-snug">
+            {photo
+              ? 'Принято. Нажмите, если хотите заменить.'
+              : 'Агенту нужно лицо. Больше он ничего не спросит.'}
+          </span>
         </span>
       </label>
+
+      {photo && (
+        <button
+          type="button"
+          onClick={onClear}
+          className="font-mono text-ink-soft hover:text-marker mt-1.5 cursor-pointer text-[0.72rem] tracking-[0.1em] uppercase transition-colors"
+        >
+          Убрать снимок
+        </button>
+      )}
     </div>
   )
 }

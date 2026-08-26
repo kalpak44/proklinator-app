@@ -1,84 +1,255 @@
-import { useState } from 'react'
-import { TIERS } from './data/tiers.js'
-import Ornament from './components/Ornament.jsx'
-import Sigil from './components/Sigil.jsx'
-import BillingToggle from './components/BillingToggle.jsx'
-import TierCard from './components/TierCard.jsx'
-import RiteDialog from './components/RiteDialog.jsx'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { AGENT, CHAPTERS } from './data/book.js'
+import { useOrder } from './lib/useOrder.js'
+import { usePageTurn } from './lib/usePageTurn.js'
+import { useMedia } from './lib/useMedia.js'
+import { useBookGeometry } from './lib/useBookGeometry.js'
+import { formatMoney } from './lib/money.js'
+import { isSoundEnabled, setSoundEnabled, primePageTurn } from './lib/pageSound.js'
+import {
+  buildBlocks,
+  chapterSpreadIndex,
+  naiveSpreads,
+  paginate,
+  toSpreads,
+} from './lib/pagination.js'
+import Book from './components/Book.jsx'
+import Bookmarks from './components/Bookmarks.jsx'
+import MeasureLayer from './components/MeasureLayer.jsx'
+import PageContent from './components/PageContent.jsx'
+import OrderSummary from './components/OrderSummary.jsx'
+import LaunchForm from './components/LaunchForm.jsx'
+
+const BLOCKS = buildBlocks(CHAPTERS)
+const ORDER_TAB = { id: 'order', label: 'Заказ' }
+
+/** Space between two blocks: margin + rule + padding of `.page-blocks > * + *`. */
+function blockGap() {
+  return 1.75 * parseFloat(getComputedStyle(document.documentElement).fontSize) + 1
+}
 
 export default function App() {
-  const [billing, setBilling] = useState('once')
-  const [selected, setSelected] = useState(null)
+  const [index, setIndex] = useState(0)
+  const [sound, setSound] = useState(isSoundEnabled)
+  const [measured, setMeasured] = useState(null)
+  const bookRef = useRef(null)
+
+  const spread = useMedia('(min-width: 900px)')
+  const geom = useBookGeometry(bookRef, spread)
+  const { keys, toggle, remove, clear, totals, isSelected } = useOrder()
+
+  // A phone shows one long page and scrolls it; only the spread is paginated.
+  const spreads = useMemo(() => {
+    if (!spread || !measured) return naiveSpreads(CHAPTERS)
+    return toSpreads(paginate(BLOCKS, measured.heights, measured.available, blockGap()))
+  }, [spread, measured])
+
+  // Re-pagination can shorten the book under an index that is already past the end.
+  const current = Math.min(index, spreads.length - 1)
+  const { turning, goTo } = usePageTurn(spreads.length, current, setIndex)
+
+  const toggleSound = () => {
+    const next = !sound
+    setSound(next)
+    setSoundEnabled(next)
+  }
+
+  const onMeasured = useCallback((result) => {
+    setMeasured((prev) =>
+      prev &&
+      prev.available === result.available &&
+      sameHeights(prev.heights, result.heights)
+        ? prev
+        : result
+    )
+  }, [])
+
+  const orderIndex = spreads.length - 1
+
+  const pages = useMemo(
+    () =>
+      spreads.map((sheet, i) =>
+        sheet.kind === 'order'
+          ? {
+              id: 'order',
+              verso: (
+                <OrderSummary
+                  totals={totals}
+                  onRemove={remove}
+                  onBrowse={() => goTo(0)}
+                />
+              ),
+              recto: <LaunchForm totals={totals} orderKeys={keys} onLaunched={clear} />,
+            }
+          : {
+              id: `spread-${i}`,
+              verso: (
+                <PageContent
+                  page={sheet.verso}
+                  isSelected={isSelected}
+                  onToggle={toggle}
+                />
+              ),
+              recto: (
+                <PageContent
+                  page={sheet.recto}
+                  isSelected={isSelected}
+                  onToggle={toggle}
+                />
+              ),
+            }
+      ),
+    [spreads, totals, remove, goTo, keys, clear, isSelected, toggle]
+  )
+
+  // Chapters behind you keep their bookmark on the left, the ones ahead on the right.
+  const openings = useMemo(() => chapterSpreadIndex(spreads, CHAPTERS.length), [spreads])
+  const onOrder = spreads[current]?.kind === 'order'
+  const openChapter = onOrder ? CHAPTERS.length : (spreads[current]?.chapterIndex ?? 0)
+
+  const tabs = useMemo(
+    () =>
+      [
+        ...CHAPTERS.map((chapter, i) => ({
+          id: chapter.id,
+          label: chapter.tab,
+          spreadIndex: openings[i],
+          chapterIndex: i,
+        })),
+        { ...ORDER_TAB, spreadIndex: orderIndex, chapterIndex: CHAPTERS.length },
+      ].map((tab) => ({
+        ...tab,
+        side: tab.chapterIndex < openChapter ? 'left' : 'right',
+      })),
+    [openings, orderIndex, openChapter]
+  )
+
+  const activeId = onOrder ? 'order' : CHAPTERS[openChapter]?.id
 
   return (
-    <div className="grain vignette relative min-h-screen overflow-hidden">
-      <div className="altar-glow absolute inset-x-0 top-0 h-[70vh]" aria-hidden="true" />
-
-      <main className="relative mx-auto max-w-6xl px-6 py-20 sm:py-28">
-        <header className="relative text-center">
-          {/* Behind the wordmark, deliberately larger than it. */}
-          <Sigil className="pointer-events-none absolute top-1/2 left-1/2 w-[26rem] max-w-[85vw] -translate-x-1/2 -translate-y-1/2 sm:w-[34rem]" />
-
-          <p className="eyebrow rise relative" style={{ animationDelay: '0ms' }}>
-            Основано задолго до летописей
-          </p>
-
-          <h1
-            className="font-display rise relative mt-6 text-5xl leading-none tracking-[0.08em] text-bone sm:text-7xl"
-            style={{ animationDelay: '80ms' }}
-          >
+    <div className="desk flex min-h-dvh flex-col" onPointerDown={primePageTurn}>
+      <header className="flex shrink-0 items-center justify-between gap-3 px-4 py-3 sm:px-8 sm:py-4">
+        <div className="min-w-0">
+          <p className="font-display text-paper text-[1.1rem] leading-none tracking-[0.14em] sm:text-[1.35rem]">
             ПРОКЛИНАТОР
-          </h1>
-
-          <div className="rise relative" style={{ animationDelay: '160ms' }}>
-            <Ornament className="mt-8" />
-            <p className="mx-auto mt-8 max-w-xl text-xl leading-relaxed text-ash italic">
-              Порча, наложенная по всем правилам, по предварительной записи. Выберите
-              степень тяжести. Конфиденциальность гарантируем. Результат — на 100%.
-            </p>
-          </div>
-        </header>
-
-        <div
-          className="rise mt-16 flex justify-center"
-          style={{ animationDelay: '200ms' }}
-        >
-          <BillingToggle value={billing} onChange={setBilling} />
+          </p>
+          <p className="font-mono text-paper/45 mt-1.5 flex items-center gap-2 text-[0.6rem] tracking-[0.1em] uppercase sm:text-[0.66rem]">
+            <span className="agent-dot bg-marker size-1.5 shrink-0 rounded-full" />
+            <span className="truncate">
+              Агент {AGENT.version} · {AGENT.state}
+              <span className="max-sm:hidden"> · {AGENT.corpus}</span>
+            </span>
+          </p>
         </div>
 
-        <section
-          className="mt-14 grid gap-6 lg:grid-cols-3"
-          aria-label="Доступные обряды"
-        >
-          {TIERS.map((tier, i) => (
-            <TierCard
-              key={tier.id}
-              tier={tier}
-              billing={billing}
-              index={i}
-              onSelect={setSelected}
-            />
-          ))}
-        </section>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleSound}
+            aria-pressed={sound}
+            aria-label={sound ? 'Выключить звук' : 'Включить звук'}
+            title={sound ? 'Звук страниц включён' : 'Звук страниц выключен'}
+            className="border-paper/20 text-paper/70 hover:border-marker hover:text-paper cursor-pointer border p-2 transition-colors"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M11 5 6 9H3v6h3l5 4z" />
+              {sound ? (
+                <>
+                  <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                  <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+                </>
+              ) : (
+                <path d="M16 9.5l5 5M21 9.5l-5 5" />
+              )}
+            </svg>
+          </button>
 
-        <footer className="rise mt-24 text-center" style={{ animationDelay: '700ms' }}>
-          <Ornament />
-          {/* Body face, sentence case: a long line of tracked-out caps is the least
-              readable thing on the page. */}
-          <p className="mx-auto mt-8 max-w-xl text-[1.05rem] leading-relaxed text-ash">
-            Оплата монетой, зерном или скотом. Проклятия передаче и возврату не подлежат.
-            «Проклинатор» не несёт ответственности за неприятности, прибывшие раньше
-            срока, позже срока или не по адресу.
-          </p>
-          <p className="font-mono mx-auto mt-6 max-w-xl text-[0.8rem] leading-relaxed tracking-[0.06em] text-ash">
-            Это шутка. Здесь всё ненастоящее, и цены в первую очередь.
-          </p>
-        </footer>
+          <button
+            type="button"
+            onClick={() => goTo(orderIndex)}
+            aria-current={onOrder}
+            className="font-mono border-paper/20 text-paper/80 hover:border-marker hover:text-paper cursor-pointer border px-3 py-2 text-[0.66rem] tracking-[0.12em] whitespace-nowrap uppercase transition-colors sm:text-[0.7rem]"
+          >
+            <span className="max-sm:hidden">
+              Заказ
+              <span className="text-paper/40"> · </span>
+            </span>
+            {totals.count === 0
+              ? 'пусто'
+              : `${totals.count} · ${formatMoney(totals.dueNow)}`}
+          </button>
+        </div>
+      </header>
+
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 px-3 sm:px-6 lg:flex-row lg:gap-0">
+        {spread ? (
+          <>
+            <Bookmarks tabs={tabs} side="left" activeId={activeId} onSelect={goTo} />
+            <Book
+              bookRef={bookRef}
+              pages={pages}
+              index={current}
+              turning={turning}
+              goTo={goTo}
+            />
+            <Bookmarks tabs={tabs} side="right" activeId={activeId} onSelect={goTo} />
+          </>
+        ) : (
+          <>
+            <Bookmarks tabs={tabs} side="top" activeId={activeId} onSelect={goTo} />
+            <Book
+              bookRef={bookRef}
+              pages={pages}
+              index={current}
+              turning={turning}
+              goTo={goTo}
+            />
+          </>
+        )}
       </main>
 
-      {selected && (
-        <RiteDialog tier={selected} billing={billing} onClose={() => setSelected(null)} />
-      )}
+      <footer className="flex shrink-0 items-center justify-center gap-4 px-4 pt-4 pb-8 sm:gap-5 sm:pt-5 sm:pb-10">
+        <button
+          type="button"
+          onClick={() => goTo(current - 1)}
+          disabled={current === 0}
+          aria-label="Предыдущий разворот"
+          className="font-mono text-paper/60 hover:text-paper cursor-pointer text-[0.75rem] tracking-[0.1em] uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-25 sm:text-[0.8rem]"
+        >
+          ‹ назад
+        </button>
+
+        <span className="font-mono text-paper/35 text-[0.64rem] tracking-[0.16em] whitespace-nowrap uppercase sm:text-[0.68rem]">
+          {onOrder ? 'Лист заказа' : `Глава ${CHAPTERS[openChapter]?.numeral ?? ''}`}
+        </span>
+
+        <button
+          type="button"
+          onClick={() => goTo(current + 1)}
+          disabled={current === orderIndex}
+          aria-label="Следующий разворот"
+          className="font-mono text-paper/60 hover:text-paper cursor-pointer text-[0.75rem] tracking-[0.1em] uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-25 sm:text-[0.8rem]"
+        >
+          вперёд ›
+        </button>
+      </footer>
+
+      {spread && <MeasureLayer blocks={BLOCKS} geom={geom} onMeasured={onMeasured} />}
     </div>
   )
+}
+
+function sameHeights(a, b) {
+  const keys = Object.keys(b)
+  if (keys.length !== Object.keys(a).length) return false
+  return keys.every((key) => Math.abs((a[key] ?? 0) - b[key]) < 0.5)
 }

@@ -1,20 +1,29 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Near-black, candle-light and dried blood. Deliberately low-key: the page should
-     look like it is lit by one candle, with the red doing all the shouting. */
-  --color-void: #030204;
-  --color-ink: #09060a;
-  --color-crypt: #110a12;
-  --color-bone: #ded2be;
-  --color-ash: #9a8d7c;
-  --color-ember: #8f1515;
-  --color-ember-soft: #c0301f;
-  --color-brass: #a67f22;
+  /* Dark leather desk, light book. Dark ink on parchment reads better than any
+     dark screen, and the recto pages are a price list before they are a mood. */
+  --color-desk: #120d0a;
+  --color-desk-deep: #080605;
+  --color-leather: #3a1d16;
+  --color-leather-lit: #5a2c20;
+
+  --color-paper: #f0e4cb;
+  --color-paper-edge: #ddcaa6;
+  --color-paper-deep: #e2d2b1;
+
+  --color-ink: #2b1d12;
+  --color-ink-soft: #6b563d;
+  --color-ink-faint: #9a856a;
+  --color-rubric: #8f1f16;
+  --color-gold: #9c7a26;
+  --color-marker: #c0392b;
 
   --font-display: 'Old Standard TT', ui-serif, Georgia, serif;
-  --font-body: 'Cormorant Garamond', ui-serif, Georgia, serif;
+  --font-body: 'PT Serif', ui-serif, Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --ease-page: cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
 @layer base {
@@ -22,76 +31,654 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* A book is set to its own size. The spread is driven by viewport height, so
+     the root size follows it and the whole page scales as one, instead of a
+     16px face being asked to fit a page it has outgrown. Phones keep 16px:
+     there the page scrolls by design. */
+  @media (min-width: 900px) {
+    html {
+      font-size: clamp(11.5px, calc(100dvh / 56), 16px);
+    }
+  }
+
   body {
-    background-color: var(--color-void);
-    color: var(--color-bone);
+    background-color: var(--color-desk);
+    color: var(--color-paper);
     font-family: var(--font-body);
-    font-size: 1.15rem;
-    line-height: 1.72;
+    font-size: 1rem;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
   ::selection {
-    background: var(--color-ember);
-    color: var(--color-bone);
+    background: var(--color-marker);
+    color: var(--color-paper);
   }
 
   :focus-visible {
-    outline: 1px solid var(--color-brass);
-    outline-offset: 3px;
+    outline: 2px solid var(--color-marker);
+    outline-offset: 2px;
   }
 }
 
-/* ---- Atmosphere -------------------------------------------------------- */
+/* ---- Desk -------------------------------------------------------------- */
 
-/* Fixed film grain. Pointer-events off so it never eats a click. */
-.grain::after {
+.desk {
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 12%, rgba(120, 68, 40, 0.28), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 50% 100%, rgba(0, 0, 0, 0.6), transparent 70%),
+    var(--color-desk);
+}
+
+/* Film grain over everything. pointer-events: none, or it eats every click. */
+.desk::after {
   content: '';
   position: fixed;
-  inset: -50%;
-  z-index: 50;
+  inset: 0;
+  z-index: 60;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain-drift 7s steps(6) infinite;
 }
 
-@keyframes grain-drift {
-  0%,
+/* ---- Book -------------------------------------------------------------- */
+
+/* Height is driven by the viewport minus the chrome above and below, so the
+   book always fits without the desk scrolling. When the derived width does not
+   fit, max-width clamps it and the page simply gets taller than 1.44:1. */
+.book {
+  position: relative;
+  height: min(820px, calc(100dvh - 12.25rem));
+  aspect-ratio: 1.44;
+  max-width: 100%;
+  perspective: 2600px;
+  perspective-origin: 50% 42%;
+  filter: drop-shadow(0 42px 60px rgba(0, 0, 0, 0.68));
+  touch-action: pan-y;
+}
+
+/* One page on a phone, and width leads instead of the ratio: a book derived
+   from the viewport height would be wider than the screen on a tall device. */
+@media (max-width: 899px) {
+  .book {
+    width: 100%;
+    height: calc(100dvh - 214px);
+    min-height: 420px;
+    aspect-ratio: auto;
+  }
+}
+
+/* Fore edge: thin stacked layers standing in for the thickness of the block. */
+.book-edge {
+  position: absolute;
+  top: 1.1%;
+  bottom: 1.1%;
+  width: 11px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--color-paper-edge) 0 1px,
+    rgba(120, 96, 60, 0.55) 1px 2px
+  );
+  box-shadow: inset 0 0 8px rgba(90, 68, 40, 0.5);
+}
+
+.book-edge--left {
+  left: -10px;
+  border-radius: 3px 0 0 3px;
+}
+
+.book-edge--right {
+  right: -10px;
+  border-radius: 0 3px 3px 0;
+}
+
+@media (max-width: 899px) {
+  .book-edge {
+    width: 6px;
+  }
+
+  .book-edge--left {
+    display: none;
+  }
+
+  .book-edge--right {
+    right: -5px;
+  }
+}
+
+.spread {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 899px) {
+  .spread {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Sheet ------------------------------------------------------------- */
+
+.paper {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(
+      ellipse 70% 60% at 30% 20%,
+      rgba(255, 250, 238, 0.55),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 85% 90%,
+      rgba(160, 120, 70, 0.16),
+      transparent 65%
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23p)' opacity='.28'/%3E%3C/svg%3E");
+  color: var(--color-ink);
+}
+
+/* Gutter shadow. Which side it falls on depends on verso versus recto. */
+.paper--verso::after,
+.paper--recto::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 13%;
+  pointer-events: none;
+}
+
+.paper--verso::after {
+  right: 0;
+  background: linear-gradient(to right, transparent, rgba(74, 52, 26, 0.34));
+}
+
+.paper--recto::after {
+  left: 0;
+  background: linear-gradient(to left, transparent, rgba(74, 52, 26, 0.34));
+}
+
+@media (max-width: 899px) {
+  .paper--recto::after,
+  .paper--verso::after {
+    display: none;
+  }
+}
+
+.page-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.page-body::-webkit-scrollbar {
+  display: none;
+}
+
+/* A spread never scrolls: what does not fit is carried to the next page by the
+   paginator. Only the single-page phone layout scrolls. */
+@media (min-width: 900px) {
+  .page-body {
+    overflow: hidden;
+  }
+}
+
+/* Blocks keep their measured height instead of being squeezed by the flex box.
+   The rule and the space between two blocks live here rather than on the block,
+   so a block measures the same height wherever on the page it lands. Any change
+   to these three values has to be mirrored in blockGap() in App.jsx. */
+.page-blocks {
+  flex: 0 0 auto;
+}
+
+.page-blocks > * + * {
+  margin-top: 1rem;
+  border-top: 1px solid rgba(154, 133, 106, 0.25);
+  padding-top: 0.75rem;
+}
+
+/* Off-screen twin of a page, used to measure block heights before laying out. */
+.measure-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ---- Creased corners --------------------------------------------------- */
+
+/* A folded corner: the page underneath showing through, plus the shadow the
+   fold casts. Doubles as the control that turns the leaf. */
+.dogear {
+  position: absolute;
+  bottom: 0;
+  z-index: 15;
+  width: 3.4rem;
+  height: 3.4rem;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  transition:
+    width 300ms var(--ease-page),
+    height 300ms var(--ease-page);
+}
+
+.dogear::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.dogear:hover {
+  width: 4.6rem;
+  height: 4.6rem;
+}
+
+.dogear--next {
+  right: 0;
+}
+
+.dogear--next::before {
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  background: linear-gradient(
+    225deg,
+    var(--color-paper-deep) 0%,
+    #dccaa6 42%,
+    #b9a179 100%
+  );
+  box-shadow: inset 2px 2px 4px rgba(255, 250, 235, 0.5);
+  filter: drop-shadow(-4px -3px 6px rgba(58, 40, 18, 0.4));
+}
+
+.dogear--prev {
+  left: 0;
+}
+
+.dogear--prev::before {
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-paper-deep) 0%,
+    #dccaa6 42%,
+    #b9a179 100%
+  );
+  box-shadow: inset -2px 2px 4px rgba(255, 250, 235, 0.5);
+  filter: drop-shadow(4px -3px 6px rgba(58, 40, 18, 0.4));
+}
+
+@media (max-width: 899px) {
+  .dogear {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+}
+
+/* Folio sits outside the scrolling block, so it never drifts with the text. */
+.folio {
+  position: absolute;
+  bottom: 2.6%;
+  z-index: 2;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: var(--color-ink-faint);
+}
+
+.folio--verso {
+  left: 8%;
+}
+
+.folio--recto {
+  right: 8%;
+}
+
+.folio--single {
+  right: 1.75rem;
+  bottom: 1.5rem;
+}
+
+/* ---- Turning ----------------------------------------------------------- */
+
+.leaf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  transform-style: preserve-3d;
+  z-index: 20;
+  will-change: transform;
+}
+
+@media (max-width: 899px) {
+  .leaf {
+    width: 100%;
+  }
+}
+
+.leaf--next {
+  right: 0;
+  transform-origin: left center;
+  animation: leaf-next 900ms var(--ease-page) forwards;
+}
+
+.leaf--prev {
+  left: 0;
+  transform-origin: right center;
+  animation: leaf-prev 900ms var(--ease-page) forwards;
+}
+
+@media (max-width: 899px) {
+  .leaf--next {
+    right: 0;
+    left: 0;
+  }
+
+  .leaf--prev {
+    left: 0;
+    right: 0;
+  }
+}
+
+@keyframes leaf-next {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(-178deg);
+  }
+}
+
+@keyframes leaf-prev {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(178deg);
+  }
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.face--back {
+  transform: rotateY(180deg);
+}
+
+/* Light across the moving sheet: a shadow runs in and drains away again. */
+.face::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(to left, rgba(52, 34, 16, 0.5), transparent 62%);
+  animation: leaf-shade 900ms var(--ease-page) forwards;
+}
+
+.face--back::before {
+  background: linear-gradient(to right, rgba(52, 34, 16, 0.5), transparent 62%);
+}
+
+@keyframes leaf-shade {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
   100% {
-    transform: translate(0, 0);
+    opacity: 0.05;
   }
-  20% {
-    transform: translate(-3%, 2%);
-  }
-  40% {
-    transform: translate(2%, -3%);
+}
+
+/* The spread being opened lies in the shadow of the sheet leaving it. */
+.spread--turning .paper {
+  animation: page-reveal 900ms var(--ease-page) forwards;
+}
+
+@keyframes page-reveal {
+  0% {
+    filter: brightness(0.7);
   }
   60% {
-    transform: translate(-2%, -2%);
+    filter: brightness(0.86);
   }
-  80% {
-    transform: translate(3%, 1%);
+  100% {
+    filter: brightness(1);
   }
 }
 
-/* Candle-glow behind the masthead, vignette at the edges. */
-.altar-glow {
-  background:
-    radial-gradient(ellipse 75% 45% at 50% 0%, rgba(143, 21, 21, 0.3), transparent 72%),
-    radial-gradient(ellipse 50% 32% at 50% 6%, rgba(166, 127, 34, 0.08), transparent 70%);
+/* ---- Bookmarks --------------------------------------------------------- */
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1.5rem 0;
 }
 
-/* The altar sigil. Turns once every two minutes — slow enough that you notice it
-   only on the second look, which is the intended effect. */
+.tabs--top {
+  flex-direction: row;
+  width: 100%;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding: 0.25rem 0.25rem 0;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.tabs--top::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  writing-mode: vertical-rl;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.85rem 0.62rem;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  background: linear-gradient(to right, #6a3628, #3a1c15);
+  color: #eddcc0;
+  transition:
+    transform 260ms var(--ease-page),
+    color 260ms ease,
+    background 260ms ease;
+  cursor: pointer;
+}
+
+.tab:hover {
+  color: #f2ddb8;
+}
+
+/* Holds the slot of a tab that currently belongs to the other edge. */
+.tab--ghost {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.tab[aria-current='true'] {
+  background: linear-gradient(to right, #8f4a31, #4a251b);
+  color: #fdf3df;
+}
+
+/* Tabs stand in one line along the fore edge, so the open chapter does not sit
+   proud of the rest; hover nudges a tab out. Each side is a mirror image. */
+.tabs--right .tab {
+  border-left: none;
+  border-radius: 0 5px 5px 0;
+  transform: translateX(6px);
+  box-shadow:
+    inset 1px 0 0 rgba(255, 220, 170, 0.2),
+    3px 3px 10px rgba(0, 0, 0, 0.5);
+}
+
+.tabs--right .tab:hover {
+  transform: translateX(11px);
+}
+
+.tabs--right .tab[aria-current='true'] {
+  transform: translateX(6px);
+}
+
+.tabs--left .tab {
+  border-right: none;
+  border-radius: 5px 0 0 5px;
+  background: linear-gradient(to left, #6a3628, #3a1c15);
+  transform: translateX(-6px);
+  box-shadow:
+    inset -1px 0 0 rgba(255, 220, 170, 0.2),
+    -3px 3px 10px rgba(0, 0, 0, 0.5);
+}
+
+.tabs--left .tab:hover {
+  transform: translateX(-11px);
+}
+
+.tabs--left .tab[aria-current='true'] {
+  background: linear-gradient(to left, #8f4a31, #4a251b);
+  transform: translateX(-6px);
+}
+
+/* Narrow screens: one scrollable strip above the book. */
+.tabs--top .tab {
+  writing-mode: horizontal-tb;
+  border-radius: 4px 4px 0 0;
+  border-bottom: none;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.64rem;
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 170, 0.16),
+    2px -2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.tabs--top .tab[aria-current='true'] {
+  transform: translateY(0);
+}
+
+/* ---- Page typography --------------------------------------------------- */
+
+.rubric {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.dropcap::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 3.3rem;
+  line-height: 0.82;
+  padding: 0.1rem 0.45rem 0 0;
+  color: var(--color-rubric);
+}
+
+/* Dot leader between the tier name and its price, as in a printed price list. */
+.leader {
+  flex: 1;
+  align-self: end;
+  height: 0.85em;
+  border-bottom: 1px dotted rgba(107, 86, 61, 0.6);
+  margin: 0 0.5rem;
+}
+
+/* ---- Marker ------------------------------------------------------------ */
+
+.marker-ink {
+  fill: none;
+  stroke: var(--color-marker);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-opacity: 0.9;
+  animation: marker-draw 620ms var(--ease-page) forwards;
+}
+
+.marker-ink--second {
+  animation-delay: 130ms;
+  stroke-opacity: 0.55;
+  stroke-width: 1.5;
+}
+
+@keyframes marker-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* The wash under the circled line: the wide felt tip going over the row. */
+.marker-wash {
+  background: linear-gradient(
+    to right,
+    rgba(192, 57, 43, 0.04),
+    rgba(192, 57, 43, 0.16) 18%,
+    rgba(192, 57, 43, 0.13) 82%,
+    rgba(192, 57, 43, 0.03)
+  );
+  animation: wash-in 420ms ease-out forwards;
+}
+
+@keyframes wash-in {
+  from {
+    opacity: 0;
+    transform: scaleX(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+/* ---- Entrances --------------------------------------------------------- */
+
+.rise {
+  opacity: 0;
+  animation: rise 700ms var(--ease-page) forwards;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .sigil {
-  color: var(--color-ember);
-  opacity: 0.14;
-  filter: drop-shadow(0 0 22px rgba(168, 31, 31, 0.45));
-  animation:
-    sigil-turn 120s linear infinite,
-    sigil-breathe 9s ease-in-out infinite;
+  color: var(--color-rubric);
+  opacity: 0.13;
+  animation: sigil-turn 160s linear infinite;
 }
 
 @keyframes sigil-turn {
@@ -100,167 +687,45 @@
   }
 }
 
-@keyframes sigil-breathe {
+/* Agent activity indicator. */
+.agent-dot {
+  animation: agent-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes agent-pulse {
   0%,
   100% {
-    opacity: 0.11;
+    opacity: 0.35;
   }
   50% {
-    opacity: 0.2;
-  }
-}
-
-.vignette::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 82% 62% at 50% 42%,
-    transparent 32%,
-    rgba(3, 2, 4, 0.92)
-  );
-}
-
-/* ---- Type -------------------------------------------------------------- */
-
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-ash);
-}
-
-.rule-ornament {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.9rem;
-  color: var(--color-brass);
-}
-
-.rule-ornament::before,
-.rule-ornament::after {
-  content: '';
-  height: 1px;
-  width: min(7rem, 18vw);
-  background: linear-gradient(to right, transparent, currentColor, transparent);
-  opacity: 0.45;
-}
-
-/* ---- Motion ------------------------------------------------------------ */
-
-.rise {
-  opacity: 0;
-  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
     opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.flare {
-  animation: flare 5.5s ease-in-out infinite;
-}
-
-@keyframes flare {
-  0%,
-  100% {
-    opacity: 0.85;
-  }
-  45% {
-    opacity: 1;
-  }
-  70% {
-    opacity: 0.72;
-  }
-}
-
-/* ---- Casting ----------------------------------------------------------- */
-
-/* Escalation is expressed purely as animation-duration: the same shudder, three
-   times faster by the last phase. */
-.shudder-0 {
-  animation: shudder 900ms ease-in-out infinite;
-}
-.shudder-1 {
-  animation: shudder 420ms ease-in-out infinite;
-}
-.shudder-2 {
-  animation: shudder 200ms ease-in-out infinite;
-}
-.shudder-3 {
-  animation: shudder 110ms ease-in-out infinite;
-}
-
-@keyframes shudder {
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  25% {
-    transform: translate(-1.5px, 1px) rotate(-0.5deg);
-  }
-  50% {
-    transform: translate(1.5px, -1px) rotate(0.5deg);
-  }
-  75% {
-    transform: translate(1px, 1.5px) rotate(-0.3deg);
-  }
-}
-
-.pulse-ember {
-  animation: pulse-ember 1.1s ease-in-out infinite;
-}
-
-@keyframes pulse-ember {
-  0%,
-  100% {
-    box-shadow: 0 0 30px -10px rgba(143, 21, 21, 0.6);
-  }
-  50% {
-    box-shadow: 0 0 70px -4px rgba(192, 48, 31, 0.95);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shudder-0,
-  .shudder-1,
-  .shudder-2,
-  .shudder-3,
-  .pulse-ember {
-    animation: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
+  .leaf--next,
+  .leaf--prev,
+  .face::before,
+  .spread--turning .paper,
   .rise,
-  .flare,
-  .grain::after {
+  .sigil,
+  .agent-dot,
+  .marker-wash {
     animation: none;
-    opacity: 1;
-  }
-
-  .sigil {
-    animation: none;
-    opacity: 0.14;
   }
 
   .rise {
+    opacity: 1;
     transform: none;
   }
 
-  .grain::after {
-    opacity: 0.035;
+  .leaf--next,
+  .leaf--prev {
+    display: none;
+  }
+
+  .marker-ink {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }

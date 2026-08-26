@@ -2,15 +2,15 @@
   "name": "proklinator-app",
   "private": true,
   "version": "0.1.0",
-  "description": "Porcha as a service. Three tiers. No refunds.",
+  "description": "Spellbook of curses run by a cloud agent. Turn the page, circle a tier, order.",
   "license": "MIT",
   "type": "module",
   "keywords": [
     "vite",
     "react",
     "tailwindcss",
-    "generator",
-    "joke"
+    "spellbook",
+    "page-turn"
   ],
   "scripts": {
     "dev": "vite",

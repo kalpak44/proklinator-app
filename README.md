@@ -1,18 +1,20 @@
 # Proklinator
 
-**Porcha as a Service.** Pick your curse, choose how often it hits, and leave the rest to us. From minor everyday misfortune to premium-grade supernatural inconvenience.
+**Книга заклинаний, которую листаете вы, а обряды проводит агент.**
 
-Choose from a rich catalog of curses and hexes, available as a **one-time purchase** or an ongoing **subscription**. Three tiers. No refunds.
+Каталог проклятий подан как настоящая книга: разворот на два листа, закладки по обрезу,
+перелистывание с настоящим поворотом страницы. Выбор тарифа отмечается обводкой маркером
+и уходит в лист заказа.
 
 ## Features
 
-- Rich selection of curses for every occasion
-- One-time curse delivery
-- Recurring curses with a subscription
-- Three pricing tiers
-- Instant activation after payment
-- Order and subscription history
-- New curses added regularly
+- Шесть глав, у каждой свой фронтиспис и прайс-лист
+- Автоматическая вёрстка страниц: что не поместилось, переносится на следующую
+- Перелистывание с трёхмерным поворотом листа и звуком бумаги
+- Закладки по обрезу: пройденные главы слева, оставшиеся справа
+- Загнутые уголки как подсказка, что дальше есть страница
+- Выбор тарифа обводкой маркером, заказ переживает перезагрузку
+- Лист заказа с итогом и запуском агента, готовый к Stripe
 
 ## Stack
 
@@ -21,6 +23,28 @@ Choose from a rich catalog of curses and hexes, available as a **one-time purcha
 - Tailwind CSS 4 — CSS-first, no config file; theme tokens live in the `@theme` block of `src/index.css`
 - ESLint 10 + Prettier 3
 - nginx 1.31-alpine runtime image
+
+## How the book is laid out
+
+Pages do not scroll on a spread. `src/components/MeasureLayer.jsx` renders every content
+block once, off-screen, at the exact size of a real page; `src/lib/pagination.js` then packs
+those measured heights into pages and pairs the pages into spreads. A chapter always opens
+on a left-hand page, so the bookmarks line up with the spread they name.
+
+Two consequences worth knowing before editing:
+
+- The gap between blocks lives in `.page-blocks > * + *` in `src/index.css`. Change it there
+  and mirror it in `blockGap()` in `src/App.jsx`, or pagination will misjudge what fits.
+- Page typography is sized in `rem` and the root size follows the viewport height, so the
+  whole book scales as one. Absolute `px` in page content breaks that.
+
+## Payments
+
+`src/lib/checkout.js` posts the selected line keys to `VITE_CHECKOUT_URL` (default
+`/api/checkout/session`), which is expected to create a Stripe Checkout Session and return
+its `url`. Prices are never computed on the client: the server resolves them from its own
+catalog. Until that endpoint exists, an order is accepted as a request with a reference
+number.
 
 ## Development
 

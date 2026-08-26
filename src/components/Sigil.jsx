@@ -1,5 +1,5 @@
 /**
- * Point-down pentagram inscribed in a double circle — the altar watermark that sits
+ * Point-down pentagram inscribed in a double circle - the altar watermark that sits
  * behind the masthead. Purely decorative, so it is hidden from assistive tech and
  * never intercepts a pointer.
  *
