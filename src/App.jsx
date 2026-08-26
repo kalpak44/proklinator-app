@@ -34,7 +34,7 @@ export default function App() {
             <Ornament className="mt-8" />
             <p className="mx-auto mt-8 max-w-xl text-xl leading-relaxed text-ash italic">
               Порча, наложенная по всем правилам, по предварительной записи. Выберите
-              степень тяжести. Конфиденциальность гарантируем. Результат — нет.
+              степень тяжести. Конфиденциальность гарантируем. Результат — на 100%.
             </p>
           </div>
         </header>
