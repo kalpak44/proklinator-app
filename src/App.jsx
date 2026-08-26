@@ -63,12 +63,14 @@ export default function App() {
 
         <footer className="rise mt-24 text-center" style={{ animationDelay: '700ms' }}>
           <Ornament />
-          <p className="font-mono mx-auto mt-8 max-w-lg text-[0.68rem] leading-loose tracking-[0.12em] text-ash/55 uppercase">
+          {/* Body face, sentence case: a long line of tracked-out caps is the least
+              readable thing on the page. */}
+          <p className="mx-auto mt-8 max-w-xl text-[1.05rem] leading-relaxed text-ash">
             Оплата монетой, зерном или скотом. Проклятия передаче и возврату не подлежат.
             «Проклинатор» не несёт ответственности за неприятности, прибывшие раньше
             срока, позже срока или не по адресу.
           </p>
-          <p className="font-mono mt-6 text-[0.68rem] tracking-[0.16em] text-ash/40 uppercase">
+          <p className="font-mono mx-auto mt-6 max-w-xl text-[0.8rem] leading-relaxed tracking-[0.06em] text-ash">
             Это шутка. Здесь всё ненастоящее, и цены в первую очередь.
           </p>
         </footer>

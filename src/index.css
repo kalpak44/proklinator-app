@@ -7,7 +7,7 @@
   --color-ink: #09060a;
   --color-crypt: #110a12;
   --color-bone: #ded2be;
-  --color-ash: #6f6558;
+  --color-ash: #9a8d7c;
   --color-ember: #8f1515;
   --color-ember-soft: #c0301f;
   --color-brass: #a67f22;
@@ -26,8 +26,8 @@
     background-color: var(--color-void);
     color: var(--color-bone);
     font-family: var(--font-body);
-    font-size: 1.0625rem;
-    line-height: 1.65;
+    font-size: 1.15rem;
+    line-height: 1.72;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -127,9 +127,9 @@
 
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.78rem;
   font-weight: 500;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--color-ash);
 }
@@ -183,6 +183,63 @@
   }
   70% {
     opacity: 0.72;
+  }
+}
+
+/* ---- Casting ----------------------------------------------------------- */
+
+/* Escalation is expressed purely as animation-duration: the same shudder, three
+   times faster by the last phase. */
+.shudder-0 {
+  animation: shudder 900ms ease-in-out infinite;
+}
+.shudder-1 {
+  animation: shudder 420ms ease-in-out infinite;
+}
+.shudder-2 {
+  animation: shudder 200ms ease-in-out infinite;
+}
+.shudder-3 {
+  animation: shudder 110ms ease-in-out infinite;
+}
+
+@keyframes shudder {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(-1.5px, 1px) rotate(-0.5deg);
+  }
+  50% {
+    transform: translate(1.5px, -1px) rotate(0.5deg);
+  }
+  75% {
+    transform: translate(1px, 1.5px) rotate(-0.3deg);
+  }
+}
+
+.pulse-ember {
+  animation: pulse-ember 1.1s ease-in-out infinite;
+}
+
+@keyframes pulse-ember {
+  0%,
+  100% {
+    box-shadow: 0 0 30px -10px rgba(143, 21, 21, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 70px -4px rgba(192, 48, 31, 0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shudder-0,
+  .shudder-1,
+  .shudder-2,
+  .shudder-3,
+  .pulse-ember {
+    animation: none;
   }
 }
 

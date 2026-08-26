@@ -18,7 +18,7 @@ export default function BillingToggle({ value, onChange }) {
               role="radio"
               aria-checked={active}
               onClick={() => onChange(mode.id)}
-              className={`font-mono cursor-pointer px-5 py-2 text-[0.7rem] tracking-[0.18em] uppercase transition-colors duration-300 ${
+              className={`font-mono cursor-pointer px-5 py-2 text-[0.8rem] tracking-[0.12em] uppercase transition-colors duration-300 ${
                 active ? 'bg-ember/90 text-bone' : 'text-ash hover:text-bone'
               }`}
             >
@@ -27,7 +27,7 @@ export default function BillingToggle({ value, onChange }) {
           )
         })}
       </div>
-      <p className="font-mono text-[0.68rem] tracking-[0.12em] text-ash/70">
+      <p className="font-mono text-[0.78rem] tracking-[0.12em] text-ash">
         {BILLING[value].note}
       </p>
     </div>
