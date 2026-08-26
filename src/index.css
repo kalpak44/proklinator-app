@@ -1,15 +1,15 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Ink and candle-light. Everything is one of five values. */
-  --color-void: #08070a;
-  --color-ink: #100d13;
-  --color-crypt: #17131c;
-  --color-bone: #ece3d2;
-  --color-ash: #857b6d;
-  --color-ember: #c2412a;
-  --color-ember-soft: #e0674a;
-  --color-brass: #c9a227;
+  /* Ink and candle-light, shifted toward dried blood. */
+  --color-void: #050406;
+  --color-ink: #0d0a0e;
+  --color-crypt: #150f16;
+  --color-bone: #e6dccb;
+  --color-ash: #7d7364;
+  --color-ember: #a81f1f;
+  --color-ember-soft: #d4432f;
+  --color-brass: #b8912c;
 
   --font-display: 'Cinzel', ui-serif, Georgia, serif;
   --font-body: 'Cormorant Garamond', ui-serif, Georgia, serif;
@@ -78,8 +78,35 @@
 /* Candle-glow behind the masthead, vignette at the edges. */
 .altar-glow {
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(194, 65, 42, 0.13), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 50% 8%, rgba(201, 162, 39, 0.07), transparent 70%);
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(168, 31, 31, 0.18), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 8%, rgba(184, 145, 44, 0.06), transparent 70%);
+}
+
+/* The altar sigil. Turns once every two minutes — slow enough that you notice it
+   only on the second look, which is the intended effect. */
+.sigil {
+  color: var(--color-ember);
+  opacity: 0.14;
+  filter: drop-shadow(0 0 22px rgba(168, 31, 31, 0.45));
+  animation:
+    sigil-turn 120s linear infinite,
+    sigil-breathe 9s ease-in-out infinite;
+}
+
+@keyframes sigil-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sigil-breathe {
+  0%,
+  100% {
+    opacity: 0.11;
+  }
+  50% {
+    opacity: 0.2;
+  }
 }
 
 .vignette::before {
@@ -164,6 +191,11 @@
   .grain::after {
     animation: none;
     opacity: 1;
+  }
+
+  .sigil {
+    animation: none;
+    opacity: 0.14;
   }
 
   .rise {

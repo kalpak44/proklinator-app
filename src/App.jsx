@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { TIERS } from './data/tiers.js'
 import Ornament from './components/Ornament.jsx'
+import Sigil from './components/Sigil.jsx'
 import BillingToggle from './components/BillingToggle.jsx'
 import TierCard from './components/TierCard.jsx'
 import RiteDialog from './components/RiteDialog.jsx'
@@ -14,19 +15,22 @@ export default function App() {
       <div className="altar-glow absolute inset-x-0 top-0 h-[70vh]" aria-hidden="true" />
 
       <main className="relative mx-auto max-w-6xl px-6 py-20 sm:py-28">
-        <header className="text-center">
-          <p className="eyebrow rise" style={{ animationDelay: '0ms' }}>
+        <header className="relative text-center">
+          {/* Behind the wordmark, deliberately larger than it. */}
+          <Sigil className="pointer-events-none absolute top-1/2 left-1/2 w-[26rem] max-w-[85vw] -translate-x-1/2 -translate-y-1/2 sm:w-[34rem]" />
+
+          <p className="eyebrow rise relative" style={{ animationDelay: '0ms' }}>
             Est. before records
           </p>
 
           <h1
-            className="font-display rise mt-6 text-6xl leading-none tracking-[0.09em] text-bone sm:text-8xl"
+            className="font-display rise relative mt-6 text-6xl leading-none tracking-[0.09em] text-bone sm:text-8xl"
             style={{ animationDelay: '80ms' }}
           >
             PROKLINATOR
           </h1>
 
-          <div className="rise" style={{ animationDelay: '160ms' }}>
+          <div className="rise relative" style={{ animationDelay: '160ms' }}>
             <Ornament className="mt-8" />
             <p className="mx-auto mt-8 max-w-xl text-xl leading-relaxed text-ash italic">
               A porcha, properly administered, by arrangement. Choose a severity below.

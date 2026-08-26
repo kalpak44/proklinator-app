@@ -1,9 +1,16 @@
-/** A brass diamond flanked by two fading rules. Used as a section divider. */
+/** A small point-down pentagram flanked by two fading rules. Section divider. */
 export default function Ornament({ className = '' }) {
   return (
     <div className={`rule-ornament ${className}`} aria-hidden="true">
-      <svg width="11" height="11" viewBox="0 0 11 11" className="flare">
-        <path d="M5.5 0 L11 5.5 L5.5 11 L0 5.5 Z" fill="currentColor" opacity="0.8" />
+      <svg width="13" height="13" viewBox="0 0 100 100" className="flare">
+        <path
+          d="M50 1 L79.39 91.45 L2.45 35.55 L97.55 35.55 L20.61 91.45 Z"
+          transform="rotate(180 50 50)"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="6"
+          strokeLinejoin="round"
+        />
       </svg>
     </div>
   )
