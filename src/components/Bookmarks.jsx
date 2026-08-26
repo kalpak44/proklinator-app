@@ -3,12 +3,16 @@
  * past sits on the left, the ones still ahead sit on the right, so the tabs
  * always point at the side of the book their pages are on.
  *
- * Both columns render every tab and hide the ones belonging to the other side.
- * That keeps one shared column of slots, so a chapter holds the same height as
- * it moves from the right edge to the left instead of jumping up the stack.
+ * The bookmark of the chapter you are reading is not shown: clicking it would
+ * do nothing, and a dead tab is the one thing in the stack that has to be tried
+ * before it can be understood. On the edges it leaves its slot standing, so a
+ * chapter holds the same height as it moves from the right edge to the left
+ * instead of jumping up the stack. Tabs belonging to the other edge are held
+ * the same way, which is what keeps both columns one shared column of slots.
  *
- * On a narrow screen there are no edges to speak of: every tab is shown, in one
- * scrollable strip above the book.
+ * On a narrow screen there are no edges to speak of: the tabs are one
+ * scrollable strip above the book, positions there mean nothing, and the open
+ * one is dropped from the strip outright rather than leaving a gap in it.
  */
 export default function Bookmarks({ tabs, side, activeId, onSelect }) {
   return (
@@ -17,9 +21,12 @@ export default function Bookmarks({ tabs, side, activeId, onSelect }) {
       className={`tabs tabs--${side}`}
     >
       {tabs.map((tab) => {
+        const open = tab.id === activeId
         const here = side === 'top' || tab.side === side
 
-        if (!here) {
+        if (open && side === 'top') return null
+
+        if (open || !here) {
           return (
             <span key={tab.id} className="tab tab--ghost" aria-hidden="true">
               {tab.label}
@@ -32,7 +39,6 @@ export default function Bookmarks({ tabs, side, activeId, onSelect }) {
             key={tab.id}
             type="button"
             className="tab shrink-0 snap-start"
-            aria-current={tab.id === activeId}
             onClick={() => onSelect(tab.spreadIndex)}
           >
             {tab.label}

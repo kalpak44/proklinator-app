@@ -513,19 +513,15 @@
   color: #f2ddb8;
 }
 
-/* Holds the slot of a tab that currently belongs to the other edge. */
+/* Holds the slot of a tab that belongs to the other edge, or of the chapter
+   that is open and therefore has no bookmark of its own to show. */
 .tab--ghost {
   visibility: hidden;
   pointer-events: none;
 }
 
-.tab[aria-current='true'] {
-  background: linear-gradient(to right, #8f4a31, #4a251b);
-  color: #fdf3df;
-}
-
-/* Tabs stand in one line along the fore edge, so the open chapter does not sit
-   proud of the rest; hover nudges a tab out. Each side is a mirror image. */
+/* Tabs stand in one line along the fore edge; hover nudges a tab out. Each
+   side is a mirror image. */
 .tabs--right .tab {
   border-left: none;
   border-radius: 0 5px 5px 0;
@@ -537,10 +533,6 @@
 
 .tabs--right .tab:hover {
   transform: translateX(11px);
-}
-
-.tabs--right .tab[aria-current='true'] {
-  transform: translateX(6px);
 }
 
 .tabs--left .tab {
@@ -557,11 +549,6 @@
   transform: translateX(-11px);
 }
 
-.tabs--left .tab[aria-current='true'] {
-  background: linear-gradient(to left, #8f4a31, #4a251b);
-  transform: translateX(-6px);
-}
-
 /* Narrow screens: one scrollable strip above the book. */
 .tabs--top .tab {
   writing-mode: horizontal-tb;
@@ -573,10 +560,6 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 220, 170, 0.16),
     2px -2px 8px rgba(0, 0, 0, 0.45);
-}
-
-.tabs--top .tab[aria-current='true'] {
-  transform: translateY(0);
 }
 
 /* ---- Page typography --------------------------------------------------- */

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { AGENT, CHAPTERS } from './data/book.js'
+import { AGENT, BOOK, CHAPTERS } from './data/book.js'
 import { useOrder } from './lib/useOrder.js'
 import { usePageTurn } from './lib/usePageTurn.js'
 import { useMedia } from './lib/useMedia.js'
@@ -19,6 +19,8 @@ import MeasureLayer from './components/MeasureLayer.jsx'
 import PageContent from './components/PageContent.jsx'
 import OrderSummary from './components/OrderSummary.jsx'
 import LaunchForm from './components/LaunchForm.jsx'
+import TitlePage from './components/TitlePage.jsx'
+import Contents from './components/Contents.jsx'
 
 const BLOCKS = buildBlocks(CHAPTERS)
 const ORDER_TAB = { id: 'order', label: 'Заказ' }
@@ -66,45 +68,52 @@ export default function App() {
 
   const orderIndex = spreads.length - 1
 
-  const pages = useMemo(
-    () =>
-      spreads.map((sheet, i) =>
-        sheet.kind === 'order'
-          ? {
-              id: 'order',
-              verso: (
-                <OrderSummary
-                  totals={totals}
-                  onRemove={remove}
-                  onBrowse={() => goTo(0)}
-                />
-              ),
-              recto: <LaunchForm totals={totals} orderKeys={keys} onLaunched={clear} />,
-            }
-          : {
-              id: `spread-${i}`,
-              verso: (
-                <PageContent
-                  page={sheet.verso}
-                  isSelected={isSelected}
-                  onToggle={toggle}
-                />
-              ),
-              recto: (
-                <PageContent
-                  page={sheet.recto}
-                  isSelected={isSelected}
-                  onToggle={toggle}
-                />
-              ),
-            }
-      ),
-    [spreads, totals, remove, goTo, keys, clear, isSelected, toggle]
-  )
-
   // Chapters behind you keep their bookmark on the left, the ones ahead on the right.
   const openings = useMemo(() => chapterSpreadIndex(spreads, CHAPTERS.length), [spreads])
-  const onOrder = spreads[current]?.kind === 'order'
+
+  const pages = useMemo(
+    () =>
+      spreads.map((sheet, i) => {
+        if (sheet.kind === 'home') {
+          return {
+            id: 'home',
+            verso: <TitlePage />,
+            recto: <Contents openings={openings} orderIndex={orderIndex} onOpen={goTo} />,
+          }
+        }
+
+        if (sheet.kind === 'order') {
+          return {
+            id: 'order',
+            verso: (
+              <OrderSummary
+                totals={totals}
+                onRemove={remove}
+                onBrowse={() => goTo(openings[0])}
+              />
+            ),
+            recto: <LaunchForm totals={totals} orderKeys={keys} onLaunched={clear} />,
+          }
+        }
+
+        return {
+          id: `spread-${i}`,
+          verso: (
+            <PageContent page={sheet.verso} isSelected={isSelected} onToggle={toggle} />
+          ),
+          recto: (
+            <PageContent page={sheet.recto} isSelected={isSelected} onToggle={toggle} />
+          ),
+        }
+      }),
+    [spreads, openings, orderIndex, totals, remove, goTo, keys, clear, isSelected, toggle]
+  )
+
+  const kind = spreads[current]?.kind
+  const onHome = kind === 'home'
+  const onOrder = kind === 'order'
+
+  // The front matter belongs to no chapter, so on it every bookmark is ahead.
   const openChapter = onOrder ? CHAPTERS.length : (spreads[current]?.chapterIndex ?? 0)
 
   const tabs = useMemo(
@@ -129,18 +138,25 @@ export default function App() {
   return (
     <div className="desk flex min-h-dvh flex-col" onPointerDown={primePageTurn}>
       <header className="flex shrink-0 items-center justify-between gap-3 px-4 py-3 sm:px-8 sm:py-4">
-        <div className="min-w-0">
-          <p className="font-display text-paper text-[1.1rem] leading-none tracking-[0.14em] sm:text-[1.35rem]">
-            ПРОКЛИНАТОР
+        {/* The title of the book closes it and puts you back on the title page. */}
+        <button
+          type="button"
+          onClick={() => goTo(0)}
+          aria-current={onHome}
+          title="К титульному листу"
+          className="group min-w-0 cursor-pointer text-left"
+        >
+          <p className="font-display text-paper group-hover:text-marker text-[1.1rem] leading-none tracking-[0.14em] uppercase transition-colors sm:text-[1.35rem]">
+            {BOOK.title}
           </p>
           <p className="font-mono text-paper/45 mt-1.5 flex items-center gap-2 text-[0.6rem] tracking-[0.1em] uppercase sm:text-[0.66rem]">
             <span className="agent-dot bg-marker size-1.5 shrink-0 rounded-full" />
             <span className="truncate">
-              Агент {AGENT.version} · {AGENT.state}
+              {AGENT.name} {AGENT.version} · {AGENT.state}
               <span className="max-sm:hidden"> · {AGENT.corpus}</span>
             </span>
           </p>
-        </div>
+        </button>
 
         <div className="flex shrink-0 items-center gap-2">
           <button
@@ -229,7 +245,11 @@ export default function App() {
         </button>
 
         <span className="font-mono text-paper/35 text-[0.64rem] tracking-[0.16em] whitespace-nowrap uppercase sm:text-[0.68rem]">
-          {onOrder ? 'Лист заказа' : `Глава ${CHAPTERS[openChapter]?.numeral ?? ''}`}
+          {onHome
+            ? 'Титульный лист'
+            : onOrder
+              ? 'Лист заказа'
+              : `Глава ${CHAPTERS[openChapter]?.numeral ?? ''}`}
         </span>
 
         <button

@@ -53,7 +53,7 @@ export default function ChapterFront({ chapter }) {
       <p className="font-mono text-ink-soft relative mt-3 flex items-start gap-2 text-[0.7rem] leading-snug">
         <span className="agent-dot bg-marker mt-[0.45em] size-1.5 shrink-0 rounded-full" />
         <span>
-          Агент {AGENT.version}. {chapter.agentNote}
+          {AGENT.name} {AGENT.version}. {chapter.agentNote}
         </span>
       </p>
     </section>

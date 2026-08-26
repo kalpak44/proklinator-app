@@ -63,9 +63,13 @@ export function paginate(blocks, heights, available, gap) {
   return pages
 }
 
-/** Pairs of pages. The order sheet is always the closing spread. */
+/**
+ * Pairs of pages. The front matter - title page and contents - is always the
+ * opening spread, and the order sheet always the closing one. Neither is
+ * paginated: both hold fixed content that fits one page by construction.
+ */
 export function toSpreads(pages) {
-  const spreads = []
+  const spreads = [{ kind: 'home', chapterIndex: -1 }]
   for (let i = 0; i < pages.length; i += 2) {
     spreads.push({
       kind: 'chapter',
@@ -90,10 +94,12 @@ export function chapterSpreadIndex(spreads, chapterCount) {
 
 /**
  * Fallback used for the first frame, before anything has been measured: one
- * spread per chapter, frontispiece on the left and the curses on the right.
+ * spread per chapter, frontispiece on the left and the curses on the right,
+ * between the same front matter and order sheet as the paginated version.
  */
 export function naiveSpreads(chapters) {
-  const spreads = chapters.map((chapter, chapterIndex) => {
+  const spreads = [{ kind: 'home', chapterIndex: -1 }]
+  const chapterSpreads = chapters.map((chapter, chapterIndex) => {
     const [front, ...spells] = buildBlocks([chapter])
     return {
       kind: 'chapter',
@@ -102,6 +108,6 @@ export function naiveSpreads(chapters) {
       recto: { chapterIndex, blocks: spells.map((b) => ({ ...b, chapterIndex })) },
     }
   })
-  spreads.push({ kind: 'order', chapterIndex: -1 })
+  spreads.push(...chapterSpreads, { kind: 'order', chapterIndex: -1 })
   return spreads
 }

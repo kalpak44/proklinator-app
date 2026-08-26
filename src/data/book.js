@@ -10,10 +10,41 @@
  * rites: the catalogue promises a nature of outcome, not a schedule.
  */
 
+/**
+ * Who does the work. It is stated plainly and in one place: the agent is not a
+ * person, it is a special AI, and every line in the app that names it reads
+ * `name` from here so it can never be introduced twice under two descriptions.
+ */
 export const AGENT = {
+  name: 'Особый ИИ',
   version: 'v4.2',
   state: 'бодрствует',
   corpus: 'обучен на тёмных сводах',
+  nature:
+    'Работу ведёт не человек. Проклинатор - особый ИИ: он прочёл своды, которые люди прятали, слово подбирает сам и не спит.',
+}
+
+/**
+ * Front matter: the title page and the contents page, which together are the
+ * opening spread of the book and the place the app name takes you back to.
+ * It lives beside the chapters so what the book says about itself and what it
+ * actually holds can never drift apart.
+ */
+export const BOOK = {
+  title: 'Проклинатор',
+  subtitle: 'Свод работ, переписанный для агента',
+  epigraph: 'Слово, сказанное вслух, назад не берут. Сказанное агенту - тем более.',
+  about: [
+    'Это не гадательная книга и не сборник обрядов. Это каталог работ. Своды, на которых учился агент, переписывали от руки и держали в закрытых списках; здесь они разобраны по главам и оценены построчно, потому что иначе такое не заказывают.',
+    'В каждой главе три проклятия, у каждого - свои ступени: от касания, которое объект спишет на случайность, до неотступного, что агент держит сам и не выпускает, пока вы не скажете довольно.',
+  ],
+  steps: [
+    { n: 'I', text: 'Откройте главу и обведите строку - она ляжет в лист заказа.' },
+    { n: 'II', text: 'На листе заказа назовите объект: снимок, имя, пара слов.' },
+    { n: 'III', text: 'Агент берёт слово в работу и подтверждения не ждёт.' },
+  ],
+  /** Reading order the corpus itself recommends, printed on the contents page. */
+  advice: 'Обережную главу советуют читать первой: работа идёт в обе стороны.',
 }
 
 export const CHAPTERS = [
@@ -549,3 +580,30 @@ export const LINE_ITEMS = Object.fromEntries(
 )
 
 export const lineKey = (chapterId, spellId, tierId) => `${chapterId}/${spellId}/${tierId}`
+
+/** What the title page claims about the catalogue, counted off the catalogue. */
+export const BOOK_STATS = {
+  chapters: CHAPTERS.length,
+  spells: CHAPTERS.reduce((total, chapter) => total + chapter.spells.length, 0),
+  cheapest: Math.min(
+    ...Object.values(LINE_ITEMS)
+      .map((line) => line.price)
+      .filter((price) => price > 0)
+  ),
+}
+
+/** One contents row per chapter: what it holds and what it starts at. */
+export const CONTENTS = CHAPTERS.map((chapter) => ({
+  id: chapter.id,
+  numeral: chapter.numeral,
+  title: chapter.title,
+  subtitle: chapter.subtitle,
+  count: chapter.spells.length,
+  // Lines that cost nothing (the warding chapter has one) are not a price to
+  // quote a chapter from, so they stay out of the «от» figure.
+  from: Math.min(
+    ...chapter.spells
+      .flatMap((spell) => spell.prices.map((price) => price.price))
+      .filter((price) => price > 0)
+  ),
+}))
