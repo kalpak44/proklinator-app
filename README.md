@@ -1,20 +1,21 @@
 # Proklinator
 
-**Книга заклинаний, которую листаете вы, а обряды проводит агент.**
+**A book of curses that you turn, and an agent that does the work.**
 
-Каталог проклятий подан как настоящая книга: разворот на два листа, закладки по обрезу,
-перелистывание с настоящим поворотом страницы. Выбор тарифа отмечается обводкой маркером
-и уходит в лист заказа.
+The catalogue is presented as a real book: a two-page spread, bookmarks along the fore
+edge, and page turns that actually rotate a leaf. Choosing a tier circles it in marker and
+drops it onto the order sheet. The interface copy is Russian; everything else here, code
+and comments included, is English.
 
 ## Features
 
-- Шесть глав, у каждой свой фронтиспис и прайс-лист
-- Автоматическая вёрстка страниц: что не поместилось, переносится на следующую
-- Перелистывание с трёхмерным поворотом листа и звуком бумаги
-- Закладки по обрезу: пройденные главы слева, оставшиеся справа
-- Загнутые уголки как подсказка, что дальше есть страница
-- Выбор тарифа обводкой маркером, заказ переживает перезагрузку
-- Лист заказа с итогом и запуском агента, готовый к Stripe
+- Six chapters, each with its own frontispiece and price list
+- Automatic composition: whatever does not fit a page is carried to the next one
+- Page turns with a three-dimensional leaf rotation and the sound of paper
+- Bookmarks on the fore edge: chapters behind you on the left, the ones ahead on the right
+- Creased corners hinting that there is another page
+- Tier selection circled in marker; the order survives a reload
+- An order sheet with the total and the agent launch, ready for Stripe
 
 ## Stack
 
