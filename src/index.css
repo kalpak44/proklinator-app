@@ -18,6 +18,7 @@
   --color-rubric: #8f1f16;
   --color-gold: #9c7a26;
   --color-marker: #c0392b;
+  --color-ok: #2e9e4f;
 
   /* Where the book stops being a spread and becomes a single scrolling page.
      A token rather than a number, because the layout turns on it in three

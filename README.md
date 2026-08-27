@@ -109,6 +109,16 @@ npm install
 npm run dev
 ```
 
+The dev server proxies `/api` to the backend, so the app and the API share an
+origin exactly like production. The target defaults to `http://localhost:3000`;
+point it at a backend elsewhere with a local override:
+
+```bash
+echo 'API_PROXY_TARGET=http://localhost:4000' > .env.local
+```
+
+`.env.local` is git-ignored; `.env.example` lists the variable.
+
 ## Before you commit
 
 Run these locally:
