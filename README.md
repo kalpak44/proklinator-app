@@ -100,6 +100,27 @@ Pull requests run stages 1–3 only; nothing is published or deployed until merg
 Three agents run on this repository. The only way to give them work is to open an issue
 and label it.
 
+```mermaid
+flowchart TD
+    ISSUE["Issue you wrote"] -->|you apply ai:ready| IMPL["AI Issue Agent<br/>implement"]
+
+    IMPL -->|needs a decision| BLOCK["ai:blocked<br/>over to you"]
+    IMPL -->|branch ai/issue-N| PR["Pull request<br/>that closes the issue"]
+
+    PR --> REV["AI PR Review<br/>rebuild, then drive it in a browser"]
+    REV --> GATE{"Merge gate<br/>computed in bash"}
+
+    GATE -->|approved and green| MERGE["Squash merge"]
+    GATE -->|changes requested| FIX["AI Issue Agent<br/>revise"]
+
+    FIX -->|pushes fixes, resolves threads| REV
+    FIX -->|3 rounds spent| BLOCK
+
+    MERGE --> DONE["Issue closed<br/>image published<br/>cluster deployed"]
+```
+
+The only two boxes you touch are the first and, if it gets there, `ai:blocked`.
+
 ### Creating a task
 
 1. **Open an issue** describing what you want.
@@ -125,6 +146,35 @@ You do not need to do anything in between. Watch the issue labels to see where i
 | `ai:in-progress` | Claimed, branch exists. This is also the lock — two runs cannot take the same issue. |
 | `ai:review`      | Implemented; a pull request is open and under review.                                |
 | `ai:blocked`     | Stopped, and it needs you. Read the comment on the issue.                            |
+
+### What the reviewer checks
+
+The reviewer does not read the diff and guess. It builds the change and runs it.
+
+It checks out **the merge result** — what would actually land on `main`, not the branch in
+isolation — installs, builds, and then drives the built site with Playwright on three
+viewports: desktop at 1440×900, an iPad Air, and an iPhone 13. On each one it records
+uncaught exceptions, console errors, failed and 4xx/5xx requests, whether anything
+actually rendered, broken images, horizontal overflow, and a full-page screenshot, then
+clicks the first control it finds to catch the class of bug that renders fine and explodes
+on touch.
+
+At the same time it builds `main` and serves it on a second port. That baseline is the
+point: a warning present in both builds is pre-existing and is reported as such, rather
+than being blamed on your pull request. Only what the change actually introduced counts
+against it.
+
+Screenshots and logs are uploaded to the run as a `pr-<n>-qa` artifact, so you can look at
+what it saw.
+
+**The merge decision is computed in bash, not by the model.** Mergeability, the install,
+the build, the browser verdict, and whether the head commit moved mid-review are all
+evaluated before the model is asked anything. The model can refuse to merge — and often
+should — but it cannot merge something those checks rejected. Lint and formatting stay
+advisory, exactly as they are in CI: they appear as recommendations and never block.
+
+A merge is a squash, which puts one commit on `main` and starts the publish and deploy
+described above.
 
 ### Writing an issue an agent can actually build
 
