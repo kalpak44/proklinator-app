@@ -1,6 +1,6 @@
 import Ornament from './Ornament.jsx'
-import { BOOK, CONTENTS } from '../data/book.js'
 import { formatMoney } from '../lib/money.js'
+import { useLanguage } from '../lib/i18n.js'
 
 /** Spread i occupies pages 2i+1 and 2i+2 - the same rule the folios use. */
 const folioOf = (spreadIndex) => 2 * spreadIndex + 1
@@ -13,12 +13,15 @@ const folioOf = (spreadIndex) => 2 * spreadIndex + 1
  * @param {number[]} openings spread index each chapter opens on
  */
 export default function Contents({ openings, orderIndex, onOpen }) {
+  const { t, catalogue } = useLanguage()
+  const { BOOK, CONTENTS } = catalogue
+
   return (
     <div className="page-fixed relative">
-      <p className="rubric relative">Оглавление</p>
+      <p className="rubric relative">{t('contents.rubric')}</p>
 
       <h2 className="font-display text-ink relative mt-2 text-[1.9rem] leading-[1.05] sm:text-[2.3rem]">
-        Что в книге
+        {t('contents.heading')}
       </h2>
 
       <Ornament className="relative mt-4" />
@@ -43,7 +46,10 @@ export default function Contents({ openings, orderIndex, onOpen }) {
                   · {chapter.subtitle}
                 </span>
                 <span className="text-ink-faint font-mono block text-[0.68rem] tracking-[0.06em]">
-                  {chapter.count} проклятия · от {formatMoney(chapter.from)}
+                  {t('contents.count', {
+                    count: chapter.count,
+                    amount: formatMoney(chapter.from),
+                  })}
                 </span>
               </span>
               <span className="leader" aria-hidden="true" />
@@ -56,7 +62,7 @@ export default function Contents({ openings, orderIndex, onOpen }) {
       </ul>
 
       <div className="border-ink-faint/30 relative mt-auto border-t pt-4">
-        <p className="rubric text-[0.6rem]">Как это работает</p>
+        <p className="rubric text-[0.6rem]">{t('contents.how')}</p>
 
         <ol className="mt-2 space-y-1.5">
           {BOOK.steps.map((step) => (
@@ -78,7 +84,7 @@ export default function Contents({ openings, orderIndex, onOpen }) {
           onClick={() => onOpen(orderIndex)}
           className="font-mono border-ink-faint/50 text-ink hover:border-marker hover:text-marker mt-3 cursor-pointer border px-4 py-2 text-[0.7rem] tracking-[0.12em] uppercase transition-colors"
         >
-          Лист заказа
+          {t('contents.orderSheet')}
         </button>
       </div>
     </div>

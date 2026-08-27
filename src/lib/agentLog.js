@@ -1,17 +1,18 @@
 import { AGENT } from '../data/book.js'
+import { translate } from './i18n.js'
 
 export const LINE_MS = 420
 
 /** The agent's log lines. Kept out of the component so fast refresh works. */
-export function consoleLines({ fileName, count }) {
+export function consoleLines({ fileName, count, lang }) {
   return [
-    `агент ${AGENT.version} пробуждается`,
-    `снимок принят: ${fileName}`,
-    'черты считаны ... объект узнан',
-    'свод открыт ... слово выбрано',
-    `взято в работу: ${count}`,
-    'имя вписано, круг замкнут',
-    'начато',
+    translate('log.awake', { version: AGENT.version }, lang),
+    translate('log.shot', { fileName }, lang),
+    translate('log.read', null, lang),
+    translate('log.codex', null, lang),
+    translate('log.taken', { count }, lang),
+    translate('log.name', null, lang),
+    translate('log.begun', null, lang),
   ]
 }
 

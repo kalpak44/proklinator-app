@@ -1,10 +1,12 @@
 import { useId } from 'react'
+import { useLanguage } from '../lib/i18n.js'
 
 /**
  * The target photo. The file becomes a local object URL for the preview and goes
  * nowhere before payment: uploading it is the backend's job after confirmation.
  */
 export default function TargetUpload({ photo, onPick, onClear }) {
+  const { t } = useLanguage()
   const id = useId()
 
   const handle = (e) => {
@@ -23,7 +25,7 @@ export default function TargetUpload({ photo, onPick, onClear }) {
         {photo ? (
           <img
             src={photo.url}
-            alt="Объект"
+            alt={t('upload.alt')}
             className="border-ink-faint/40 size-16 shrink-0 border object-cover grayscale-[0.6] sepia-[0.3]"
           />
         ) : (
@@ -45,12 +47,10 @@ export default function TargetUpload({ photo, onPick, onClear }) {
 
         <span className="min-w-0">
           <span className="text-ink block text-[0.95rem]">
-            {photo ? photo.name : 'Фотография объекта'}
+            {photo ? photo.name : t('upload.empty')}
           </span>
           <span className="text-ink-soft block text-[0.8rem] leading-snug">
-            {photo
-              ? 'Принято. Нажмите, если хотите заменить.'
-              : 'Агенту нужно лицо. Больше он ничего не спросит.'}
+            {photo ? t('upload.hint.filled') : t('upload.hint.empty')}
           </span>
         </span>
       </label>
@@ -61,7 +61,7 @@ export default function TargetUpload({ photo, onPick, onClear }) {
           onClick={onClear}
           className="font-mono text-ink-soft hover:text-marker mt-1.5 cursor-pointer text-[0.72rem] tracking-[0.1em] uppercase transition-colors"
         >
-          Убрать снимок
+          {t('upload.remove')}
         </button>
       )}
     </div>

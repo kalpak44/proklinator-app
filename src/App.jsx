@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { AGENT, BOOK, CHAPTERS } from './data/book.js'
 import { useOrder } from './lib/useOrder.js'
 import { usePageTurn } from './lib/usePageTurn.js'
 import { useMedia } from './lib/useMedia.js'
 import { useBookGeometry } from './lib/useBookGeometry.js'
 import { formatMoney } from './lib/money.js'
 import { isSoundEnabled, setSoundEnabled, primePageTurn } from './lib/pageSound.js'
+import { useLanguage } from './lib/i18n.js'
 import {
   buildBlocks,
   chapterSpreadIndex,
@@ -22,15 +22,14 @@ import LaunchForm from './components/LaunchForm.jsx'
 import TitlePage from './components/TitlePage.jsx'
 import Contents from './components/Contents.jsx'
 
-const BLOCKS = buildBlocks(CHAPTERS)
-const ORDER_TAB = { id: 'order', label: 'Заказ' }
-
 /** Space between two blocks: margin + rule + padding of `.page-blocks > * + *`. */
 function blockGap() {
   return 1.75 * parseFloat(getComputedStyle(document.documentElement).fontSize) + 1
 }
 
 export default function App() {
+  const { lang, setLang, t, catalogue } = useLanguage()
+  const { AGENT, BOOK, CHAPTERS } = catalogue
   const [index, setIndex] = useState(0)
   const [sound, setSound] = useState(isSoundEnabled)
   const [measured, setMeasured] = useState(null)
@@ -38,13 +37,19 @@ export default function App() {
 
   const spread = useMedia('(min-width: 900px)')
   const geom = useBookGeometry(bookRef, spread)
-  const { keys, toggle, remove, clear, totals, isSelected } = useOrder()
+  const { keys, toggle, remove, clear, totals, isSelected } = useOrder(
+    catalogue.LINE_ITEMS
+  )
+
+  // The catalogue is language-dependent, so the blocks it is composed from are
+  // too; MeasureLayer re-measures them whenever the language changes.
+  const blocks = useMemo(() => buildBlocks(CHAPTERS), [CHAPTERS])
 
   // A phone shows one long page and scrolls it; only the spread is paginated.
   const spreads = useMemo(() => {
     if (!spread || !measured) return naiveSpreads(CHAPTERS)
-    return toSpreads(paginate(BLOCKS, measured.heights, measured.available, blockGap()))
-  }, [spread, measured])
+    return toSpreads(paginate(blocks, measured.heights, measured.available, blockGap()))
+  }, [spread, measured, blocks, CHAPTERS])
 
   // Re-pagination can shorten the book under an index that is already past the end.
   const current = Math.min(index, spreads.length - 1)
@@ -69,7 +74,10 @@ export default function App() {
   const orderIndex = spreads.length - 1
 
   // Chapters behind you keep their bookmark on the left, the ones ahead on the right.
-  const openings = useMemo(() => chapterSpreadIndex(spreads, CHAPTERS.length), [spreads])
+  const openings = useMemo(
+    () => chapterSpreadIndex(spreads, CHAPTERS.length),
+    [spreads, CHAPTERS]
+  )
 
   const pages = useMemo(
     () =>
@@ -125,12 +133,17 @@ export default function App() {
           spreadIndex: openings[i],
           chapterIndex: i,
         })),
-        { ...ORDER_TAB, spreadIndex: orderIndex, chapterIndex: CHAPTERS.length },
+        {
+          id: 'order',
+          label: t('order.tab'),
+          spreadIndex: orderIndex,
+          chapterIndex: CHAPTERS.length,
+        },
       ].map((tab) => ({
         ...tab,
         side: tab.chapterIndex < openChapter ? 'left' : 'right',
       })),
-    [openings, orderIndex, openChapter]
+    [openings, orderIndex, openChapter, CHAPTERS, t]
   )
 
   const activeId = onOrder ? 'order' : CHAPTERS[openChapter]?.id
@@ -143,7 +156,7 @@ export default function App() {
           type="button"
           onClick={() => goTo(0)}
           aria-current={onHome}
-          title="К титульному листу"
+          title={t('header.backToTitle')}
           className="group min-w-0 cursor-pointer text-left"
         >
           <p className="font-display text-paper group-hover:text-marker text-[1.1rem] leading-none tracking-[0.14em] uppercase transition-colors sm:text-[1.35rem]">
@@ -161,10 +174,22 @@ export default function App() {
         <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
+            onClick={() => setLang(lang === 'ru' ? 'bg' : 'ru')}
+            aria-label={t(lang === 'ru' ? 'lang.current.ru' : 'lang.current.bg')}
+            title={t(lang === 'ru' ? 'lang.switch.bg' : 'lang.switch.ru')}
+            className="font-mono border-paper/20 text-paper/80 hover:border-marker hover:text-paper cursor-pointer border px-3 py-2 text-[0.66rem] tracking-[0.12em] whitespace-nowrap uppercase transition-colors sm:text-[0.7rem]"
+          >
+            <span className={lang === 'bg' ? 'text-paper' : 'text-paper/40'}>BG</span>
+            <span className="text-paper/40"> · </span>
+            <span className={lang === 'ru' ? 'text-paper' : 'text-paper/40'}>RU</span>
+          </button>
+
+          <button
+            type="button"
             onClick={toggleSound}
             aria-pressed={sound}
-            aria-label={sound ? 'Выключить звук' : 'Включить звук'}
-            title={sound ? 'Звук страниц включён' : 'Звук страниц выключен'}
+            aria-label={sound ? t('sound.off') : t('sound.on')}
+            title={sound ? t('sound.title.on') : t('sound.title.off')}
             className="border-paper/20 text-paper/70 hover:border-marker hover:text-paper cursor-pointer border p-2 transition-colors"
           >
             <svg
@@ -196,11 +221,11 @@ export default function App() {
             className="font-mono border-paper/20 text-paper/80 hover:border-marker hover:text-paper cursor-pointer border px-3 py-2 text-[0.66rem] tracking-[0.12em] whitespace-nowrap uppercase transition-colors sm:text-[0.7rem]"
           >
             <span className="max-sm:hidden">
-              Заказ
+              {t('order.tab')}
               <span className="text-paper/40"> · </span>
             </span>
             {totals.count === 0
-              ? 'пусто'
+              ? t('order.empty')
               : `${totals.count} · ${formatMoney(totals.dueNow)}`}
           </button>
         </div>
@@ -240,32 +265,32 @@ export default function App() {
           type="button"
           onClick={() => goTo(current - 1)}
           disabled={current === 0}
-          aria-label="Предыдущий разворот"
+          aria-label={t('nav.prev')}
           className="font-mono text-paper/60 hover:text-paper cursor-pointer text-[0.75rem] tracking-[0.1em] uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-25 sm:text-[0.8rem]"
         >
-          ‹ назад
+          {t('nav.prevLabel')}
         </button>
 
         <span className="font-mono text-paper/35 text-[0.64rem] tracking-[0.16em] whitespace-nowrap uppercase sm:text-[0.68rem]">
           {onHome
-            ? 'Титульный лист'
+            ? t('footer.home')
             : onOrder
-              ? 'Лист заказа'
-              : `Глава ${CHAPTERS[openChapter]?.numeral ?? ''}`}
+              ? t('footer.order')
+              : t('footer.chapter', { numeral: CHAPTERS[openChapter]?.numeral ?? '' })}
         </span>
 
         <button
           type="button"
           onClick={() => goTo(current + 1)}
           disabled={current === orderIndex}
-          aria-label="Следующий разворот"
+          aria-label={t('nav.next')}
           className="font-mono text-paper/60 hover:text-paper cursor-pointer text-[0.75rem] tracking-[0.1em] uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-25 sm:text-[0.8rem]"
         >
-          вперёд ›
+          {t('nav.nextLabel')}
         </button>
       </footer>
 
-      {spread && <MeasureLayer blocks={BLOCKS} geom={geom} onMeasured={onMeasured} />}
+      {spread && <MeasureLayer blocks={blocks} geom={geom} onMeasured={onMeasured} />}
     </div>
   )
 }

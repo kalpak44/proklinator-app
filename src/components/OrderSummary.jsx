@@ -1,9 +1,11 @@
 import { formatMoney } from '../lib/money.js'
 import Ornament from './Ornament.jsx'
 import Sigil from './Sigil.jsx'
+import { useLanguage } from '../lib/i18n.js'
 
 /** Verso of the closing spread: exactly what is being handed to the agent. */
 export default function OrderSummary({ totals, onRemove, onBrowse }) {
+  const { t } = useLanguage()
   const byChapter = totals.lines.reduce((acc, line) => {
     ;(acc[line.chapterTitle] ??= []).push(line)
     return acc
@@ -13,10 +15,10 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
     <div className="page-fixed relative">
       <Sigil className="pointer-events-none absolute -top-6 left-1/2 w-[22rem] max-w-[95%] -translate-x-1/2" />
 
-      <p className="rubric relative">Лист заказа</p>
+      <p className="rubric relative">{t('order.summaryRubric')}</p>
 
       <h2 className="font-display text-ink relative mt-2 text-[2rem] leading-[1.05] sm:text-[2.6rem]">
-        Ваш выбор
+        {t('order.yourChoice')}
       </h2>
 
       <Ornament className="relative mt-5" />
@@ -24,15 +26,14 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
       {totals.count === 0 ? (
         <div className="relative mt-8">
           <p className="text-ink text-[1rem] leading-[1.62] italic">
-            Пока пусто. Откройте любую главу и обведите нужное: оно ляжет сюда, и агент
-            узнает об этом раньше вас.
+            {t('order.emptySheet')}
           </p>
           <button
             type="button"
             onClick={onBrowse}
             className="font-mono border-ink-faint/50 text-ink hover:border-marker hover:text-marker mt-5 cursor-pointer border px-4 py-2 text-[0.72rem] tracking-[0.12em] uppercase transition-colors"
           >
-            К первой главе
+            {t('order.toFirstChapter')}
           </button>
         </div>
       ) : (
@@ -46,7 +47,10 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
                     <button
                       type="button"
                       onClick={() => onRemove(line.key)}
-                      aria-label={`Убрать: ${line.spellName}, ${line.tierLabel}`}
+                      aria-label={t('order.removeLine', {
+                        spell: line.spellName,
+                        tier: line.tierLabel,
+                      })}
                       className="font-mono text-ink-faint hover:text-marker shrink-0 cursor-pointer text-[0.9rem] transition-colors"
                     >
                       ×
@@ -62,7 +66,9 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
                     <span className="font-mono text-ink shrink-0 text-[0.88rem]">
                       {formatMoney(line.price)}
                       {line.recurring && (
-                        <span className="text-ink-soft text-[0.75rem]"> / мес</span>
+                        <span className="text-ink-soft text-[0.75rem]">
+                          {t('order.perMonth')}
+                        </span>
                       )}
                     </span>
                   </li>
@@ -75,7 +81,7 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
 
       <div className="border-ink-faint/30 relative mt-auto border-t pt-4">
         <div className="flex items-baseline justify-between">
-          <span className="rubric text-[0.62rem]">Разовый платёж</span>
+          <span className="rubric text-[0.62rem]">{t('order.oneTime')}</span>
           <span className="font-display text-ink text-[1.9rem] leading-none">
             {formatMoney(totals.dueNow)}
           </span>
@@ -83,7 +89,7 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
 
         {totals.monthly > 0 && (
           <div className="mt-2 flex items-baseline justify-between">
-            <span className="rubric text-[0.62rem]">Далее ежемесячно</span>
+            <span className="rubric text-[0.62rem]">{t('order.monthly')}</span>
             <span className="font-display text-ink text-[1.25rem] leading-none">
               {formatMoney(totals.monthly)}
             </span>
@@ -91,8 +97,7 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
         )}
 
         <p className="font-mono text-ink-soft mt-3 text-[0.7rem] leading-snug">
-          Списание после подтверждения. Неотступное снимается в один клик, разовое назад
-          не берут.
+          {t('order.footnote')}
         </p>
       </div>
     </div>

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { LINE_MS } from '../lib/agentLog.js'
+import { useLanguage } from '../lib/i18n.js'
 
 /** The agent's run log: lines appear one at a time, terminal style. */
 export default function AgentConsole({ lines }) {
+  const { t } = useLanguage()
   const [shown, setShown] = useState(1)
 
   useEffect(() => {
@@ -19,7 +21,7 @@ export default function AgentConsole({ lines }) {
     >
       <p className="rubric flex items-center gap-2">
         <span className="agent-dot bg-marker size-1.5 rounded-full" />
-        Агент работает
+        {t('console.title')}
       </p>
 
       <ul className="font-mono text-ink mt-3 space-y-1.5 text-[0.78rem] leading-snug">
