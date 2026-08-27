@@ -26,10 +26,10 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
-  // The backend runs on node, not in a browser, and holds no components — the
-  // block above would otherwise flag `process` as undefined.
+  // The backend and the Vite config run on node, not in a browser, and hold no
+  // components — the block above would otherwise flag `process` as undefined.
   {
-    files: ['backend/**/*.js'],
+    files: ['backend/**/*.js', 'vite.config.js'],
     languageOptions: {
       globals: globals.node,
     },

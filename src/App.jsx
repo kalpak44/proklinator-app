@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { useOrder } from './lib/useOrder.js'
 import { usePageTurn } from './lib/usePageTurn.js'
 import { useMedia } from './lib/useMedia.js'
+import { useApiHealth } from './lib/useApiHealth.js'
 import { useBookGeometry } from './lib/useBookGeometry.js'
 import { formatMoney } from './lib/money.js'
 import { isSoundEnabled, setSoundEnabled, primePageTurn } from './lib/pageSound.js'
@@ -34,6 +35,7 @@ export default function App() {
   const [sound, setSound] = useState(isSoundEnabled)
   const [measured, setMeasured] = useState(null)
   const bookRef = useRef(null)
+  const apiOk = useApiHealth()
 
   const spread = useMedia('(min-width: 900px)')
   const geom = useBookGeometry(bookRef, spread)
@@ -163,7 +165,11 @@ export default function App() {
             {BOOK.title}
           </p>
           <p className="font-mono text-paper/45 mt-1.5 flex items-center gap-2 text-[0.6rem] tracking-[0.1em] uppercase sm:text-[0.66rem]">
-            <span className="agent-dot bg-marker size-1.5 shrink-0 rounded-full" />
+            <span
+              className={`agent-dot size-1.5 shrink-0 rounded-full ${
+                apiOk ? 'bg-ok' : 'bg-marker'
+              }`}
+            />
             <span className="truncate">
               {AGENT.name} {AGENT.version} · {AGENT.state}
               <span className="max-sm:hidden"> · {AGENT.corpus}</span>
