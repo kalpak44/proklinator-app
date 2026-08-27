@@ -19,6 +19,13 @@
   --color-gold: #9c7a26;
   --color-marker: #c0392b;
 
+  /* Where the book stops being a spread and becomes a single scrolling page.
+     A token rather than a number, because the layout turns on it in three
+     places at once - the `main` axis, the bookmark edges, and the root font
+     size - and a spread with its bookmarks stacked above it is what happens
+     when one of them is a breakpoint out of step with the others. */
+  --breakpoint-book: 900px;
+
   --font-display: 'Old Standard TT', ui-serif, Georgia, serif;
   --font-body: 'PT Serif', ui-serif, Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
@@ -35,7 +42,7 @@
      the root size follows it and the whole page scales as one, instead of a
      16px face being asked to fit a page it has outgrown. Phones keep 16px:
      there the page scrolls by design. */
-  @media (min-width: 900px) {
+  @media (width >= theme(--breakpoint-book)) {
     html {
       font-size: clamp(11.5px, calc(100dvh / 56), 16px);
     }
@@ -44,7 +51,7 @@
   body {
     background-color: var(--color-desk);
     color: var(--color-paper);
-    font-family: var(--font-body);
+    font-family: var(--font-body), serif;
     font-size: 1rem;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -99,13 +106,22 @@
 }
 
 /* One page on a phone, and width leads instead of the ratio: a book derived
-   from the viewport height would be wider than the screen on a tall device. */
-@media (max-width: 899px) {
+   from the viewport height would be wider than the screen on a tall device.
+   The height is then whatever `main` has left over, taken from the flex box
+   rather than from a subtracted guess at the chrome above and below. A guess
+   that runs high leaves a dead band under the book; one that runs low - a
+   landscape phone, where a floor of a few hundred pixels is more than the
+   whole viewport - pushes the book out over the header and the footer. */
+@media (width < theme(--breakpoint-book)) {
   .book {
     width: 100%;
-    height: calc(100dvh - 214px);
-    min-height: 420px;
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
     aspect-ratio: auto;
+    /* A full-width leaf pivots on the spine and swings past it, so unclipped it
+       sails out over the desk and stretches the document sideways as it goes. */
+    overflow: hidden;
   }
 }
 
@@ -133,7 +149,9 @@
   border-radius: 0 3px 3px 0;
 }
 
-@media (max-width: 899px) {
+/* The block is clipped to the book on a phone, so the fore edge has to stand
+   inside it rather than hanging off the side where the clip would eat it. */
+@media (width < theme(--breakpoint-book)) {
   .book-edge {
     width: 6px;
   }
@@ -143,7 +161,7 @@
   }
 
   .book-edge--right {
-    right: -5px;
+    right: 0;
   }
 }
 
@@ -154,7 +172,7 @@
   grid-template-columns: 1fr 1fr;
 }
 
-@media (max-width: 899px) {
+@media (width < theme(--breakpoint-book)) {
   .spread {
     grid-template-columns: 1fr;
   }
@@ -203,7 +221,7 @@
   background: linear-gradient(to left, transparent, rgba(74, 52, 26, 0.34));
 }
 
-@media (max-width: 899px) {
+@media (width < theme(--breakpoint-book)) {
   .paper--recto::after,
   .paper--verso::after {
     display: none;
@@ -227,7 +245,7 @@
 
 /* A spread never scrolls: what does not fit is carried to the next page by the
    paginator. Only the single-page phone layout scrolls. */
-@media (min-width: 900px) {
+@media (width >= theme(--breakpoint-book)) {
   .page-body {
     overflow: hidden;
   }
@@ -245,6 +263,26 @@
   margin-top: 1rem;
   border-top: 1px solid rgba(154, 133, 106, 0.25);
   padding-top: 0.75rem;
+}
+
+/* A page of fixed, unpaginated content: the title page, the contents, the two
+   halves of the order sheet. On the spread each one has a page to itself and
+   fills it, which is what lets its closing block hang from the bottom.
+
+   The phone stacks verso and recto into one scrolling column, and there the
+   height has to come off. Pinned to a full page, the box stays one page tall
+   while the text - reflowed to a third of the width - runs well past it, and
+   since a flex item is never shrunk below its own stated height, the overflow
+   is printed straight over the page underneath. */
+.page-fixed {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (width >= theme(--breakpoint-book)) {
+  .page-fixed {
+    height: 100%;
+  }
 }
 
 /* Off-screen twin of a page, used to measure block heights before laying out. */
@@ -320,10 +358,11 @@
   filter: drop-shadow(4px -3px 6px rgba(58, 40, 18, 0.4));
 }
 
-@media (max-width: 899px) {
+/* No hover to grow the fold on a phone, so it is sized to a finger outright. */
+@media (width < theme(--breakpoint-book)) {
   .dogear {
-    width: 2.6rem;
-    height: 2.6rem;
+    width: 2.75rem;
+    height: 2.75rem;
   }
 }
 
@@ -346,9 +385,12 @@
   right: 8%;
 }
 
+/* Centred, not set into a corner: the single page has a creased corner at each
+   of its bottom two, and both stand above the folio and cover it. */
 .folio--single {
-  right: 1.75rem;
+  left: 50%;
   bottom: 1.5rem;
+  transform: translateX(-50%);
 }
 
 /* ---- Turning ----------------------------------------------------------- */
@@ -363,7 +405,7 @@
   will-change: transform;
 }
 
-@media (max-width: 899px) {
+@media (width < theme(--breakpoint-book)) {
   .leaf {
     width: 100%;
   }
@@ -381,7 +423,7 @@
   animation: leaf-prev 900ms var(--ease-page) forwards;
 }
 
-@media (max-width: 899px) {
+@media (width < theme(--breakpoint-book)) {
   .leaf--next {
     right: 0;
     left: 0;
@@ -549,12 +591,16 @@
   transform: translateX(-11px);
 }
 
-/* Narrow screens: one scrollable strip above the book. */
+/* Narrow screens: one scrollable strip above the book. Sized to a finger, which
+   an upright tab on a fore edge gets from its own length and this one does not. */
 .tabs--top .tab {
   writing-mode: horizontal-tb;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   border-radius: 4px 4px 0 0;
   border-bottom: none;
-  padding: 0.45rem 0.8rem;
+  padding: 0.45rem 0.95rem;
   font-size: 0.64rem;
   transform: translateY(4px);
   box-shadow:

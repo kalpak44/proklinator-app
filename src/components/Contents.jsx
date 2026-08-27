@@ -14,7 +14,7 @@ const folioOf = (spreadIndex) => 2 * spreadIndex + 1
  */
 export default function Contents({ openings, orderIndex, onOpen }) {
   return (
-    <div className="relative flex h-full flex-col">
+    <div className="page-fixed relative">
       <p className="rubric relative">Оглавление</p>
 
       <h2 className="font-display text-ink relative mt-2 text-[1.9rem] leading-[1.05] sm:text-[2.3rem]">

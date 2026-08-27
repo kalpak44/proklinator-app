@@ -10,7 +10,7 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
   }, {})
 
   return (
-    <div className="relative flex h-full flex-col">
+    <div className="page-fixed relative">
       <Sigil className="pointer-events-none absolute -top-6 left-1/2 w-[22rem] max-w-[95%] -translate-x-1/2" />
 
       <p className="rubric relative">Лист заказа</p>
