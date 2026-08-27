@@ -4,37 +4,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'docker/**'
-      - 'index.html'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'vite.config.js'
-      - 'eslint.config.js'
-      - '.gitignore'
-      - '.dockerignore'
-      - '.prettierrc'
-      - '.prettierignore'
-      - '.github/workflows/publish-frontend.yml'
   pull_request:
     branches:
       - main
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'docker/**'
-      - 'index.html'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'vite.config.js'
-      - 'eslint.config.js'
-      - '.gitignore'
-      - '.dockerignore'
-      - '.prettierrc'
-      - '.prettierignore'
-      - '.github/workflows/publish-frontend.yml'
   workflow_dispatch:
 
 
