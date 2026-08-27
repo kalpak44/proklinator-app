@@ -1,0 +1,16 @@
+{
+  "name": "proklinator-api",
+  "private": true,
+  "version": "0.1.0",
+  "description": "API behind proklinator.online/api.",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.0"
+  }
+}

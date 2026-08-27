@@ -24,6 +24,7 @@ and comments included, is English.
 - Tailwind CSS 4 — CSS-first, no config file; theme tokens live in the `@theme` block of `src/index.css`
 - ESLint 10 + Prettier 3
 - nginx 1.31-alpine runtime image
+- Express 5 on Node 24 for the API in `backend/`
 
 ## How the book is laid out
 
@@ -47,9 +48,63 @@ its `url`. Prices are never computed on the client: the server resolves them fro
 catalog. Until that endpoint exists, an order is accepted as a request with a reference
 number.
 
+## The API
+
+`backend/` is an Express app served at `/api`, deployed beside the site rather than behind
+it: Traefik matches `PathPrefix(/api)` on the same host and sends those requests to the API
+pod, everything else to nginx. Same origin, so there is no CORS to configure, and the
+prefix is not stripped — routes in `backend/src/server.js` are declared with `/api` on them.
+
+`GET /api/health` returns the short SHA of the commit the image was built from, which is
+also its tag. That is the quickest way to tell whether a deploy actually landed. It also
+reports whether Stripe credentials reached the process — `"stripe": "configured"` or
+`"missing"` — never the keys themselves, or any prefix of them.
+
+### Configuration
+
+The API takes its configuration from the environment. Nothing is read from a file and
+nothing is baked into the image; a build arg would end up in the layer history of a public
+image.
+
+| Variable                 | What it is                                    |
+| :----------------------- | :-------------------------------------------- |
+| `PORT`                   | Listen port. Defaults to `3000`.              |
+| `GIT_SHA`                | Build-time commit, reported by `/api/health`. |
+| `STRIPE_SECRET_KEY`      | Stripe secret key. Server-side only, ever.    |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key.                       |
+
+The two Stripe names are identical everywhere and only the **value** changes:
+
+- **In the cluster** they come from the Vault secret `proklinator-secrets` (properties
+  `stripe-api-secret-key` and `stripe-api-publishable-key`), pulled in by the External
+  Secrets Operator and mounted as environment variables. Live keys.
+- **In CI** they are the `STRIPE_TEST_SECRET_KEY` and `STRIPE_TEST_PUBLISHABLE_KEY`
+  repository secrets, mapped onto these names in the workflow environment. Test keys, so
+  the agents can build and exercise checkout without touching real money.
+- **Locally** they are whatever you export.
+
+Nothing in `backend/` branches on which environment it is running in. Code that switches on
+`NODE_ENV` to pick a key is code that can pick the wrong one.
+
+Run it locally with test keys:
+
+```bash
+cd backend
+STRIPE_SECRET_KEY=sk_test_... STRIPE_PUBLISHABLE_KEY=pk_test_... npm run dev
+curl -s localhost:3000/api/health
+```
+
 ## Development
 
 ```bash
+npm install
+npm run dev
+```
+
+The API is a separate package with its own dependencies:
+
+```bash
+cd backend
 npm install
 npm run dev
 ```
@@ -87,9 +142,14 @@ Every merge into `main` triggers:
 1. Dependency installation
 2. Linting and validation
 3. Production build
-4. Docker image creation
+4. Docker image creation — `proklinator-app` (site) and `proklinator-api`, in parallel
 5. Image publication to GHCR
 6. Deployment start — the cluster is told to roll out the new tag
+
+Both images are tagged with the same 7-character commit SHA and the cluster is bumped only
+after both have been pushed, so the site and its API always move together. Adding a third
+image means adding it to `homelab-infra`'s `apps` list as well, or its Deployment will
+quietly stay on an older tag.
 
 Pull requests run stages 1–3 only; nothing is published or deployed until merge.
 
