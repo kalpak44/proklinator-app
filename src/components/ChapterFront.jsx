@@ -1,6 +1,6 @@
 import Ornament from './Ornament.jsx'
 import Sigil from './Sigil.jsx'
-import { AGENT } from '../data/book.js'
+import { useLanguage } from '../lib/i18n.js'
 
 /**
  * The chapter frontispiece block: heading, opening paragraph, the numbers that
@@ -10,11 +10,16 @@ import { AGENT } from '../data/book.js'
  * much of the chapter fits on the page underneath it.
  */
 export default function ChapterFront({ chapter }) {
+  const { t, catalogue } = useLanguage()
+  const { AGENT } = catalogue
+
   return (
     <section className="relative">
       <Sigil className="pointer-events-none absolute -top-8 left-1/2 w-[22rem] max-w-[95%] -translate-x-1/2" />
 
-      <p className="rubric relative">Глава {chapter.numeral}</p>
+      <p className="rubric relative">
+        {t('chapter.rubric', { numeral: chapter.numeral })}
+      </p>
 
       <h2 className="font-display text-ink relative mt-2 text-[2rem] leading-[1.05] tracking-[0.02em] sm:text-[2.6rem]">
         {chapter.title}

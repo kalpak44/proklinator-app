@@ -1,3 +1,5 @@
+import { useLanguage } from '../lib/i18n.js'
+
 /**
  * Bookmarks along the edges of the block. A chapter you have already turned
  * past sits on the left, the ones still ahead sit on the right, so the tabs
@@ -15,9 +17,11 @@
  * one is dropped from the strip outright rather than leaving a gap in it.
  */
 export default function Bookmarks({ tabs, side, activeId, onSelect }) {
+  const { t } = useLanguage()
+
   return (
     <nav
-      aria-label={side === 'left' ? 'Пройденные главы' : 'Главы книги'}
+      aria-label={side === 'left' ? t('bookmarks.past') : t('bookmarks.all')}
       className={`tabs tabs--${side}`}
     >
       {tabs.map((tab) => {

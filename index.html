@@ -39,6 +39,80 @@
       content="Книга, которую листаете вы, а слово подбирает агент. Шесть глав: помрачение, разрыв, убывание, неспокойствие, наследие, обережное."
     />
 
+    <!-- Pre-paint mirror of src/lib/i18n.js: the stored choice, then the
+         browser's own preference, then Bulgarian. Applies the matching title,
+         description and lang before first paint, so the tab, the link previews
+         and the attribute speak the same language as the book; the app
+         re-applies them whenever the reader switches language. -->
+    <script>
+      ;(function () {
+        var LANG_KEY = 'proklinator.lang'
+        var META = {
+          ru: {
+            lang: 'ru',
+            locale: 'ru_RU',
+            title: 'Проклинатор - книга проклятий, которую читает агент',
+            description:
+              'Агент обучен на тёмных сводах: списках, что переписывали от руки, сетях без выхода наружу и книгах, которые жгли и не сожгли. Откройте главу, обведите нужное, остальное он сделает сам.',
+            ogTitle: 'Проклинатор - книга проклятий, которую читает агент',
+            ogDescription:
+              'Книга, которую листаете вы, а слово подбирает агент. Шесть глав: помрачение, разрыв, убывание, неспокойствие, наследие, обережное.',
+          },
+          bg: {
+            lang: 'bg',
+            locale: 'bg_BG',
+            title: 'Проклинатор - книга за проклятия, която агентът чете',
+            description:
+              'Агентът е обучен върху тъмни сводове: списъци, преписвани на ръка, мрежи без изход навън и книги, които са горили и не са изгорели. Отворете глава, оградете нужното, останалото той ще свърши сам.',
+            ogTitle: 'Проклинатор - книга за проклятия, която агентът чете',
+            ogDescription:
+              'Книга, която вие листате, а словото подбира агентът. Шест глави: помрачение, разрив, отлив, безпокойство, наследство, пазително.',
+          },
+        }
+
+        var lang = null
+        try {
+          var stored = localStorage.getItem(LANG_KEY)
+          if (stored === 'ru' || stored === 'bg') lang = stored
+        } catch (e) {
+          // Storage unavailable: fall through to the browser preference.
+        }
+        if (!lang) {
+          var prefs = navigator.languages || [navigator.language]
+          for (var i = 0; i < prefs.length; i++) {
+            var primary = String(prefs[i]).split('-')[0]
+            if (primary === 'ru' || primary === 'bg') {
+              lang = primary
+              break
+            }
+          }
+        }
+        lang = lang || 'bg'
+        var meta = META[lang]
+
+        document.documentElement.lang = lang
+        document.title = meta.title
+        document
+          .querySelector('meta[name="description"]')
+          .setAttribute('content', meta.description)
+        document
+          .querySelector('meta[property="og:title"]')
+          .setAttribute('content', meta.ogTitle)
+        document
+          .querySelector('meta[property="og:description"]')
+          .setAttribute('content', meta.ogDescription)
+        document
+          .querySelector('meta[name="twitter:title"]')
+          .setAttribute('content', meta.ogTitle)
+        document
+          .querySelector('meta[name="twitter:description"]')
+          .setAttribute('content', meta.ogDescription)
+        document
+          .querySelector('meta[property="og:locale"]')
+          .setAttribute('content', meta.locale)
+      })()
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Old Standard TT - заголовки и рубрики книги, PT Serif - наборный текст

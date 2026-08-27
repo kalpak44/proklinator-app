@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { useMedia } from '../lib/useMedia.js'
+import { useLanguage } from '../lib/i18n.js'
 
 function Paper({ side, folio, children }) {
   return (
@@ -35,6 +36,7 @@ const SWIPE_MIN_PX = 55
  * A narrow screen has no spread: one page, both halves stacked in reading order.
  */
 export default function Book({ bookRef, pages, index, turning, goTo }) {
+  const { t } = useLanguage()
   const spread = useMedia('(min-width: 900px)')
   const touch = useRef(null)
 
@@ -108,7 +110,7 @@ export default function Book({ bookRef, pages, index, turning, goTo }) {
           type="button"
           className="dogear dogear--prev"
           onClick={() => goTo(index - 1)}
-          aria-label="Предыдущий разворот"
+          aria-label={t('nav.prev')}
         />
       )}
       {!turning && index < pages.length - 1 && (
@@ -116,7 +118,7 @@ export default function Book({ bookRef, pages, index, turning, goTo }) {
           type="button"
           className="dogear dogear--next"
           onClick={() => goTo(index + 1)}
-          aria-label="Следующий разворот"
+          aria-label={t('nav.next')}
         />
       )}
 

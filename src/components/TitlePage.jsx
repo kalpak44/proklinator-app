@@ -1,7 +1,7 @@
 import Ornament from './Ornament.jsx'
 import Sigil from './Sigil.jsx'
-import { AGENT, BOOK, BOOK_STATS } from '../data/book.js'
 import { formatMoney } from '../lib/money.js'
+import { useLanguage } from '../lib/i18n.js'
 
 /**
  * Verso of the opening spread: the title page. It says what the book is before
@@ -11,11 +11,14 @@ import { formatMoney } from '../lib/money.js'
  * has to fit one page on its own.
  */
 export default function TitlePage() {
+  const { t, catalogue } = useLanguage()
+  const { AGENT, BOOK, BOOK_STATS } = catalogue
+
   return (
     <div className="page-fixed relative">
       <Sigil className="pointer-events-none absolute -top-10 left-1/2 w-[26rem] max-w-[100%] -translate-x-1/2" />
 
-      <p className="rubric relative">Свод</p>
+      <p className="rubric relative">{t('title.rubric')}</p>
 
       <h1 className="font-display text-ink relative mt-2 text-[2.6rem] leading-[0.95] tracking-[0.02em] uppercase sm:text-[3.4rem]">
         {BOOK.title}
@@ -46,19 +49,19 @@ export default function TitlePage() {
 
       <dl className="border-ink-faint/30 relative mt-5 grid grid-cols-3 gap-x-3 border-t pt-3">
         <div>
-          <dt className="rubric text-[0.6rem]">Глав</dt>
+          <dt className="rubric text-[0.6rem]">{t('title.chapters')}</dt>
           <dd className="font-display text-ink mt-0.5 text-[1.05rem] leading-tight">
             {BOOK_STATS.chapters}
           </dd>
         </div>
         <div>
-          <dt className="rubric text-[0.6rem]">Проклятий</dt>
+          <dt className="rubric text-[0.6rem]">{t('title.curses')}</dt>
           <dd className="font-display text-ink mt-0.5 text-[1.05rem] leading-tight">
             {BOOK_STATS.spells}
           </dd>
         </div>
         <div>
-          <dt className="rubric text-[0.6rem]">Цена от</dt>
+          <dt className="rubric text-[0.6rem]">{t('title.from')}</dt>
           <dd className="font-display text-ink mt-0.5 text-[1.05rem] leading-tight">
             {formatMoney(BOOK_STATS.cheapest)}
           </dd>

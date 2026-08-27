@@ -25,7 +25,7 @@ function reference() {
  * @returns {Promise<{status: 'redirect'|'pending', reference?: string}>}
  * `redirect` means the browser is already navigating to Stripe.
  */
-export async function startCheckout({ keys, contact }) {
+export async function startCheckout({ keys, contact, locale }) {
   try {
     const response = await fetch(ENDPOINT, {
       method: 'POST',
@@ -33,7 +33,7 @@ export async function startCheckout({ keys, contact }) {
       body: JSON.stringify({
         items: keys,
         contact,
-        locale: 'ru',
+        locale: locale ?? 'ru',
         returnUrl: window.location.origin,
       }),
     })

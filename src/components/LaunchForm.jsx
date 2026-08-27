@@ -5,6 +5,7 @@ import { CONSOLE_MS, consoleLines } from '../lib/agentLog.js'
 import AgentConsole from './AgentConsole.jsx'
 import Ornament from './Ornament.jsx'
 import TargetUpload from './TargetUpload.jsx'
+import { useLanguage } from '../lib/i18n.js'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -12,6 +13,7 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** Recto of the closing spread: the target, the contact, and the launch. */
 export default function LaunchForm({ totals, orderKeys, onLaunched }) {
+  const { lang, t } = useLanguage()
   const [photo, setPhoto] = useState(null)
   const [email, setEmail] = useState('')
   const [consent, setConsent] = useState(false)
@@ -46,7 +48,7 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
 
     setState('running')
     const [checkout] = await Promise.all([
-      startCheckout({ keys: orderKeys, contact: { email: email.trim() } }),
+      startCheckout({ keys: orderKeys, contact: { email: email.trim() }, locale: lang }),
       wait(CONSOLE_MS),
     ])
 
@@ -61,9 +63,9 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
   if (state === 'running' || state === 'done') {
     return (
       <div className="page-fixed">
-        <p className="rubric">Запуск</p>
+        <p className="rubric">{t('launch.rubric')}</p>
         <h2 className="font-display text-ink mt-2 text-[1.8rem] leading-[1.05] sm:text-[2.2rem]">
-          {state === 'running' ? 'Агент принял слово' : 'Начато'}
+          {state === 'running' ? t('launch.accepted') : t('launch.started')}
         </h2>
 
         <Ornament className="mt-5" />
@@ -71,8 +73,9 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
         <div className="mt-6">
           <AgentConsole
             lines={consoleLines({
-              fileName: photo?.name ?? 'объект',
+              fileName: photo?.name ?? t('log.anonymous'),
               count: totals.count,
+              lang,
             })}
           />
         </div>
@@ -80,14 +83,14 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
         {state === 'done' && (
           <div className="rise mt-6">
             <p className="text-ink text-[1rem] leading-[1.62]">
-              Слово принято под знаком{' '}
-              <span className="font-mono text-marker">{result.reference}</span>. Весть о
-              том, что начато, придёт на <span className="italic">{email.trim()}</span>.
-              Другого подтверждения не будет.
+              {t('launch.referenceBefore')}
+              <span className="font-mono text-marker">{result.reference}</span>
+              {t('launch.referenceAfter')}
+              <span className="italic">{email.trim()}</span>
+              {t('launch.referenceTail')}
             </p>
             <p className="font-mono text-ink-soft mt-4 text-[0.72rem] leading-snug">
-              Снимок и всё, чем вы назвали объекта, исчезнут вместе с закрытием заказа. Ни
-              у нас, ни у агента не останется.
+              {t('launch.erasure')}
             </p>
           </div>
         )}
@@ -97,14 +100,13 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
 
   return (
     <form onSubmit={submit} noValidate className="page-fixed">
-      <p className="rubric">Запуск</p>
+      <p className="rubric">{t('launch.rubric')}</p>
       <h2 className="font-display text-ink mt-2 text-[1.8rem] leading-[1.05] sm:text-[2.2rem]">
-        Передать агенту
+        {t('launch.handover')}
       </h2>
 
       <p className="text-ink/90 mt-3 text-[0.95rem] leading-[1.55]">
-        Дальше вас ни о чём не спросят. Агент прочтёт лицо, подберёт слово из свода и
-        начнёт сам. Человеческой руки в этом не будет.
+        {t('launch.intro')}
       </p>
 
       <Ornament className="mt-5" />
@@ -112,13 +114,11 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
       <div className="mt-6 space-y-5">
         <TargetUpload photo={photo} onPick={pickPhoto} onClear={clearPhoto} />
         {touched && !photo && (
-          <p className="font-mono text-marker text-[0.72rem]">
-            Без лица агенту не за что взяться.
-          </p>
+          <p className="font-mono text-marker text-[0.72rem]">{t('launch.faceNeeded')}</p>
         )}
 
         <label className="block">
-          <span className="rubric text-[0.62rem]">Куда прислать весть</span>
+          <span className="rubric text-[0.62rem]">{t('launch.emailLabel')}</span>
 
           {/* A full 1rem and not a hair under: below 900px the root is 16px, and
               iOS Safari zooms the whole page in on a focused field set smaller
@@ -132,7 +132,7 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
           />
           {touched && !emailValid && (
             <span className="font-mono text-marker mt-1 block text-[0.72rem]">
-              Проверьте адрес: весть уйдёт только на него.
+              {t('launch.emailInvalid')}
             </span>
           )}
         </label>
@@ -145,8 +145,7 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
             className="accent-marker mt-[0.2rem] size-4 shrink-0 cursor-pointer"
           />
           <span className="text-ink-soft text-[0.82rem] leading-snug">
-            Мне есть 18 лет, я принимаю условия и подтверждаю, что вправе передать этот
-            снимок. Я понимаю, к чему это ведёт.
+            {t('launch.consent')}
           </span>
         </label>
       </div>
@@ -158,12 +157,12 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
           className="font-mono border-marker bg-marker text-paper hover:bg-rubric w-full cursor-pointer border px-5 py-3 text-[0.78rem] tracking-[0.12em] uppercase transition-colors disabled:cursor-not-allowed disabled:border-ink-faint/40 disabled:bg-transparent disabled:text-ink-faint"
         >
           {totals.count === 0
-            ? 'Сначала выберите проклятие'
-            : `Оплатить ${formatMoney(totals.dueNow)} и передать агенту`}
+            ? t('launch.cta.empty')
+            : t('launch.cta.pay', { amount: formatMoney(totals.dueNow) })}
         </button>
 
         <p className="font-mono text-ink-soft mt-3 text-center text-[0.68rem] leading-snug">
-          Оплата картой через Stripe. Агент начнёт, как только платёж подтвердится.
+          {t('launch.stripeNote')}
         </p>
       </div>
     </form>

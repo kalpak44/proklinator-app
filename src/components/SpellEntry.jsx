@@ -1,4 +1,5 @@
 import PriceRow from './PriceRow.jsx'
+import { useLanguage } from '../lib/i18n.js'
 
 /**
  * One curse: name, a paragraph of description, and its list of tiers.
@@ -8,6 +9,8 @@ import PriceRow from './PriceRow.jsx'
  * where there is nothing to rule it off from.
  */
 export default function SpellEntry({ chapterId, spell, isSelected, onToggle }) {
+  const { t } = useLanguage()
+
   return (
     <article>
       <h3 className="font-display text-ink text-[1.35rem] leading-tight tracking-[0.02em]">
@@ -20,7 +23,7 @@ export default function SpellEntry({ chapterId, spell, isSelected, onToggle }) {
 
       <ul
         role="radiogroup"
-        aria-label={`Тарифы: ${spell.name}`}
+        aria-label={t('spell.tiers', { name: spell.name })}
         className="mt-2.5 -ml-2 space-y-0.5"
       >
         {spell.prices.map((price) => (

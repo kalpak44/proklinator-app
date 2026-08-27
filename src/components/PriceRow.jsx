@@ -1,5 +1,6 @@
 import { formatMoney } from '../lib/money.js'
 import MarkerCircle from './MarkerCircle.jsx'
+import { useLanguage } from '../lib/i18n.js'
 
 /**
  * A price list row. Tiers of one curse are mutually exclusive, so this is a
@@ -10,6 +11,7 @@ import MarkerCircle from './MarkerCircle.jsx'
  * drop it half a line and run it through the row below.
  */
 export default function PriceRow({ price, selected, onToggle }) {
+  const { t } = useLanguage()
   const free = price.price === 0
 
   return (
@@ -46,9 +48,9 @@ export default function PriceRow({ price, selected, onToggle }) {
               selected ? 'text-marker' : 'text-ink'
             }`}
           >
-            {free ? 'включено' : formatMoney(price.price)}
+            {free ? t('price.free') : formatMoney(price.price)}
             {price.recurring && (
-              <span className="text-ink-soft text-[0.78rem]"> / мес</span>
+              <span className="text-ink-soft text-[0.78rem]">{t('price.perMonth')}</span>
             )}
           </span>
         </span>
