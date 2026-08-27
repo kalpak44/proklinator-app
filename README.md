@@ -56,7 +56,43 @@ pod, everything else to nginx. Same origin, so there is no CORS to configure, an
 prefix is not stripped — routes in `backend/src/server.js` are declared with `/api` on them.
 
 `GET /api/health` returns the short SHA of the commit the image was built from, which is
-also its tag. That is the quickest way to tell whether a deploy actually landed.
+also its tag. That is the quickest way to tell whether a deploy actually landed. It also
+reports whether Stripe credentials reached the process — `"stripe": "configured"` or
+`"missing"` — never the keys themselves, or any prefix of them.
+
+### Configuration
+
+The API takes its configuration from the environment. Nothing is read from a file and
+nothing is baked into the image; a build arg would end up in the layer history of a public
+image.
+
+| Variable                 | What it is                                    |
+| :----------------------- | :-------------------------------------------- |
+| `PORT`                   | Listen port. Defaults to `3000`.              |
+| `GIT_SHA`                | Build-time commit, reported by `/api/health`. |
+| `STRIPE_SECRET_KEY`      | Stripe secret key. Server-side only, ever.    |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key.                       |
+
+The two Stripe names are identical everywhere and only the **value** changes:
+
+- **In the cluster** they come from the Vault secret `proklinator-secrets` (properties
+  `stripe-api-secret-key` and `stripe-api-publishable-key`), pulled in by the External
+  Secrets Operator and mounted as environment variables. Live keys.
+- **In CI** they are the `STRIPE_TEST_SECRET_KEY` and `STRIPE_TEST_PUBLISHABLE_KEY`
+  repository secrets, mapped onto these names in the workflow environment. Test keys, so
+  the agents can build and exercise checkout without touching real money.
+- **Locally** they are whatever you export.
+
+Nothing in `backend/` branches on which environment it is running in. Code that switches on
+`NODE_ENV` to pick a key is code that can pick the wrong one.
+
+Run it locally with test keys:
+
+```bash
+cd backend
+STRIPE_SECRET_KEY=sk_test_... STRIPE_PUBLISHABLE_KEY=pk_test_... npm run dev
+curl -s localhost:3000/api/health
+```
 
 ## Development
 

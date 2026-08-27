@@ -1,4 +1,12 @@
-name: Frontend Build and Publish
+# Builds and publishes both images this repository ships — the site and its API — and then
+# tells the cluster to roll them out. Named for what it does, rather than for the frontend
+# alone, which was all it built back when it was publish-frontend.yml.
+#
+# Renaming this file means renaming it in homelab-infra too, in two places: the `apps` list
+# in gitops/Justfile, which finds the last successful run here to read a tag from, and the
+# PR_CHECK_WORKFLOW variable in terraform/github/proklinator-app, which the agents dispatch
+# when a pull request has no checks.
+name: Build and Publish
 
 on:
   push:
@@ -121,7 +129,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # The images are in GHCR — point the cluster at them. Both inputs are required:
-      # publish-frontend's run is still in_progress here, so homelab-infra's own
+      # this workflow's own run is still in_progress here, so homelab-infra's
       # "last successful publish" query would resolve to the previous commit and
       # deploy a stale image.
       - name: Trigger cluster deploy
