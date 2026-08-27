@@ -280,6 +280,11 @@ jobs:
 
       PR_CHECK_WORKFLOW: ${{ vars.PR_CHECK_WORKFLOW }}
 
+      # Closing the loop with ai-issue-agent.yml. Its PRs come from an ai/issue-* branch;
+      # everything else is a human's and gets reviewed but never handed back.
+      IMPLEMENTER_WORKFLOW: ai-issue-agent.yml
+      MAX_ROUNDS: ${{ vars.AI_MAX_REVIEW_ROUNDS || '3' }}
+
       APP_URL: http://127.0.0.1:4173/
       BASELINE_URL: http://127.0.0.1:4174/
 
@@ -736,6 +741,7 @@ jobs:
             ALLOW_MERGE       "true" or "false" — see MERGING below
             MERGE_BLOCKERS    why ALLOW_MERGE is false, when it is
             PR_CHECK_WORKFLOW the repository's own PR check workflow
+            MAX_ROUNDS        how many times an agent-authored PR may be sent back
 
           The working tree is a checkout you must treat as READ-ONLY.
 
@@ -924,6 +930,37 @@ jobs:
             - "REQUEST_CHANGES" when there is a blocking problem
             - "COMMENT" when you have findings but no blocker, or you are not confident
 
+          ----------------------------------------------------------------------
+          6a. WHEN THE AUTHOR IS THE IMPLEMENTATION AGENT
+          ----------------------------------------------------------------------
+
+          If HEAD_REF starts with `ai/issue-`, this pull request was written by the
+          implementation agent and a machine will read your review and act on it. Three
+          things change.
+
+          First, "REQUEST_CHANGES" is the only signal that sends it back. A "COMMENT"
+          review, however detailed, stalls the loop — the work simply sits there. So if
+          you want something changed, request changes. If you do not, approve.
+
+          Second, your blocking list is a work order, not prose. Make every item
+          independently actionable:
+
+            1. src/components/Book.jsx:42 — <what is wrong> — <what to do instead>
+
+          Attach each one to its line as an inline comment where you can. The agent replies
+          on those threads and resolves them, so a point made inline gets answered
+          individually while a point buried in the body may not.
+
+          Third, there is a hard cap of MAX_ROUNDS revision rounds, after which the loop
+          stops and a human is called in. Spend your requests on things that genuinely
+          matter. Do not send a pull request back over a preference, a nit, or a style
+          point — put those under Recommendations and approve. Blocking means broken,
+          insecure, or wrong.
+
+          The agent is allowed to disagree with you and argue back on a thread instead of
+          changing the code. If its argument is sound, accept it and approve; do not
+          re-request the same change a second time.
+
           Structure the body roughly like this, dropping empty sections:
 
             ## AI review — <one-line verdict>
@@ -1005,6 +1042,75 @@ jobs:
             --sandbox danger-full-access \
             --output-last-message "$RUNNER_TEMP/summary.md" \
             "$(cat "$RUNNER_TEMP/prompt.md")"
+
+      # The loop's return leg, and it is bash rather than prompt because it is the thing
+      # that has to terminate. The reviewer posts its review with GITHUB_TOKEN, and events
+      # from that token start no workflow runs — so the implementer can never be woken by
+      # a pull_request_review event and must be dispatched explicitly.
+      # Deliberately NOT `if: always()`. If the reviewer step itself failed, no new review
+      # exists — but an older CHANGES_REQUESTED review is still the latest one, so this
+      # step would dispatch the implementer again on feedback it has already addressed.
+      # ROUND would not increase either, because it counts reviews, so the cap could never
+      # stop it: implementer pushes, reviewer crashes, implementer is dispatched, for ever.
+      # Running only on a successful review means a hand-back always follows a real review.
+      - name: Hand back to the implementer
+        run: |
+          set -euo pipefail
+
+          # Only ever hand back to a branch the implementer owns. A human's PR is reviewed
+          # and then left alone.
+          case "$HEAD_REF" in
+            ai/issue-*) : ;;
+            *) echo "\`$HEAD_REF\` is not an implementer branch — nothing to hand back."; exit 0 ;;
+          esac
+
+          gh pr view "$PR" --repo "$REPO" --json state,body,reviews > loop.json
+
+          STATE=$(jq -r '.state' loop.json)
+
+          if [ "$STATE" != "OPEN" ]; then
+            echo "PR #$PR is \`$STATE\` — the loop is finished."
+            exit 0
+          fi
+
+          # The round number is derived, never stored: it is simply how many times this
+          # PR has been sent back. Nothing to initialise, nothing to drift.
+          ROUND=$(jq '[.reviews[] | select(.state == "CHANGES_REQUESTED")] | length' loop.json)
+          LAST=$(jq -r '.reviews | sort_by(.submittedAt) | last | .state // "NONE"' loop.json)
+          ISSUE=$(jq -r '.body' loop.json | grep -oiE '(close[sd]?|fixe[sd]?|resolve[sd]?) +#[0-9]+' | head -n1 | grep -oE '[0-9]+' || true)
+
+          echo "state=$STATE last_review=$LAST round=$ROUND/$MAX_ROUNDS issue=${ISSUE:-none}"
+
+          if [ "$LAST" != "CHANGES_REQUESTED" ]; then
+            # Open, but nothing was requested. Either the review approved and the merge
+            # gate withheld it, or the reviewer only commented. Both need a human, and
+            # neither is something the implementer can act on.
+            {
+              echo
+              echo "PR is open with last review \`$LAST\` and was not merged."
+              echo "Merge blockers: \`${MERGE_BLOCKERS:-none}\`. Not dispatching the implementer."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if [ "$ROUND" -ge "$MAX_ROUNDS" ]; then
+            gh pr comment "$PR" --repo "$REPO" --body \
+              "Review round $ROUND reached the cap of \`$MAX_ROUNDS\`. Not sending this back to the implementer again.
+
+          Feedback that has not converged in $MAX_ROUNDS rounds is usually a sign the change needs a decision rather than another attempt. Over to a human." || true
+
+            if [ -n "$ISSUE" ]; then
+              gh issue edit "$ISSUE" --repo "$REPO" --add-label "ai:blocked" --remove-label "ai:review" || true
+            fi
+
+            echo "Round cap reached — loop stopped." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          gh workflow run "$IMPLEMENTER_WORKFLOW" --repo "$REPO" -f pr="$PR"
+
+          echo "Dispatched \`$IMPLEMENTER_WORKFLOW\` for PR #$PR (round $((ROUND + 1)) of $MAX_ROUNDS)." \
+            >> "$GITHUB_STEP_SUMMARY"
 
       # Post-hoc enforcement. If the model merged against the gate, the merge already
       # happened — but the run goes red and the summary says exactly what occurred, which
