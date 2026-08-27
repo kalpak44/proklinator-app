@@ -24,6 +24,7 @@ and comments included, is English.
 - Tailwind CSS 4 — CSS-first, no config file; theme tokens live in the `@theme` block of `src/index.css`
 - ESLint 10 + Prettier 3
 - nginx 1.31-alpine runtime image
+- Express 5 on Node 24 for the API in `backend/`
 
 ## How the book is laid out
 
@@ -47,9 +48,27 @@ its `url`. Prices are never computed on the client: the server resolves them fro
 catalog. Until that endpoint exists, an order is accepted as a request with a reference
 number.
 
+## The API
+
+`backend/` is an Express app served at `/api`, deployed beside the site rather than behind
+it: Traefik matches `PathPrefix(/api)` on the same host and sends those requests to the API
+pod, everything else to nginx. Same origin, so there is no CORS to configure, and the
+prefix is not stripped — routes in `backend/src/server.js` are declared with `/api` on them.
+
+`GET /api/health` returns the short SHA of the commit the image was built from, which is
+also its tag. That is the quickest way to tell whether a deploy actually landed.
+
 ## Development
 
 ```bash
+npm install
+npm run dev
+```
+
+The API is a separate package with its own dependencies:
+
+```bash
+cd backend
 npm install
 npm run dev
 ```
@@ -87,9 +106,14 @@ Every merge into `main` triggers:
 1. Dependency installation
 2. Linting and validation
 3. Production build
-4. Docker image creation
+4. Docker image creation — `proklinator-app` (site) and `proklinator-api`, in parallel
 5. Image publication to GHCR
 6. Deployment start — the cluster is told to roll out the new tag
+
+Both images are tagged with the same 7-character commit SHA and the cluster is bumped only
+after both have been pushed, so the site and its API always move together. Adding a third
+image means adding it to `homelab-infra`'s `apps` list as well, or its Deployment will
+quietly stay on an older tag.
 
 Pull requests run stages 1–3 only; nothing is published or deployed until merge.
 

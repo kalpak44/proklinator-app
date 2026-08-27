@@ -26,4 +26,15 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  // The backend runs on node, not in a browser, and holds no components — the
+  // block above would otherwise flag `process` as undefined.
+  {
+    files: ['backend/**/*.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
