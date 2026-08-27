@@ -60,7 +60,7 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
 
   if (state === 'running' || state === 'done') {
     return (
-      <div className="flex h-full flex-col">
+      <div className="page-fixed">
         <p className="rubric">Запуск</p>
         <h2 className="font-display text-ink mt-2 text-[1.8rem] leading-[1.05] sm:text-[2.2rem]">
           {state === 'running' ? 'Агент принял слово' : 'Начато'}
@@ -96,7 +96,7 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
   }
 
   return (
-    <form onSubmit={submit} noValidate className="flex h-full flex-col">
+    <form onSubmit={submit} noValidate className="page-fixed">
       <p className="rubric">Запуск</p>
       <h2 className="font-display text-ink mt-2 text-[1.8rem] leading-[1.05] sm:text-[2.2rem]">
         Передать агенту
@@ -119,12 +119,16 @@ export default function LaunchForm({ totals, orderKeys, onLaunched }) {
 
         <label className="block">
           <span className="rubric text-[0.62rem]">Куда прислать весть</span>
+
+          {/* A full 1rem and not a hair under: below 900px the root is 16px, and
+              iOS Safari zooms the whole page in on a focused field set smaller
+              than that, leaving the book cropped and off-centre behind it. */}
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="border-ink-faint/50 text-ink placeholder:text-ink-faint focus:border-marker mt-1.5 w-full border bg-transparent px-3 py-2 text-[0.98rem] focus:outline-none"
+            className="border-ink-faint/50 text-ink placeholder:text-ink-faint focus:border-marker mt-1.5 w-full border bg-transparent px-3 py-2.5 text-[1rem] focus:outline-none"
           />
           {touched && !emailValid && (
             <span className="font-mono text-marker mt-1 block text-[0.72rem]">

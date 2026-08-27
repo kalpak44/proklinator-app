@@ -206,7 +206,9 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 px-3 sm:px-6 lg:flex-row lg:gap-0">
+      {/* Row from the same width the spread and its edge bookmarks appear at:
+          a column there stacks the two bookmark edges above and below the book. */}
+      <main className="book:flex-row book:gap-0 flex min-h-0 flex-1 flex-col items-center justify-center gap-2 px-3 sm:px-6">
         {spread ? (
           <>
             <Bookmarks tabs={tabs} side="left" activeId={activeId} onSelect={goTo} />

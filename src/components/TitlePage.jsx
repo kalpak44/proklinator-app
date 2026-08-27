@@ -12,7 +12,7 @@ import { formatMoney } from '../lib/money.js'
  */
 export default function TitlePage() {
   return (
-    <div className="relative flex h-full flex-col">
+    <div className="page-fixed relative">
       <Sigil className="pointer-events-none absolute -top-10 left-1/2 w-[26rem] max-w-[100%] -translate-x-1/2" />
 
       <p className="rubric relative">Свод</p>

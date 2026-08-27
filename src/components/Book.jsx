@@ -4,7 +4,10 @@ import { useMedia } from '../lib/useMedia.js'
 function Paper({ side, folio, children }) {
   return (
     <div className={`paper paper--${side}`}>
-      <div className="page-body px-[8%] pt-[6%] pb-[10.5%] max-lg:px-7 max-lg:pt-8 max-lg:pb-14">
+      {/* Fixed padding only below the spread. Above it the percentages have to
+          stand: MeasureLayer paginates against them, and an override reaching
+          into the spread would have it measuring one page and rendering another. */}
+      <div className="page-body max-book:px-7 max-book:pt-8 max-book:pb-14 px-[8%] pt-[6%] pb-[10.5%]">
         {children}
       </div>
       <span className={`folio folio--${side}`} aria-hidden="true">
