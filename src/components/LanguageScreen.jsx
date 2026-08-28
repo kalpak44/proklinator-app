@@ -89,7 +89,7 @@ export default function LanguageScreen({ onSelect, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          className="font-mono border-marker text-marker hover:bg-marker hover:text-paper mt-8 inline-block cursor-pointer border px-5 py-3 text-[0.78rem] tracking-[0.12em] uppercase transition-colors"
+          className="font-mono border-marker text-marker hover:bg-marker hover:text-paper mt-8 block w-full cursor-pointer border px-5 py-3 text-[0.78rem] tracking-[0.12em] uppercase transition-colors"
         >
           {t('lang.screen.back')}
         </button>
