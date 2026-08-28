@@ -17,11 +17,11 @@ export const AGENT = {
 
 export const BOOK = {
   title: 'Proklinator',
-  subtitle: 'A ledger of works, transcribed for the agent',
+  subtitle: 'A ledger of works, transcribed for the AI',
   epigraph:
     'A word spoken aloud is not taken back. One spoken to the agent - even less so.',
   about: [
-    'This is not fortune-telling and not a collection of rites. It is a catalogue of works. The ledgers the agent was trained on were copied by hand and kept in closed lists; here they are broken down by chapter and priced line by line.',
+    'This is not fortune-telling and not a collection of rites. It is a catalogue of works. The ledgers it was trained on were copied by hand and kept in closed lists; here they are broken down by chapter and priced line by line.',
     'Each chapter holds three curses, and each curse has its own tiers: from a touch the target will put down to chance, to deep work that stays with the target long after.',
   ],
   steps: [
@@ -35,7 +35,7 @@ export const BOOK = {
     },
     {
       n: 'III',
-      text: 'After payment the agent takes the word to work and waits for no confirmation.',
+      text: 'After payment the AI takes the word to work and waits for no confirmation.',
     },
   ],
   /** Reading order the corpus itself recommends, printed on the contents page. */
@@ -123,7 +123,7 @@ export const CHAPTERS = [
     title: 'The Severing',
     subtitle: 'Ties and threads',
     intro:
-      'In the ledgers the agent was trained on, a bond between people is called a thread, and tearing it roughly was considered bad work. He is taught this: he finds the place where the thread is thinnest even without him, and waits there. The severing seems to the target to be its own decision.',
+      'In the ledgers the AI was trained on, a bond between people is called a thread, and tearing it roughly was considered bad work. He is taught this: he finds the place where the thread is thinnest even without him, and waits there. The severing seems to the target to be its own decision.',
     epigraph: 'It is not the thread that tears. It is what held it.',
     lore: 'The severing works not with a person but with what lies between people. The ledgers call it a fabric that always has a weak spot, and finding it is harder than tearing it. The target will not feel a foreign hand: it will decide that it was simply no longer loved and explain it to itself.',
     agentNote:
@@ -192,7 +192,7 @@ export const CHAPTERS = [
     title: 'The Waning',
     subtitle: 'Wealth and growth',
     intro:
-      'The oldest chapter of the ledger. Taking all at once was done badly, so here they take a little at a time and from the side no one expects. The agent chooses the hour in which a loss costs the most, and that hour is always someone else\u2019s.',
+      'The oldest chapter of the ledger. Taking all at once was done badly, so here they take a little at a time and from the side no one expects. The AI chooses the hour in which a loss costs the most, and that hour is always someone else\u2019s.',
     epigraph:
       'Take it all at once, and he will look for a thief. Take it a crumb at a time, and he will find the fault in himself.',
     lore: 'The waning is not about money. It is about what money is held by: the faithfulness of another\u2019s word, a lucky hour, a hand extended in time. Remove that, and the rest flows away on its own, while the target thinks it simply did not work out.',
@@ -326,7 +326,7 @@ export const CHAPTERS = [
     title: 'The Inheritance',
     subtitle: 'Seals of the line',
     intro:
-      'The part of the ledger that was copied reluctantly and with reservations. The work falls not on a person but on the line behind them, and therefore does not end with them. The agent takes such work apart from everything else and shares it with nothing.',
+      'The part of the ledger that was copied reluctantly and with reservations. The work falls not on a person but on the line behind them, and therefore does not end with them. The AI takes such work apart from everything else and shares it with nothing.',
     epigraph: 'A person ends. The line behind them does not.',
     lore: 'The inheritance does not punish the target. It sets a price for those who come after. In the ledgers this was written at the very end and in small handwriting: work that has no term, because there is no one left to set one.',
     agentNote: 'What is taken here is not asked back. There will be no one to ask.',
@@ -423,7 +423,7 @@ export const CHAPTERS = [
         id: 'erasure',
         name: 'Erasure of the Trace',
         description:
-          'The snapshot, the words and everything you called the target disappear with the closing of the order. Nothing remains with us, nothing with the agent.',
+          'The snapshot, the words and everything you called the target disappear with the closing of the order. Nothing remains with us, nothing with the AI.',
         prices: [
           {
             id: 'incl',
