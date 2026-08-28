@@ -1314,6 +1314,105 @@ export const OPTION_CONTENT = Object.fromEntries(
   )
 )
 
+/**
+ * Pseudo-processing lines per curse, woven into the payment-confirmation
+ * sequence. Each curse contributes three steps of its own so the rite never
+ * reads like a generic loader; the surrounding generic steps live in the
+ * message tables (processing.stage.*).
+ */
+export const PROCESSING = {
+  veil: [
+    'Opening the 1841 entry on the merchant’s wife…',
+    'Measuring the veil by the curtain that hung on the window…',
+    'Raising the grey glass over the target…',
+  ],
+  misstep: [
+    'Following the surveyor’s road for 1862…',
+    'Marking the left sole against the register…',
+    'Turning every road of the target the wrong way…',
+  ],
+  hum: [
+    'Tuning to the noise without a source…',
+    'Checking that the unease has no cause to name…',
+    'Sounding the even hum over the target…',
+  ],
+  drift: [
+    'Measuring the thread between the two…',
+    'Thinning the bond without quarrel or cause…',
+    'Letting the distance grow of its own accord…',
+  ],
+  'cold-side': [
+    'Reading the warmth that flows one way…',
+    'Stopping the return of the bond…',
+    'Letting the cold side settle over the target…',
+  ],
+  'empty-circle': [
+    'Drawing the empty circle around the target…',
+    'Polishing the rim so nothing catches…',
+    'Checking that new things slide off it…',
+  ],
+  'leaking-hand': [
+    'Weighing the fist that cannot close…',
+    'Counting the small occasions of loss…',
+    'Opening the hand of the target to the wind…',
+  ],
+  'still-water': [
+    'Finding the still water in the ledger…',
+    'Holding the year of the target in place…',
+    'Stopping the surface so nothing moves…',
+  ],
+  reversal: [
+    'Marking the last step where it turns…',
+    'Readying the word to be taken back…',
+    'Setting the achieved to roll back…',
+  ],
+  'fourth-hour': [
+    'Setting the hour before dawn…',
+    'Clearing the room of voices…',
+    'Leaving the target alone with itself until light…',
+  ],
+  scatter: [
+    'Dividing the attention of the target…',
+    'Making the simple long…',
+    'Scattering the thought before it holds…',
+  ],
+  'borrowed-dreams': [
+    'Reading dreams the target never had…',
+    'Choosing whose sleep to borrow from…',
+    'Letting the dream fade by noon…',
+  ],
+  'long-shadow': [
+    'Measuring the shadow of the whole line…',
+    'Letting the edge fall where it can be seen…',
+    'Extending the shadow to those who come after…',
+  ],
+  'name-seal': [
+    'Taking the name from the line of the target…',
+    'Sealing the work to what they came from…',
+    'Checking the seal against city, name and trade…',
+  ],
+  irreversible: [
+    'Removing the possibility of cancellation…',
+    'Closing the way back with the last word…',
+    'Making sure no foreign hand can undo the work…',
+  ],
+  circle: [
+    'Drawing the line around you first…',
+    'Keeping the circle unbroken…',
+    'Directing what comes back into the circle…',
+  ],
+  return: [
+    'Preparing the word to be raised again…',
+    'Keeping the return silent and out of turn…',
+    'Marking the work to take it apart if it comes back…',
+  ],
+  erasure: [
+    'Preparing the erasure of the trace…',
+    'Gathering the words, the snapshot and the name…',
+    'Making sure nothing remains after the order closes…',
+  ],
+}
+
 /** What the title page claims about the catalogue, counted off the catalogue. */
 export const BOOK_STATS = {
   chapters: CHAPTERS.length,

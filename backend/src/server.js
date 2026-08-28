@@ -115,10 +115,11 @@ app.post('/api/checkout/session', async (req, res) => {
           product_data: { name: `${curse.name} — ${option.name}` },
         },
       })),
-      // Cancel drops the reader back on the book with the cart untouched; success
-      // lands on the confirmation page, which clears the cart itself.
+      // Success lands on the processing page, which clears the cart itself;
+      // cancel or abandonment lands on the interrupted-rite page with the cart
+      // untouched, so retrying the payment starts from the same order sheet.
       success_url: `${origin}/success`,
-      cancel_url: `${origin}/`,
+      cancel_url: `${origin}/cancelled`,
     })
     res.json({ url: session.url })
   } catch (error) {

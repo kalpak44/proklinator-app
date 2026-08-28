@@ -62,9 +62,12 @@ one removes it, so a curse+option can never appear twice.
 `src/lib/checkout.js` posts those ids to `VITE_CHECKOUT_URL` (default
 `/api/checkout/session`), and the backend validates every pair against its catalog,
 resolves the backend-owned names, prices and currency, and creates a one-time Stripe
-Checkout Session whose `url` the browser is redirected to. The cart is not touched until
-Stripe redirects to `/success`, which is the confirmation page that clears it — a
-cancelled or failed checkout leaves the reader exactly where they were.
+Checkout Session whose `url` the browser is redirected to. Stripe redirects to
+`/success` after a confirmed payment — a theatrical "the curse is being prepared"
+sequence of roughly thirty seconds that varies with the selected curse, then the
+confirmation page that clears the cart. A cancelled or abandoned checkout lands on
+`/cancelled`, the interrupted-rite page: the payment status is stated plainly and the
+cart is left untouched so retrying starts from the same order sheet.
 
 ## The API
 

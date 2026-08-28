@@ -73,6 +73,34 @@ const MESSAGES = {
       'Заказ принят, и агент берёт слово в работу. Квитанция уйдёт от Stripe, а дальше всё делает он.',
     'success.back': 'Вернуться к книге',
 
+    'processing.rubric': 'Платёж подтверждён',
+    'processing.heading': 'Проклятие готовится',
+    'processing.intro':
+      'Платёж подтверждён — книга берёт слово. Обряд складывается сейчас; каждая строка ниже — шаг работы.',
+    'processing.stage.recover': 'Восстанавливаю исходный обряд…',
+    'processing.stage.examine': 'Осматриваю выбранную цель…',
+    'processing.stage.archive': 'Ищу в архиве…',
+    'processing.stage.fragments': 'Восстанавливаю недостающие фрагменты…',
+    'processing.stage.connection': 'Налаживаю связь…',
+    'processing.stage.ai': 'Реконструкция ИИ идёт…',
+    'processing.stage.write': 'Пишу проклятие…',
+    'processing.stage.seal': 'Запечатываю последние слова…',
+    'processing.stage.spare.1': 'Сверяюсь с маргиналиями…',
+    'processing.stage.spare.2': 'Сличаю списки из свода…',
+    'processing.stage.spare.3': 'Привязываю слова к цели…',
+    'processing.manuscript': 'Книга пишет',
+    'processing.written': 'Слова запечатаны.',
+    'success.sealed': 'запечатано',
+    'processing.fallbackName': 'Книга держит слово',
+
+    'failed.rubric': 'Обряд',
+    'failed.heading': 'Обряд не удалось завершить.',
+    'failed.status': 'Платёж не подтверждён',
+    'failed.body':
+      'Что-то прервало работу до того, как легла последняя печать. Платёж не подтверждён, проклятие не начато, ничего не списано. Ваш выбор остался на листе заказа.',
+    'failed.retry': 'Попробовать оплатить снова',
+    'failed.back': 'Вернуться к книге',
+
     'order.summaryRubric': 'Лист заказа',
     'order.yourChoice': 'Ваш выбор',
     'order.emptySheet':
@@ -165,6 +193,34 @@ const MESSAGES = {
     'success.body':
       'The order is accepted and the AI takes the word to work. The receipt will come from Stripe, and from then on it does everything.',
     'success.back': 'Return to the book',
+
+    'processing.rubric': 'Payment confirmed',
+    'processing.heading': 'The curse is being prepared',
+    'processing.intro':
+      'Payment confirmed - the book takes the word. The rite is being composed now; each line below is a step of the work.',
+    'processing.stage.recover': 'Recovering the original ritual…',
+    'processing.stage.examine': 'Examining the selected target…',
+    'processing.stage.archive': 'Searching the archive…',
+    'processing.stage.fragments': 'Reconstructing missing fragments…',
+    'processing.stage.connection': 'Establishing the connection…',
+    'processing.stage.ai': 'AI reconstruction in progress…',
+    'processing.stage.write': 'Writing the curse…',
+    'processing.stage.seal': 'Sealing the final words…',
+    'processing.stage.spare.1': 'Consulting the marginal notes…',
+    'processing.stage.spare.2': 'Comparing the copies in the ledger…',
+    'processing.stage.spare.3': 'Binding the words to the target…',
+    'processing.manuscript': 'The book writes',
+    'processing.written': 'The words are sealed.',
+    'success.sealed': 'sealed',
+    'processing.fallbackName': 'The book keeps its word',
+
+    'failed.rubric': 'The rite',
+    'failed.heading': 'The ritual could not be completed.',
+    'failed.status': 'Payment: not confirmed',
+    'failed.body':
+      'Something interrupted the process before the final seal was placed. Your payment was not confirmed, so no curse has been initiated and nothing has been charged. Your selection is still on the order sheet.',
+    'failed.retry': 'Try paying again',
+    'failed.back': 'Return to the book',
 
     'order.summaryRubric': 'Order sheet',
     'order.yourChoice': 'Your choice',

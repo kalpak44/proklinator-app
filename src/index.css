@@ -687,6 +687,239 @@
   }
 }
 
+/* ---- Processing -------------------------------------------------------- */
+
+/* The payment-confirmation spread: two paper halves on the desk that read as
+   an open book, collapsing to one scrolling column on a phone. */
+.processing-sheet {
+  position: relative;
+  display: grid;
+  width: 100%;
+  max-width: 58rem;
+  grid-template-columns: 1fr;
+  background: var(--color-paper);
+  box-shadow: 0 42px 60px rgba(0, 0, 0, 0.68);
+}
+
+@media (width >= theme(--breakpoint-book)) {
+  .processing-sheet {
+    grid-template-columns: 1fr 1fr;
+    min-height: min(760px, calc(100dvh - 5rem));
+  }
+}
+
+.processing-half {
+  min-width: 0;
+}
+
+.processing-half .page-body {
+  padding: 2.2rem 2.4rem;
+}
+
+@media (width < theme(--breakpoint-book)) {
+  .processing-half .page-body {
+    padding: 2rem 1.6rem;
+  }
+}
+
+/* The rite's progress log: every step listed on the verso, future steps
+   invisible but keeping their place so the page never jumps as it fills. */
+.processing-log {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.processing-log li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: var(--color-ink-faint);
+  opacity: 0;
+}
+
+.processing-log li.is-current,
+.processing-log li.is-past {
+  animation: processing-in 480ms var(--ease-page) forwards;
+}
+
+.processing-log li.is-current {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.processing-log li.is-current .processing-glyph {
+  color: var(--color-rubric);
+}
+
+/* The hand-drawn tick beside the step the book is on. */
+.processing-log li.is-current::before {
+  content: '';
+  position: absolute;
+  left: -0.7rem;
+  top: 50%;
+  width: 0.45rem;
+  height: 2px;
+  background: var(--color-marker);
+  animation: processing-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes processing-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes processing-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* The recto half: the book writes the curse while the rite runs. */
+.processing-manuscript {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Blinking ink cursor while the name is still being written. */
+.processing-caret {
+  display: inline-block;
+  width: 0.045em;
+  height: 0.95em;
+  margin-left: 0.08em;
+  vertical-align: baseline;
+  background: var(--color-rubric);
+  animation: processing-caret 0.9s steps(1) infinite;
+}
+
+@keyframes processing-caret {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Small marks that light up one by one as the rite approaches the seal. */
+.processing-fragments {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.processing-fragments span {
+  width: 0.42rem;
+  height: 0.42rem;
+  border: 1px solid var(--color-ink-faint);
+  transform: rotate(45deg);
+  opacity: 0.45;
+  transition:
+    opacity 400ms ease-out,
+    background-color 400ms ease-out;
+}
+
+.processing-fragments span.is-lit {
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+  opacity: 1;
+}
+
+.processing-written {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  opacity: 0;
+  transition: opacity 600ms ease-out;
+}
+
+.processing-written.is-visible {
+  opacity: 1;
+}
+
+/* The sealing line at the foot of the recto: fill, travelling lozenge, and
+   the step the book is on, announced to assistive tech as the status. */
+.processing-progress {
+  position: relative;
+}
+
+.processing-progress__track {
+  height: 2px;
+  background: rgba(154, 133, 106, 0.35);
+}
+
+.processing-progress__fill {
+  height: 100%;
+  background: var(--color-ink);
+  transition: width 120ms linear;
+}
+
+.processing-progress__marker {
+  position: absolute;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 1.5px solid var(--color-rubric);
+  background: var(--color-paper);
+  transform: translate(-50%, -50%) rotate(45deg);
+  transition: left 120ms linear;
+}
+
+.processing-status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: var(--color-ink);
+}
+
+.processing-status .processing-glyph {
+  color: var(--color-rubric);
+}
+
+/* Small decorative marks; the status one remounts on every stage, so its
+   entrance reads as the rite changing symbols. */
+.processing-glyph {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: processing-glyph 700ms var(--ease-page);
+}
+
+@keyframes processing-glyph {
+  from {
+    opacity: 0;
+    transform: rotate(-40deg) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
 /* ---- Entrances --------------------------------------------------------- */
 
 .rise {
@@ -740,8 +973,16 @@
   .rise,
   .sigil,
   .agent-dot,
-  .marker-wash {
+  .marker-wash,
+  .processing-glyph,
+  .processing-caret,
+  .processing-log li.is-current::before {
     animation: none;
+  }
+
+  .processing-fragments span,
+  .processing-written {
+    transition: none;
   }
 
   .rise {
