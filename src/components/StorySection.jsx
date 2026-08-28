@@ -101,9 +101,16 @@ function AiSection({ section }) {
         <span className="agent-dot bg-marker size-1.5 shrink-0 rounded-full" />
         {t('story.aiRubric')}
       </p>
-      <p className="text-ink/90 relative mt-1.5 text-[0.95rem] leading-[1.6] italic">
-        {section.body}
-      </p>
+      {(Array.isArray(section.body) ? section.body : [section.body]).map(
+        (paragraph, i) => (
+          <p
+            key={i}
+            className="text-ink/90 relative mt-1.5 text-[0.95rem] leading-[1.6] italic"
+          >
+            {paragraph}
+          </p>
+        )
+      )}
     </aside>
   )
 }
