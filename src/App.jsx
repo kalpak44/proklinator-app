@@ -24,6 +24,7 @@ import LaunchForm from './components/LaunchForm.jsx'
 import TitlePage from './components/TitlePage.jsx'
 import Contents from './components/Contents.jsx'
 import SuccessPage from './components/SuccessPage.jsx'
+import LanguageScreen from './components/LanguageScreen.jsx'
 
 /** Space between two blocks: margin + rule + padding of `.page-blocks > * + *`. */
 function blockGap() {
@@ -35,6 +36,7 @@ export default function App() {
   const { AGENT, BOOK, CHAPTERS } = catalogue
   const [index, setIndex] = useState(0)
   const [sound, setSound] = useState(isSoundEnabled)
+  const [langScreenOpen, setLangScreenOpen] = useState(false)
   const [measured, setMeasured] = useState(null)
   const bookRef = useRef(null)
   const apiOk = useApiHealth()
@@ -291,14 +293,12 @@ export default function App() {
         <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
-            onClick={() => setLang(lang === 'ru' ? 'bg' : 'ru')}
-            aria-label={t(lang === 'ru' ? 'lang.current.ru' : 'lang.current.bg')}
-            title={t(lang === 'ru' ? 'lang.switch.bg' : 'lang.switch.ru')}
+            onClick={() => setLangScreenOpen(true)}
+            aria-label={t(lang === 'ru' ? 'lang.current.ru' : 'lang.current.en')}
+            title={t(lang === 'ru' ? 'lang.current.ru' : 'lang.current.en')}
             className="font-mono border-paper/20 text-paper/80 hover:border-marker hover:text-paper cursor-pointer border px-3 py-2 text-[0.66rem] tracking-[0.12em] whitespace-nowrap uppercase transition-colors sm:text-[0.7rem]"
           >
-            <span className={lang === 'bg' ? 'text-paper' : 'text-paper/40'}>BG</span>
-            <span className="text-paper/40"> · </span>
-            <span className={lang === 'ru' ? 'text-paper' : 'text-paper/40'}>RU</span>
+            {lang === 'ru' ? 'RU' : 'EN'}
           </button>
 
           <button
@@ -413,6 +413,16 @@ export default function App() {
           geom={geom}
           onMeasured={onMeasured}
           optionFor={optionFor}
+        />
+      )}
+
+      {langScreenOpen && (
+        <LanguageScreen
+          onSelect={(next) => {
+            setLang(next)
+            setLangScreenOpen(false)
+          }}
+          onClose={() => setLangScreenOpen(false)}
         />
       )}
     </div>

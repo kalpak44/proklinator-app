@@ -9,8 +9,9 @@ import {
 
 /**
  * Holds the active language, the message lookup and the active-language
- * catalogue. The language is resolved once on startup and changed only by the
- * toolbar toggle; every switch is written to localStorage immediately.
+ * catalogue. The language is resolved once on startup and changed only from
+ * the language selection screen; every switch is written to localStorage
+ * immediately.
  */
 export default function LanguageProvider({ children }) {
   const [lang, setLang] = useState(resolveLanguage)
@@ -50,7 +51,7 @@ export default function LanguageProvider({ children }) {
       ?.setAttribute('content', translate('meta.ogDescription', null, lang))
     document
       .querySelector('meta[property="og:locale"]')
-      ?.setAttribute('content', lang === 'ru' ? 'ru_RU' : 'bg_BG')
+      ?.setAttribute('content', lang === 'ru' ? 'ru_RU' : 'en_US')
   }, [lang])
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>

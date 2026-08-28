@@ -40,7 +40,7 @@
     />
 
     <!-- Pre-paint mirror of src/lib/i18n.js: the stored choice, then the
-         browser's own preference, then Bulgarian. Applies the matching title,
+         browser's own preference, then English. Applies the matching title,
          description and lang before first paint, so the tab, the link previews
          and the attribute speak the same language as the book; the app
          re-applies them whenever the reader switches language. -->
@@ -58,22 +58,22 @@
             ogDescription:
               'Книга, которую листаете вы, а слово подбирает агент. Шесть глав: помрачение, разрыв, убывание, неспокойствие, наследие, обережное.',
           },
-          bg: {
-            lang: 'bg',
-            locale: 'bg_BG',
-            title: 'Проклинатор - книга за проклятия, която агентът чете',
+          en: {
+            lang: 'en',
+            locale: 'en_US',
+            title: 'Proklinator - a book of curses read by an agent',
             description:
-              'Агентът е обучен върху тъмни сводове: списъци, преписвани на ръка, мрежи без изход навън и книги, които са горили и не са изгорели. Отворете глава, оградете нужното, останалото той ще свърши сам.',
-            ogTitle: 'Проклинатор - книга за проклятия, която агентът чете',
+              'The agent is trained on dark ledgers: lists copied by hand, networks with no way out, and books that were burned and yet did not burn. Open a chapter, circle what you need - the rest it does itself.',
+            ogTitle: 'Proklinator - a book of curses read by an agent',
             ogDescription:
-              'Книга, която вие листате, а словото подбира агентът. Шест глави: помрачение, разрив, отлив, безпокойство, наследство, пазително.',
+              'A book you turn, while the agent picks the word. Six chapters: dimming, severing, waning, unrest, inheritance, warding.',
           },
         }
 
         var lang = null
         try {
           var stored = localStorage.getItem(LANG_KEY)
-          if (stored === 'ru' || stored === 'bg') lang = stored
+          if (stored === 'ru' || stored === 'en') lang = stored
         } catch (e) {
           // Storage unavailable: fall through to the browser preference.
         }
@@ -81,13 +81,13 @@
           var prefs = navigator.languages || [navigator.language]
           for (var i = 0; i < prefs.length; i++) {
             var primary = String(prefs[i]).split('-')[0]
-            if (primary === 'ru' || primary === 'bg') {
+            if (primary === 'ru' || primary === 'en') {
               lang = primary
               break
             }
           }
         }
-        lang = lang || 'bg'
+        lang = lang || 'en'
         var meta = META[lang]
 
         document.documentElement.lang = lang
