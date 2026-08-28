@@ -5,8 +5,8 @@
 The catalogue is presented as a real book: a two-page spread, bookmarks along the fore
 edge, and page turns that actually rotate a leaf. Choosing an option circles it in marker
 and drops it onto the order sheet, where a one-time Stripe checkout sends it to the agent.
-The interface copy is Russian; everything else here, code and comments included, is
-English.
+The interface is localised into English and Russian, switchable from the header;
+everything else here, code and comments included, is English.
 
 ## Features
 

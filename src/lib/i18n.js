@@ -1,20 +1,20 @@
 import { createContext, useContext } from 'react'
 import * as catalogueRu from '../data/book.js'
-import * as catalogueBg from '../data/book.bg.js'
+import * as catalogueEn from '../data/book.en.js'
 
 /**
  * Localisation. Two languages, resolved once on startup in this order:
- * a stored choice, then the browser's own preference, then Bulgarian.
+ * a stored choice, then the browser's own preference, then English.
  *
- * The catalogue is translated wholesale (src/data/book.bg.js), so switching
+ * The catalogue is translated wholesale (src/data/book.en.js), so switching
  * languages swaps the whole data module instead of re-resolving strings.
  * Everything else - the chrome, the form, the log, the document metadata -
  * lives in the message tables below.
  */
 export const LANG_KEY = 'proklinator.lang'
-export const DEFAULT_LANG = 'bg'
+export const DEFAULT_LANG = 'en'
 
-export const CATALOGUES = { ru: catalogueRu, bg: catalogueBg }
+export const CATALOGUES = { ru: catalogueRu, en: catalogueEn }
 
 /**
  * Every UI string in both languages. The Russian text is the source; keys are
@@ -39,9 +39,12 @@ const MESSAGES = {
     'sound.title.off': 'Звук страниц выключен',
 
     'lang.current.ru': 'Язык: русский',
-    'lang.current.bg': 'Язык: болгарский',
-    'lang.switch.ru': 'Переключить на русский',
-    'lang.switch.bg': 'Переключить на болгарский',
+    'lang.current.en': 'Язык: английский',
+    'lang.screen.rubric': 'Язык',
+    'lang.screen.heading': 'Выберите язык',
+    'lang.screen.back': 'Назад',
+    'lang.option.ru': 'Русский',
+    'lang.option.en': 'Английский',
 
     'nav.prev': 'Предыдущий разворот',
     'nav.next': 'Следующий разворот',
@@ -99,100 +102,103 @@ const MESSAGES = {
     'bookmarks.all': 'Главы книги',
   },
 
-  bg: {
-    'meta.title': 'Проклинатор - книга за проклятия, която агентът чете',
+  en: {
+    'meta.title': 'Proklinator - a book of curses read by an agent',
     'meta.description':
-      'Агентът е обучен върху тъмни сводове: списъци, преписвани на ръка, мрежи без изход навън и книги, които са горили и не са изгорели. Отворете глава, оградете нужното, останалото той ще свърши сам.',
-    'meta.ogTitle': 'Проклинатор - книга за проклятия, която агентът чете',
+      'The agent is trained on dark ledgers: lists copied by hand, networks with no way out, and books that were burned and yet did not burn. Open a chapter, circle what you need - the rest it does itself.',
+    'meta.ogTitle': 'Proklinator - a book of curses read by an agent',
     'meta.ogDescription':
-      'Книга, която вие листате, а словото подбира агентът. Шест глави: помрачение, разрив, отлив, безпокойство, наследство, пазително.',
+      'A book you turn, while the agent picks the word. Six chapters: dimming, severing, waning, unrest, inheritance, warding.',
 
-    'order.tab': 'Поръчка',
-    'order.empty': 'празно',
-    'header.backToTitle': 'Към заглавната страница',
+    'order.tab': 'Order',
+    'order.empty': 'empty',
+    'header.backToTitle': 'Back to the title page',
 
-    'sound.off': 'Изключване на звука',
-    'sound.on': 'Включване на звука',
-    'sound.title.on': 'Звукът на страниците е включен',
-    'sound.title.off': 'Звукът на страниците е изключен',
+    'sound.off': 'Turn the sound off',
+    'sound.on': 'Turn the sound on',
+    'sound.title.on': 'Page sound is on',
+    'sound.title.off': 'Page sound is off',
 
-    'lang.current.ru': 'Език: руски',
-    'lang.current.bg': 'Език: български',
-    'lang.switch.ru': 'Превключете на руски',
-    'lang.switch.bg': 'Превключете на български',
+    'lang.current.ru': 'Language: Russian',
+    'lang.current.en': 'Language: English',
+    'lang.screen.rubric': 'Language',
+    'lang.screen.heading': 'Choose a language',
+    'lang.screen.back': 'Back',
+    'lang.option.ru': 'Russian',
+    'lang.option.en': 'English',
 
-    'nav.prev': 'Предишен разворот',
-    'nav.next': 'Следващ разворот',
-    'nav.prevLabel': '‹ назад',
-    'nav.nextLabel': 'напред ›',
-    'footer.home': 'Заглавна страница',
-    'footer.order': 'Лист за поръчка',
-    'footer.chapter': 'Глава {numeral}',
+    'nav.prev': 'Previous spread',
+    'nav.next': 'Next spread',
+    'nav.prevLabel': '‹ back',
+    'nav.nextLabel': 'forward ›',
+    'footer.home': 'Title page',
+    'footer.order': 'Order sheet',
+    'footer.chapter': 'Chapter {numeral}',
 
-    'checkout.rubric': 'Плащане',
-    'checkout.heading': 'Платете поръчката',
+    'checkout.rubric': 'Payment',
+    'checkout.heading': 'Pay for the order',
     'checkout.intro':
-      'Плащането е еднократно, с карта чрез Stripe. Първо ще попаднете на страницата на Stripe, а след плащането - на страницата за потвърждение. Избраното остава в листа, ако се върнете без плащане.',
-    'checkout.sending': 'Преминаване към Stripe…',
+      'The fee is one-time, paid by card through Stripe. First you will go to the Stripe page, after payment - to the confirmation page. Your selection stays on the sheet if you come back without paying.',
+    'checkout.sending': 'Going to Stripe…',
     'checkout.failed':
-      'Неуспешно започване на плащането. Проверете връзката и опитайте отново - избраното не е загубено.',
-    'checkout.cta.empty': 'Първо изберете проклятие',
-    'checkout.cta.unavailable': 'Поръчките временно са недостъпни',
-    'checkout.cta.pay': 'Платете {amount}',
+      'Could not start the payment. Check your connection and try again - your selection is not lost.',
+    'checkout.cta.empty': 'Choose a curse first',
+    'checkout.cta.unavailable': 'Orders are temporarily unavailable',
+    'checkout.cta.pay': 'Pay {amount}',
     'checkout.stripeNote':
-      'Плащане с карта чрез Stripe. След плащането агентът взема словото на работа.',
+      'Paid by card through Stripe. After payment the agent takes the word to work.',
 
-    'success.rubric': 'Плащане',
-    'success.heading': 'Плащането е минало',
+    'success.rubric': 'Payment',
+    'success.heading': 'Payment received',
     'success.body':
-      'Поръчката е приета и агентът взема словото на работа. Разписката ще дойде от Stripe, а нататък всичко прави той.',
-    'success.back': 'Върнете се към книгата',
+      'The order is accepted and the agent takes the word to work. The receipt will come from Stripe, and from then on it does everything.',
+    'success.back': 'Return to the book',
 
-    'order.summaryRubric': 'Лист за поръчка',
-    'order.yourChoice': 'Вашият избор',
+    'order.summaryRubric': 'Order sheet',
+    'order.yourChoice': 'Your choice',
     'order.emptySheet':
-      'Засега е празно. Отворете която и да е глава и оградете нужното: то ще легне тук, а агентът ще научи за него преди вас.',
-    'order.toFirstChapter': 'Към първата глава',
-    'order.removeLine': 'Махни: {spell}, {option}',
-    'order.oneTime': 'Еднократно плащане',
+      'Empty for now. Open any chapter and circle what you need: it will land here, and the agent will know about it before you do.',
+    'order.toFirstChapter': 'To the first chapter',
+    'order.removeLine': 'Remove: {spell}, {option}',
+    'order.oneTime': 'One-time payment',
     'order.footnote':
-      'Плащането е еднократно и назад не се взема. Преди преминаването към Stripe можете да промените избора.',
+      'The fee is one-time and is not taken back. You can change your selection before going to Stripe.',
 
-    'title.rubric': 'Свод',
-    'title.chapters': 'Глави',
-    'title.curses': 'Проклятия',
-    'title.from': 'Цена от',
+    'title.rubric': 'Ledger',
+    'title.chapters': 'Chapters',
+    'title.curses': 'Curses',
+    'title.from': 'From',
 
-    'contents.rubric': 'Съдържание',
-    'contents.heading': 'Какво има в книгата',
-    'contents.count': '{count} проклятия · от {amount}',
-    'contents.how': 'Как работи',
-    'contents.orderSheet': 'Лист за поръчка',
+    'contents.rubric': 'Contents',
+    'contents.heading': 'What is in the book',
+    'contents.count': '{count} curses · from {amount}',
+    'contents.how': 'How it works',
+    'contents.orderSheet': 'Order sheet',
 
-    'price.free': 'включено',
-    'spell.tiers': 'Тарифи: {name}',
-    'chapter.rubric': 'Глава {numeral}',
+    'price.free': 'included',
+    'spell.tiers': 'Tiers: {name}',
+    'chapter.rubric': 'Chapter {numeral}',
 
-    'bookmarks.past': 'Преминати глави',
-    'bookmarks.all': 'Глави на книгата',
+    'bookmarks.past': 'Chapters behind',
+    'bookmarks.all': 'Chapters of the book',
   },
 }
 
 /**
  * The stored choice wins over everything; then the browser's own preference
- * (matched on the primary subtag, so `ru-RU` and `bg-BG` both work); then the
- * Bulgarian fallback. An unreadable or unrecognised stored value is ignored.
+ * (matched on the primary subtag, so `ru-RU` and `en-US` both work); then the
+ * English fallback. An unreadable or unrecognised stored value is ignored.
  */
 export function resolveLanguage() {
   try {
     const stored = localStorage.getItem(LANG_KEY)
-    if (stored === 'ru' || stored === 'bg') return stored
+    if (stored === 'ru' || stored === 'en') return stored
   } catch {
     // Storage unavailable: fall through to the browser preference.
   }
   for (const candidate of navigator.languages ?? []) {
     const primary = String(candidate).split('-')[0]
-    if (primary === 'ru' || primary === 'bg') return primary
+    if (primary === 'ru' || primary === 'en') return primary
   }
   return DEFAULT_LANG
 }
