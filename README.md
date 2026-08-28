@@ -3,14 +3,17 @@
 **A book of curses that you turn, and an agent that does the work.**
 
 The catalogue is presented as a real book: a two-page spread, bookmarks along the fore
-edge, and page turns that actually rotate a leaf. Choosing an option circles it in marker
-and drops it onto the order sheet, where a one-time Stripe checkout sends it to the agent.
-The interface is localised into English and Russian, switchable from the header;
-everything else here, code and comments included, is English.
+edge, and page turns that actually rotate a leaf. Every curse is its own short
+multi-page chapter - a legend, an origin, the objects and their symbolism, alleged
+accounts, a modern investigation, and a closing choice. Choosing an option circles it
+in marker and drops it onto the order sheet, where a one-time Stripe checkout sends it
+to the AI. The interface is localised into English and Russian, switchable from the
+header; everything else here, code and comments included, is English.
 
 ## Features
 
-- Six chapters, each with its own frontispiece and price list
+- Six chapters, each with its own frontispiece; every curse opens on a fresh page and
+  runs as a short multi-page chapter of its own
 - Automatic composition: whatever does not fit a page is carried to the next one
 - Page turns with a three-dimensional leaf rotation and the sound of paper
 - Bookmarks on the fore edge: chapters behind you on the left, the ones ahead on the right
@@ -32,7 +35,9 @@ everything else here, code and comments included, is English.
 Pages do not scroll on a spread. `src/components/MeasureLayer.jsx` renders every content
 block once, off-screen, at the exact size of a real page; `src/lib/pagination.js` then packs
 those measured heights into pages and pairs the pages into spreads. A chapter always opens
-on a left-hand page, so the bookmarks line up with the spread they name.
+on a left-hand page, so the bookmarks line up with the spread they name. A curse is one
+more level of the same composition: its first section opens on a fresh page, and the
+sections after it flow, carrying over when they do not fit, until the closing price list.
 
 Two consequences worth knowing before editing:
 
