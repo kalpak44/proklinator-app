@@ -98,6 +98,18 @@ const MESSAGES = {
     'spell.tiers': 'Тарифы: {name}',
     'chapter.rubric': 'Глава {numeral}',
 
+    'story.legend': 'Легенда',
+    'story.origin': 'Происхождение',
+    'story.objects': 'Предметы и символы',
+    'story.accounts': 'Свидетельства',
+    'story.modern': 'Современное расследование',
+    'story.effect': 'Выбор',
+    'story.aiRubric': 'Запись машины',
+    'story.choose':
+      'Отметьте ступень - она ляжет в лист заказа. Слово подберёт и произнесёт не человек, а особый ИИ.',
+    'story.disclaimer':
+      'Свод, места, люди и архивы в этой главе вымышлены. Обрядов не существует, и всё описанное - художественный вымысел, а не исторические факты. Ниже - только каталог работ.',
+
     'bookmarks.past': 'Пройденные главы',
     'bookmarks.all': 'Главы книги',
   },
@@ -178,6 +190,18 @@ const MESSAGES = {
     'price.free': 'included',
     'spell.tiers': 'Tiers: {name}',
     'chapter.rubric': 'Chapter {numeral}',
+
+    'story.legend': 'Legend',
+    'story.origin': 'Origin',
+    'story.objects': 'Objects and symbolism',
+    'story.accounts': 'Accounts',
+    'story.modern': 'Modern investigation',
+    'story.effect': 'The choice',
+    'story.aiRubric': "The machine's note",
+    'story.choose':
+      'Mark the tier you want - it goes to the order sheet. The word is chosen and spoken not by a person but by a special AI.',
+    'story.disclaimer':
+      'The ledgers, places, people and archives in this chapter are invented. The rites do not exist, and everything above is fiction, not recorded fact. Below is only a catalogue of work.',
 
     'bookmarks.past': 'Chapters behind',
     'bookmarks.all': 'Chapters of the book',

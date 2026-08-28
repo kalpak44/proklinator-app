@@ -10,21 +10,59 @@
  * is inserted, exactly as a printed book does.
  */
 
-/** Ordered content blocks of the whole book: a frontispiece, then the curses. */
+/**
+ * Ordered content blocks of the whole book: a frontispiece, then the story
+ * sections of every curse, one block per section. A curse always opens on a
+ * fresh page (`breakBefore` on its first section), so every curse reads as its
+ * own short chapter; the sections after the first flow normally, and whatever
+ * does not fit a page is carried to the next one.
+ */
 export function buildBlocks(chapters) {
   return chapters.flatMap((chapter, chapterIndex) => [
-    { id: `${chapter.id}/front`, kind: 'front', chapterIndex, chapter },
-    ...chapter.spells.map((spell) => ({
-      id: `${chapter.id}/${spell.id}`,
-      kind: 'spell',
+    {
+      id: `${chapter.id}/front`,
+      kind: 'front',
       chapterIndex,
       chapter,
-      spell,
-    })),
+      breakBefore: true,
+    },
+    ...chapter.spells.flatMap((spell) => storyBlocks(chapter, chapterIndex, spell)),
   ])
 }
 
 const blankPage = (chapterIndex) => ({ chapterIndex, blocks: [], height: 0 })
+
+/**
+ * The blocks of one curse: its story sections. Accounts are split further, one
+ * block per alleged case, so several accounts can never crowd one page out.
+ */
+function storyBlocks(chapter, chapterIndex, spell) {
+  return spell.story.flatMap((section, i) => {
+    if (section.kind === 'accounts') {
+      return section.items.map((item, j) => ({
+        id: `${chapter.id}/${spell.id}/${i}/${j}`,
+        kind: 'story',
+        chapterIndex,
+        chapter,
+        spell,
+        section: { kind: 'account', ...item },
+        heading: j === 0,
+        breakBefore: i === 0 && j === 0,
+      }))
+    }
+    return [
+      {
+        id: `${chapter.id}/${spell.id}/${i}`,
+        kind: 'story',
+        chapterIndex,
+        chapter,
+        spell,
+        section,
+        breakBefore: i === 0,
+      },
+    ]
+  })
+}
 
 /**
  * @param {Array} blocks   from buildBlocks
@@ -39,7 +77,8 @@ export function paginate(blocks, heights, available, gap) {
   for (const block of blocks) {
     const height = heights[block.id] ?? 0
     const sameChapter = current && current.chapterIndex === block.chapterIndex
-    const fits = current && current.height + gap + height <= available
+    const fits =
+      current && current.height + gap + height <= available && !block.breakBefore
 
     if (sameChapter && fits) {
       current.blocks.push(block)
@@ -100,12 +139,12 @@ export function chapterSpreadIndex(spreads, chapterCount) {
 export function naiveSpreads(chapters) {
   const spreads = [{ kind: 'home', chapterIndex: -1 }]
   const chapterSpreads = chapters.map((chapter, chapterIndex) => {
-    const [front, ...spells] = buildBlocks([chapter])
+    const [front, ...sections] = buildBlocks([chapter])
     return {
       kind: 'chapter',
       chapterIndex,
       verso: { chapterIndex, blocks: [{ ...front, chapterIndex }] },
-      recto: { chapterIndex, blocks: spells.map((b) => ({ ...b, chapterIndex })) },
+      recto: { chapterIndex, blocks: sections.map((b) => ({ ...b, chapterIndex })) },
     }
   })
   spreads.push(...chapterSpreads, { kind: 'order', chapterIndex: -1 })
