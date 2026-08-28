@@ -10,7 +10,7 @@ const noop = () => {}
  * Kept in the React tree rather than built by hand in the DOM, so a block can
  * never be measured with styles that differ from the ones it renders with.
  */
-export default function MeasureLayer({ blocks, geom, onMeasured }) {
+export default function MeasureLayer({ blocks, geom, onMeasured, optionFor }) {
   const bodyRef = useRef(null)
 
   useLayoutEffect(() => {
@@ -40,7 +40,7 @@ export default function MeasureLayer({ blocks, geom, onMeasured }) {
     return () => {
       live = false
     }
-  }, [geom, blocks, onMeasured])
+  }, [geom, blocks, onMeasured, optionFor])
 
   if (!geom) return null
 
@@ -54,7 +54,12 @@ export default function MeasureLayer({ blocks, geom, onMeasured }) {
         <div className="page-blocks">
           {blocks.map((block) => (
             <div key={block.id} data-block={block.id}>
-              <PageBlock block={block} isSelected={() => false} onToggle={noop} />
+              <PageBlock
+                block={block}
+                isSelected={() => false}
+                onToggle={noop}
+                optionFor={optionFor}
+              />
             </div>
           ))}
         </div>

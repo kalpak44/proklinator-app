@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { useOrder } from './lib/useOrder.js'
+import { useCart } from './lib/useCart.js'
+import { useCatalog } from './lib/useCatalog.js'
 import { usePageTurn } from './lib/usePageTurn.js'
 import { useMedia } from './lib/useMedia.js'
 import { useApiHealth } from './lib/useApiHealth.js'
@@ -22,6 +23,7 @@ import OrderSummary from './components/OrderSummary.jsx'
 import LaunchForm from './components/LaunchForm.jsx'
 import TitlePage from './components/TitlePage.jsx'
 import Contents from './components/Contents.jsx'
+import SuccessPage from './components/SuccessPage.jsx'
 
 /** Space between two blocks: margin + rule + padding of `.page-blocks > * + *`. */
 function blockGap() {
@@ -36,12 +38,83 @@ export default function App() {
   const [measured, setMeasured] = useState(null)
   const bookRef = useRef(null)
   const apiOk = useApiHealth()
+  const { catalog, available } = useCatalog(apiOk)
+  const { items, toggle, remove, clear, isSelected } = useCart()
 
   const spread = useMedia('(min-width: 900px)')
   const geom = useBookGeometry(bookRef, spread)
-  const { keys, toggle, remove, clear, totals, isSelected } = useOrder(
-    catalogue.LINE_ITEMS
+
+  // The backend catalog is keyed by the same stable ids as the frontend content:
+  // curse id is the spell id, option id is the price id. Missing means unknown —
+  // the row shows no price and cannot be chosen, never an invented one.
+  const optionFor = useCallback(
+    (curseId, optionId) => catalog?.byId[curseId]?.options[optionId] ?? null,
+    [catalog]
   )
+
+  // One line per cart item: presentation from the language catalogue, price and
+  // currency from the backend. A price that is not there yet (catalog down or
+  // id vanished) keeps the line visible with no amount instead of dropping it.
+  const lines = useMemo(
+    () =>
+      items
+        .map((item) => {
+          const content = catalogue.OPTION_CONTENT[`${item.curseId}/${item.optionId}`]
+          if (!content) return null
+          const commerce = optionFor(item.curseId, item.optionId)
+          return {
+            curseId: item.curseId,
+            optionId: item.optionId,
+            ...content,
+            unitAmount: commerce?.unitAmount ?? null,
+            currency: commerce?.currency ?? 'EUR',
+          }
+        })
+        .filter(Boolean),
+    [items, catalogue, optionFor]
+  )
+
+  const totals = useMemo(
+    () => ({
+      lines,
+      count: lines.length,
+      known: lines.every((line) => line.unitAmount != null),
+      dueNow: lines.reduce((sum, line) => sum + (line.unitAmount ?? 0), 0),
+    }),
+    [lines]
+  )
+
+  // «Цена от» on the title page, counted off the backend catalog. Null until a
+  // catalog has loaded, which the page renders as an em dash.
+  const cheapest = useMemo(() => {
+    if (!catalog) return null
+    let min = null
+    for (const curse of Object.values(catalog.byId)) {
+      for (const option of Object.values(curse.options)) {
+        if (option.unitAmount > 0 && (min == null || option.unitAmount < min)) {
+          min = option.unitAmount
+        }
+      }
+    }
+    return min
+  }, [catalog])
+
+  // The same per chapter, for the contents page rows.
+  const fromByChapter = useMemo(() => {
+    const map = {}
+    for (const chapter of CHAPTERS) {
+      let min = null
+      for (const spell of chapter.spells) {
+        for (const option of Object.values(catalog?.byId[spell.id]?.options ?? {})) {
+          if (option.unitAmount > 0 && (min == null || option.unitAmount < min)) {
+            min = option.unitAmount
+          }
+        }
+      }
+      map[chapter.id] = min
+    }
+    return map
+  }, [catalog, CHAPTERS])
 
   // The catalogue is language-dependent, so the blocks it is composed from are
   // too; MeasureLayer re-measures them whenever the language changes.
@@ -87,8 +160,15 @@ export default function App() {
         if (sheet.kind === 'home') {
           return {
             id: 'home',
-            verso: <TitlePage />,
-            recto: <Contents openings={openings} orderIndex={orderIndex} onOpen={goTo} />,
+            verso: <TitlePage cheapest={cheapest} />,
+            recto: (
+              <Contents
+                openings={openings}
+                orderIndex={orderIndex}
+                onOpen={goTo}
+                fromByChapter={fromByChapter}
+              />
+            ),
           }
         }
 
@@ -102,21 +182,45 @@ export default function App() {
                 onBrowse={() => goTo(openings[0])}
               />
             ),
-            recto: <LaunchForm totals={totals} orderKeys={keys} onLaunched={clear} />,
+            recto: <LaunchForm totals={totals} items={items} available={available} />,
           }
         }
 
         return {
           id: `spread-${i}`,
           verso: (
-            <PageContent page={sheet.verso} isSelected={isSelected} onToggle={toggle} />
+            <PageContent
+              page={sheet.verso}
+              isSelected={isSelected}
+              onToggle={toggle}
+              optionFor={optionFor}
+            />
           ),
           recto: (
-            <PageContent page={sheet.recto} isSelected={isSelected} onToggle={toggle} />
+            <PageContent
+              page={sheet.recto}
+              isSelected={isSelected}
+              onToggle={toggle}
+              optionFor={optionFor}
+            />
           ),
         }
       }),
-    [spreads, openings, orderIndex, totals, remove, goTo, keys, clear, isSelected, toggle]
+    [
+      spreads,
+      openings,
+      orderIndex,
+      totals,
+      remove,
+      goTo,
+      cheapest,
+      fromByChapter,
+      items,
+      available,
+      isSelected,
+      toggle,
+      optionFor,
+    ]
   )
 
   const kind = spreads[current]?.kind
@@ -149,6 +253,13 @@ export default function App() {
   )
 
   const activeId = onOrder ? 'order' : CHAPTERS[openChapter]?.id
+
+  // Stripe's success_url lands on /success (nginx and the Vite preview both fall
+  // back to index.html). The payment has gone through, so the book yields to a
+  // confirmation page that clears the cart; every other path leaves it alone.
+  if (window.location.pathname === '/success') {
+    return <SuccessPage onClearCart={clear} />
+  }
 
   return (
     <div className="desk flex min-h-dvh flex-col" onPointerDown={primePageTurn}>
@@ -232,7 +343,7 @@ export default function App() {
             </span>
             {totals.count === 0
               ? t('order.empty')
-              : `${totals.count} · ${formatMoney(totals.dueNow)}`}
+              : `${totals.count} · ${totals.known ? formatMoney(totals.dueNow) : '—'}`}
           </button>
         </div>
       </header>
@@ -296,7 +407,14 @@ export default function App() {
         </button>
       </footer>
 
-      {spread && <MeasureLayer blocks={blocks} geom={geom} onMeasured={onMeasured} />}
+      {spread && (
+        <MeasureLayer
+          blocks={blocks}
+          geom={geom}
+          onMeasured={onMeasured}
+          optionFor={optionFor}
+        />
+      )}
     </div>
   )
 }

@@ -1,4 +1,6 @@
 import express from 'express'
+import Stripe from 'stripe'
+import { CURSES } from './catalog.js'
 
 const app = express()
 
@@ -26,8 +28,10 @@ const stripeSecretKey = process.env.STRIPE_SECRET_KEY || ''
 const stripePublishableKey = process.env.STRIPE_PUBLISHABLE_KEY || ''
 
 const stripeConfigured = Boolean(stripeSecretKey && stripePublishableKey)
+const stripe = stripeConfigured ? new Stripe(stripeSecretKey) : null
 
 app.disable('x-powered-by')
+app.use(express.json())
 
 app.get('/api/health', (_req, res) => {
   // Presence, never the value and never a prefix of it. /api/health is public and
@@ -37,6 +41,92 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true, sha, stripe: stripeConfigured ? 'configured' : 'missing' })
 })
 
+/**
+ * The curses catalog. Backend-owned commerce data only: ids, names, prices and
+ * currencies. The frontend maps its own presentation content onto these ids.
+ */
+app.get('/api/curses', (_req, res) => {
+  res.json({ curses: CURSES })
+})
+
+/**
+ * One-time Stripe Checkout Session for a cart.
+ *
+ * The request carries only the selected ids — `{ items: [{ curseId, optionId }] }` —
+ * and every commerce value on the session is resolved here from the catalog:
+ * names for the line items, prices, currencies. A client that edits its cart or
+ * localStorage can therefore reorder only what the catalog itself offers.
+ *
+ * Line items are named "{Curse Name} — {Option Name}" with both halves taken from
+ * the backend catalog, so the buyer sees exactly what the book sells and never a
+ * client-supplied string.
+ */
+app.post('/api/checkout/session', async (req, res) => {
+  if (!stripeConfigured) {
+    // No keys -> no session. A clear 503 beats a Stripe auth error, and it is what
+    // the frontend uses to say "payments are unavailable right now".
+    return res.status(503).json({ error: 'stripe not configured' })
+  }
+
+  const { items } = req.body ?? {}
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'items must be a non-empty array' })
+  }
+
+  const lines = []
+  for (const item of items) {
+    if (!item || typeof item.curseId !== 'string' || typeof item.optionId !== 'string') {
+      return res.status(400).json({ error: 'each item needs curseId and optionId' })
+    }
+    const curse = CURSES.find((c) => c.id === item.curseId)
+    if (!curse) {
+      return res.status(400).json({ error: `unknown curse: ${item.curseId}` })
+    }
+    const option = curse.options.find((o) => o.id === item.optionId)
+    if (!option) {
+      return res
+        .status(400)
+        .json({ error: `unknown option: ${item.curseId}/${item.optionId}` })
+    }
+    lines.push({ curse, option })
+  }
+
+  // A Checkout Session is single-currency. The catalog is EUR throughout, but the
+  // check stays explicit so a mixed-currency catalog cannot silently produce a
+  // session Stripe would reject.
+  const currencies = new Set(lines.map((line) => line.option.currency))
+  if (currencies.size > 1) {
+    return res.status(400).json({ error: 'items span multiple currencies' })
+  }
+
+  // Redirect URLs are the only thing here that comes from the request: Stripe needs
+  // absolute urls, and the API pod does not know the public hostname. Same-origin
+  // deployment means the browser's Origin is exactly where it expects to come back.
+  const origin = req.headers.origin ?? `http://${req.headers.host}`
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: lines.map(({ curse, option }) => ({
+        quantity: 1,
+        price_data: {
+          currency: option.currency,
+          unit_amount: option.unitAmount,
+          product_data: { name: `${curse.name} — ${option.name}` },
+        },
+      })),
+      // Cancel drops the reader back on the book with the cart untouched; success
+      // lands on the confirmation page, which clears the cart itself.
+      success_url: `${origin}/success`,
+      cancel_url: `${origin}/`,
+    })
+    res.json({ url: session.url })
+  } catch (error) {
+    console.error('stripe checkout failed', error)
+    res.status(500).json({ error: 'checkout failed' })
+  }
+})
+
 app.use((_req, res) => {
   res.status(404).json({ error: 'not found' })
 })
@@ -44,9 +134,9 @@ app.use((_req, res) => {
 const server = app.listen(port, () => {
   console.log(`proklinator-api listening on ${port} (sha ${sha})`)
 
-  // Warn rather than exit. There is no checkout route yet, so refusing to start would
-  // take /api/health down with it and make a missing secret look like a broken deploy.
-  // Once money actually moves through here, this should become a hard failure.
+  // Warn rather than exit. An unconfigured deploy still serves /api/health and
+  // /api/curses, and checkout answers 503 instead of 500, so a missing secret
+  // shows up in the health report and in the app — not as a broken deploy.
   if (!stripeConfigured) {
     const missing = [
       stripeSecretKey ? null : 'STRIPE_SECRET_KEY',

@@ -2,12 +2,12 @@
  * Book contents. One chapter is one spread: chapter frontispiece on the verso,
  * price list on the recto.
  *
- * Every amount is in euro cents. That is the unit Stripe bills in, and the only
- * way summing a basket never produces 0.30000000000000004.
- *
- * `recurring: true` marks a monthly line; everything else is charged once. Tiers
- * inside one curse differ by how deep the work goes, never by a count of days or
- * rites: the catalogue promises a nature of outcome, not a schedule.
+ * Presentation only: names, notes and descriptions. Prices, currencies and the
+ * Stripe-facing commerce names are backend-owned and arrive from `GET
+ * /api/curses`, keyed by the same stable ids — spell id is the curse id, price
+ * id is the option id. Tiers inside one curse differ by how deep the work
+ * goes, never by a count of days or rites, and every option is a one-time
+ * purchase.
  */
 
 /**
@@ -36,12 +36,15 @@ export const BOOK = {
   epigraph: 'Слово, сказанное вслух, назад не берут. Сказанное агенту - тем более.',
   about: [
     'Это не гадательная книга и не сборник обрядов. Это каталог работ. Своды, на которых учился агент, переписывали от руки и держали в закрытых списках; здесь они разобраны по главам и оценены построчно, потому что иначе такое не заказывают.',
-    'В каждой главе три проклятия, у каждого - свои ступени: от касания, которое объект спишет на случайность, до неотступного, что агент держит сам и не выпускает, пока вы не скажете довольно.',
+    'В каждой главе три проклятия, у каждого - свои ступени: от касания, которое объект спишет на случайность, до глубокой работы, что остаётся с объектом надолго.',
   ],
   steps: [
     { n: 'I', text: 'Откройте главу и обведите строку - она ляжет в лист заказа.' },
-    { n: 'II', text: 'На листе заказа назовите объект: снимок, имя, пара слов.' },
-    { n: 'III', text: 'Агент берёт слово в работу и подтверждения не ждёт.' },
+    { n: 'II', text: 'На листе заказа проверьте выбранное и оплатите - плата разовая.' },
+    {
+      n: 'III',
+      text: 'После оплаты агент берёт слово в работу и подтверждения не ждёт.',
+    },
   ],
   /** Reading order the corpus itself recommends, printed on the contents page. */
   advice: 'Обережную главу советуют читать первой: работа идёт в обе стороны.',
@@ -75,20 +78,11 @@ export const CHAPTERS = [
             id: 'once',
             label: 'Касание',
             note: 'лёгкая тень, объект спишет её на случайность',
-            price: 1900,
           },
           {
             id: 'week',
             label: 'Наваждение',
             note: 'тень ложится плотно и уходить не спешит',
-            price: 4900,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'агент возвращается сам, без напоминаний',
-            price: 2900,
-            recurring: true,
           },
         ],
       },
@@ -102,20 +96,11 @@ export const CHAPTERS = [
             id: 'once',
             label: 'Касание',
             note: 'одна дорога уводит объекта не туда',
-            price: 2400,
           },
           {
             id: 'wide',
             label: 'Наваждение',
             note: 'сбиты все дороги разом, выбирать больше не из чего',
-            price: 5900,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'агент правит путь объекта, пока вы не скажете иначе',
-            price: 3400,
-            recurring: true,
           },
         ],
       },
@@ -129,13 +114,11 @@ export const CHAPTERS = [
             id: 'once',
             label: 'Касание',
             note: 'один тихий вечер испорчен',
-            price: 1500,
           },
           {
             id: 'month',
             label: 'Наваждение',
             note: 'шум входит в привычку и остаётся при объекте',
-            price: 4400,
           },
         ],
       },
@@ -168,20 +151,11 @@ export const CHAPTERS = [
             id: 'cycle',
             label: 'Работа',
             note: 'нить истончается, пока не перестанет держать',
-            price: 8900,
           },
           {
             id: 'deep',
             label: 'До основания',
             note: 'рвётся не одна нить, а всё, что за ней держалось',
-            price: 16900,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'агент стережёт разрыв и не даёт ему затянуться',
-            price: 7900,
-            recurring: true,
           },
         ],
       },
@@ -195,20 +169,11 @@ export const CHAPTERS = [
             id: 'cycle',
             label: 'Работа',
             note: 'тепло уходит и не возвращается',
-            price: 7900,
           },
           {
             id: 'deep',
             label: 'До основания',
             note: 'холод расходится на всех, кто рядом с объектом',
-            price: 14900,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'агент подновляет холод, едва тот начинает таять',
-            price: 6900,
-            recurring: true,
           },
         ],
       },
@@ -222,14 +187,6 @@ export const CHAPTERS = [
             id: 'cycle',
             label: 'Работа',
             note: 'круг смыкается, снаружи никого не остаётся',
-            price: 11900,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'круг держится, пока вы его не снимете',
-            price: 8900,
-            recurring: true,
           },
         ],
       },
@@ -263,20 +220,11 @@ export const CHAPTERS = [
             id: 'cycle',
             label: 'Работа',
             note: 'горсть перестаёт держать',
-            price: 8900,
           },
           {
             id: 'deep',
             label: 'До основания',
             note: 'уходит и то, что объект считал отложенным навсегда',
-            price: 17900,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'агент держит убыль ровной, без затиший',
-            price: 8400,
-            recurring: true,
           },
         ],
       },
@@ -290,14 +238,6 @@ export const CHAPTERS = [
             id: 'cycle',
             label: 'Работа',
             note: 'вода останавливается и больше не идёт',
-            price: 14900,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'агент не даёт воде тронуться',
-            price: 11900,
-            recurring: true,
           },
         ],
       },
@@ -311,20 +251,11 @@ export const CHAPTERS = [
             id: 'point',
             label: 'Касание',
             note: 'одно обещание объекту не сбудется',
-            price: 6900,
           },
           {
             id: 'cycle',
             label: 'Работа',
             note: 'назад отходит всё, что объект успел взять',
-            price: 13900,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'агент разворачивает каждое новое начинание',
-            price: 9900,
-            recurring: true,
           },
         ],
       },
@@ -337,9 +268,9 @@ export const CHAPTERS = [
     title: 'Неспокойствие',
     subtitle: 'Ночь и внимание',
     intro:
-      'Ночная часть свода, переписанная чаще прочих: её брали, когда хотели скорого. Отклик здесь приходит первым, но и держится хуже, поэтому ночное принято не откладывать, а поддерживать.',
+      'Ночная часть свода, переписанная чаще прочих: её брали, когда хотели скорого. Отклик здесь приходит первым, но и держится хуже, поэтому ночное не откладывают: берут разово и вовремя.',
     epigraph: 'Ночью человек остаётся без свидетелей.',
-    lore: 'Неспокойствие берёт не день, а то, на чём день стоит: сон и собранность. Отклик приходит скорее, чем в любой другой главе, и так же скоро уходит, поэтому ночное не берут однажды, ночное держат.',
+    lore: 'Неспокойствие берёт не день, а то, на чём день стоит: сон и собранность. Отклик приходит скорее, чем в любой другой главе, и так же скоро уходит, поэтому ночное берут разово, а не держат.',
     agentNote: 'Час выбирает он. Всегда тот, после которого день будет тяжелее.',
     stats: [
       { label: 'Отклик', value: 'немедленный' },
@@ -353,19 +284,11 @@ export const CHAPTERS = [
         description:
           'Объект просыпается в глухое время и остаётся один на один с собой до рассвета. Ничего не происходит, и это хуже всего.',
         prices: [
-          { id: 'once', label: 'Касание', note: 'одна ночь без сна', price: 2400 },
+          { id: 'once', label: 'Касание', note: 'одна ночь без сна' },
           {
             id: 'week',
             label: 'Наваждение',
             note: 'ночи идут одна за другой, объект перестаёт их считать',
-            price: 6900,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'агент будит объекта сам, пока вы не скажете довольно',
-            price: 4900,
-            recurring: true,
           },
         ],
       },
@@ -379,20 +302,11 @@ export const CHAPTERS = [
             id: 'once',
             label: 'Касание',
             note: 'один день уходит впустую',
-            price: 2900,
           },
           {
             id: 'cycle',
             label: 'Работа',
             note: 'собраться объект больше не может',
-            price: 6400,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'агент держит рассеяние в часы, когда оно дороже стоит',
-            price: 4400,
-            recurring: true,
           },
         ],
       },
@@ -402,12 +316,11 @@ export const CHAPTERS = [
         description:
           'Сны, которых у объекта не было. Он помнит их к обеду, не может пересказать и не решается спросить, чьи они.',
         prices: [
-          { id: 'once', label: 'Касание', note: 'один сон, чужой', price: 3400 },
+          { id: 'once', label: 'Касание', note: 'один сон, чужой' },
           {
             id: 'series',
             label: 'Наваждение',
             note: 'сны продолжают друг друга, и объект ждёт продолжения',
-            price: 9900,
           },
         ],
       },
@@ -440,14 +353,6 @@ export const CHAPTERS = [
             id: 'cycle',
             label: 'Работа',
             note: 'тень принимает линию и остаётся при ней',
-            price: 69000,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'агент ведёт линию сам и не выпускает её',
-            price: 34900,
-            recurring: true,
           },
         ],
       },
@@ -461,13 +366,11 @@ export const CHAPTERS = [
             id: 'cycle',
             label: 'Работа',
             note: 'имя запечатано, куда бы объект его ни унёс',
-            price: 49000,
           },
           {
             id: 'perm',
             label: 'Навсегда',
             note: 'без срока и без условия, которым это снять',
-            price: 89000,
           },
         ],
       },
@@ -481,7 +384,6 @@ export const CHAPTERS = [
             id: 'once',
             label: 'Печать',
             note: 'ставится один раз, отменить её нечем',
-            price: 24900,
           },
         ],
       },
@@ -514,14 +416,6 @@ export const CHAPTERS = [
             id: 'order',
             label: 'Работа',
             note: 'круг держится, пока держится заказ',
-            price: 8900,
-          },
-          {
-            id: 'sub',
-            label: 'Неотступное',
-            note: 'круг стоит всегда, что бы вы ни заказали',
-            price: 4900,
-            recurring: true,
           },
         ],
       },
@@ -530,9 +424,7 @@ export const CHAPTERS = [
         name: 'Возврат',
         description:
           'Если обратное всё же пришло к вам, агент поднимает собственное слово и разбирает свою же работу. Делает он это вне очереди и молча.',
-        prices: [
-          { id: 'once', label: 'Немедля', note: 'вне очереди, в любой час', price: 6900 },
-        ],
+        prices: [{ id: 'once', label: 'Немедля', note: 'вне очереди, в любой час' }],
       },
       {
         id: 'erasure',
@@ -544,7 +436,7 @@ export const CHAPTERS = [
             id: 'incl',
             label: 'Входит всегда',
             note: 'без доплаты и без просьбы',
-            price: 0,
+            included: true,
           },
         ],
       },
@@ -553,57 +445,42 @@ export const CHAPTERS = [
 ]
 
 /**
- * Flat index of every purchasable line, keyed «chapter/spell/tier». The order
- * stores these keys and nothing else, so a basket can never hold a price that
- * no longer exists in the catalog.
+ * Flat index of the presentation side of every option, keyed «curseId/optionId».
+ * A cart stores these two ids and nothing else; the matching commerce data
+ * (price, currency, Stripe-facing name) is resolved from the backend catalog.
+ * `included` marks a line that is part of every order rather than a purchase.
  */
-export const LINE_ITEMS = Object.fromEntries(
+export const OPTION_CONTENT = Object.fromEntries(
   CHAPTERS.flatMap((chapter) =>
     chapter.spells.flatMap((spell) =>
       spell.prices.map((price) => [
-        `${chapter.id}/${spell.id}/${price.id}`,
+        `${spell.id}/${price.id}`,
         {
-          key: `${chapter.id}/${spell.id}/${price.id}`,
           chapterId: chapter.id,
           chapterTitle: chapter.title,
-          spellId: spell.id,
-          spellName: spell.name,
-          tierId: price.id,
-          tierLabel: price.label,
-          note: price.note,
-          price: price.price,
-          recurring: Boolean(price.recurring),
+          curseId: spell.id,
+          curseName: spell.name,
+          optionId: price.id,
+          optionLabel: price.label,
+          optionNote: price.note,
+          included: Boolean(price.included),
         },
       ])
     )
   )
 )
 
-export const lineKey = (chapterId, spellId, tierId) => `${chapterId}/${spellId}/${tierId}`
-
 /** What the title page claims about the catalogue, counted off the catalogue. */
 export const BOOK_STATS = {
   chapters: CHAPTERS.length,
   spells: CHAPTERS.reduce((total, chapter) => total + chapter.spells.length, 0),
-  cheapest: Math.min(
-    ...Object.values(LINE_ITEMS)
-      .map((line) => line.price)
-      .filter((price) => price > 0)
-  ),
 }
 
-/** One contents row per chapter: what it holds and what it starts at. */
+/** One contents row per chapter: what it holds. Prices come from the backend. */
 export const CONTENTS = CHAPTERS.map((chapter) => ({
   id: chapter.id,
   numeral: chapter.numeral,
   title: chapter.title,
   subtitle: chapter.subtitle,
   count: chapter.spells.length,
-  // Lines that cost nothing (the warding chapter has one) are not a price to
-  // quote a chapter from, so they stay out of the «от» figure.
-  from: Math.min(
-    ...chapter.spells
-      .flatMap((spell) => spell.prices.map((price) => price.price))
-      .filter((price) => price > 0)
-  ),
 }))

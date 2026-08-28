@@ -3,9 +3,10 @@
 **A book of curses that you turn, and an agent that does the work.**
 
 The catalogue is presented as a real book: a two-page spread, bookmarks along the fore
-edge, and page turns that actually rotate a leaf. Choosing a tier circles it in marker and
-drops it onto the order sheet. The interface copy is Russian; everything else here, code
-and comments included, is English.
+edge, and page turns that actually rotate a leaf. Choosing an option circles it in marker
+and drops it onto the order sheet, where a one-time Stripe checkout sends it to the agent.
+The interface copy is Russian; everything else here, code and comments included, is
+English.
 
 ## Features
 
@@ -14,8 +15,8 @@ and comments included, is English.
 - Page turns with a three-dimensional leaf rotation and the sound of paper
 - Bookmarks on the fore edge: chapters behind you on the left, the ones ahead on the right
 - Creased corners hinting that there is another page
-- Tier selection circled in marker; the order survives a reload
-- An order sheet with the total and the agent launch, ready for Stripe
+- Option selection circled in marker; the cart survives a reload
+- An order sheet with the total and a one-time Stripe checkout
 
 ## Stack
 
@@ -42,11 +43,23 @@ Two consequences worth knowing before editing:
 
 ## Payments
 
-`src/lib/checkout.js` posts the selected line keys to `VITE_CHECKOUT_URL` (default
-`/api/checkout/session`), which is expected to create a Stripe Checkout Session and return
-its `url`. Prices are never computed on the client: the server resolves them from its own
-catalog. Until that endpoint exists, an order is accepted as a request with a reference
-number.
+Prices are backend-owned. `src/lib/useCatalog.js` fetches `GET /api/curses`, and every
+price on the price lists, the order sheet and the title page is read from that response —
+the frontend data carries only presentation, keyed by the same stable ids. A row whose id
+is missing from the catalog (while it loads, or because it vanished) shows an em dash and
+cannot be chosen, so the client never invents a price.
+
+The cart lives in `localStorage` as a list of `{ curseId, optionId }` pairs — ids only,
+never prices or names. One option per curse, mirroring the book's radio behaviour:
+choosing another option of the same curse replaces the first, and clicking the selected
+one removes it, so a curse+option can never appear twice.
+
+`src/lib/checkout.js` posts those ids to `VITE_CHECKOUT_URL` (default
+`/api/checkout/session`), and the backend validates every pair against its catalog,
+resolves the backend-owned names, prices and currency, and creates a one-time Stripe
+Checkout Session whose `url` the browser is redirected to. The cart is not touched until
+Stripe redirects to `/success`, which is the confirmation page that clears it — a
+cancelled or failed checkout leaves the reader exactly where they were.
 
 ## The API
 
@@ -59,6 +72,20 @@ prefix is not stripped — routes in `backend/src/server.js` are declared with `
 also its tag. That is the quickest way to tell whether a deploy actually landed. It also
 reports whether Stripe credentials reached the process — `"stripe": "configured"` or
 `"missing"` — never the keys themselves, or any prefix of them.
+
+`GET /api/curses` returns the commerce catalog: a hardcoded in-memory list of curses and
+their one-time options, each with a stable id, a backend-owned name, an integer
+`unitAmount` in the smallest currency unit and a currency. The catalog is the source of
+truth for everything Stripe-facing; the frontend maps its own presentation onto these
+ids.
+
+`POST /api/checkout/session` takes `{ items: [{ curseId, optionId }] }` — ids only — and
+creates a one-time Stripe Checkout Session. Every item is validated against the catalog
+and every line item is named `{Curse Name} — {Option Name}` from backend-owned names.
+`success_url` is `/success` on the caller's origin, `cancel_url` is the origin root; both
+are built from the request's `Origin` header, the one thing the API pod cannot know about
+itself. Without Stripe keys the route answers `503` and the app says payments are
+temporarily unavailable.
 
 ### Configuration
 
