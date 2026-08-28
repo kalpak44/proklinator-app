@@ -213,10 +213,14 @@ flowchart TD
     FIX -->|pushes fixes, resolves threads| REV
     FIX -->|3 rounds spent| BLOCK
 
+    BLOCK -->|you answer in a comment,<br/>then apply ai:ready| IMPL
+
     MERGE --> DONE["Issue closed<br/>image published<br/>cluster deployed"]
 ```
 
-The only two boxes you touch are the first and, if it gets there, `ai:blocked`.
+The only two boxes you touch are the first and, if it gets there, `ai:blocked`. Everything
+between the pull request opening and it merging happens without you, including up to three
+rounds of review and revision.
 
 ### Creating a task
 
@@ -244,6 +248,87 @@ You do not need to do anything in between. Watch the issue labels to see where i
 | `ai:review`      | Implemented; a pull request is open and under review.                                |
 | `ai:blocked`     | Stopped, and it needs you. Read the comment on the issue.                            |
 
+### An issue that works
+
+The difference between a one-round issue and a blocked one is almost always whether the
+product decisions were already made. Compare:
+
+> **Pay button stays enabled when a cart line has no known price**
+>
+> `type:bug` `area:order` `p1`
+>
+> `canPay` in `src/components/LaunchForm.jsx` is `available && totals.count > 0 && state
+!== 'sending'`. It ignores `totals.known`, which `App.jsx` computes as "every line has a
+> `unitAmount`". A cart entry whose ids are missing from the catalog — stale
+> `localStorage`, or an option withdrawn mid-session — therefore leaves the button live
+> with a partial amount, and the backend rejects the request with a 400.
+>
+> **What I want:** the button disables when the total is not fully known.
+>
+> **Acceptance:**
+>
+> - With a cart containing one valid line and one whose `curseId` is not in the catalog,
+>   the pay button is disabled.
+> - The header badge already shows an em dash in that state; it keeps doing so.
+> - A cart where every line resolves is unaffected — the button still works.
+> - Checked at 1440×900 and on an iPhone 13.
+>
+> **Files:** `src/components/LaunchForm.jsx`.
+> **Out of scope:** letting the user remove the unknown row from the order sheet. That is
+> a real gap and it needs a design decision, so it gets its own issue.
+
+That builds in one round. This one does not:
+
+> **Make the prices look better on mobile**
+
+It has no checkable outcome, no decision made about what "better" means, and no
+boundary — so it comes back as `ai:blocked` asking which of those you meant, and you
+have spent a round trip finding that out.
+
+The rule the agent is held to is that it must not guess. Anything you leave open, it
+asks about rather than choosing.
+
+### Scenarios
+
+What actually happens, and what you do, in each case.
+
+**It just works.** Apply `ai:ready`, walk away. Labels go
+`ai:ready` → `ai:in-progress` → `ai:review`, a pull request opens, the reviewer merges it,
+the issue closes and the cluster deploys. No input from you at any point.
+
+**It stops and asks you something.** The label goes `ai:blocked` and there is a comment on
+the issue naming the decision and, usually, the options. Reply in that thread, then apply
+`ai:ready` again. **You do not need to remove `ai:blocked` first** — applying `ai:ready`
+clears it. The next run reads the whole issue thread and every pull request ever opened
+from that branch, including closed ones, before it writes anything, so it continues from
+your answer rather than starting over. If a branch already exists it builds on it.
+
+**The reviewer requests changes.** Nothing for you to do. The implementer is dispatched
+automatically, pushes fixes, replies on each review thread and resolves it, and the
+reviewer runs again. Up to three rounds.
+
+**The reviewer only comments.** The loop stops — a `COMMENT` review never sends work back,
+and the reviewer cannot post an `APPROVE` because GitHub does not permit Actions tokens to
+approve pull requests, so `COMMENT` is also what its approvals look like. It says so on the
+pull request when this happens. To act on the findings anyway, run **Actions → AI Issue
+Agent → Run workflow** with `pr=<n>`.
+
+**Three rounds are spent.** The issue goes `ai:blocked` and both the pull request and the
+issue get a comment. Answer the open question in either thread, then run **Actions → AI
+Issue Agent → Run workflow** with `pr=<n>` and **force** ticked. Without `force` it stops
+again — the round count only ever goes up. After a forced round the reviewer still will not
+hand back on its own, so each further round is started by you. That is deliberate: each
+round is two model runs and two browser passes.
+
+**A run dies halfway.** The issue is never left claimed. It goes `ai:blocked` with a
+comment giving the exit status, whether the branch was pushed, what it committed, what was
+left uncommitted, and the last 60 lines of output. Restart it the same way: comment, then
+`ai:ready`.
+
+Rule of thumb: **before a pull request exists, use the label; once one exists, use
+`pr=<n>`.** Revise mode is the path that gets the review threads as structured feedback.
+Applying `ai:ready` while a pull request is open is refused, and tells you so.
+
 ### What the reviewer checks
 
 The reviewer does not read the diff and guess. It builds the change and runs it.
@@ -256,10 +341,19 @@ actually rendered, broken images, horizontal overflow, and a full-page screensho
 clicks the first control it finds to catch the class of bug that renders fine and explodes
 on touch.
 
-At the same time it builds `main` and serves it on a second port. That baseline is the
-point: a warning present in both builds is pre-existing and is reported as such, rather
-than being blamed on your pull request. Only what the change actually introduced counts
-against it.
+**The API runs while it does this.** The harness starts `backend/` with the Stripe _test_
+keys and points the preview server's `/api` proxy at it, so the reviewer exercises real
+requests — a checkout session against Stripe's test mode included — rather than reading the
+route and guessing. Without it the app's own `/api/health` poll returned 502 on every page
+load, which registered as a console error and a bad response and failed the browser QA on
+every pull request regardless of its contents.
+
+At the same time it builds `main` and serves it on a second port, with the base branch's
+own API beside it, so a change to `backend/` is compared against the backend it replaces
+rather than against itself. That baseline is the point, and the merge gate honours it: a
+blocking failure that reproduces on `main` is pre-existing and does not count against your
+pull request. Only what the change actually introduced does. With no baseline available the
+gate falls back to the absolute set.
 
 Screenshots and logs are uploaded to the run as a `pr-<n>-qa` artifact, so you can look at
 what it saw.
@@ -291,12 +385,15 @@ back as `ai:blocked`, which costs you a round trip. So:
 ### When it stops
 
 `ai:blocked` always comes with a comment saying exactly what is needed. Answer it in the
-thread, then remove `ai:blocked` and apply `ai:ready` again to restart.
+thread, then apply `ai:ready` to restart — that clears `ai:blocked` on its own, so there is
+no need to remove it first and no order to get right.
 
 Review is capped at `AI_MAX_REVIEW_ROUNDS` (currently **3**) round trips. If the reviewer
 and the implementer have not converged by then the loop stops and hands the issue back,
 because feedback that has not settled in three rounds usually needs a decision rather than
-another attempt.
+another attempt. To go past it, dispatch **AI Issue Agent** with `pr=<n>` and **force** —
+see Scenarios above. The reviewer's own hand-back never passes `force`, so the automatic
+loop stays capped whatever you do by hand.
 
 ### Pull requests you write yourself
 
@@ -305,4 +402,13 @@ but only if your GitHub account is on the `PR_REVIEW_ALLOWLIST` repository varia
 list is matched against the account that opened the pull request; git author name and
 email are never consulted, since anyone can set those to anything.
 
+The reviewer never pushes to your branch. It reviews, and it merges or does not; changes
+are suggested, never made. Dependency pull requests from bots are a different agent's job
+(`ai-pr-agent.yml`), and each refuses the other's pull requests so they cannot collide on
+one branch.
+
 Comment `/ai-review` on a pull request to run the review again.
+
+One thing to expect: **its approvals arrive as `COMMENT` reviews, not green checkmarks.**
+GitHub does not let an Actions token submit an `APPROVE` event, so the verdict is the first
+line of the review body, and the real acceptance is whether it merged.
