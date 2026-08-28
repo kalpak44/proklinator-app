@@ -102,6 +102,7 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In the 1960s folklore expeditions recorded a dozen accounts of the "grey glass" in the same places; no narrator referred to any other. The descriptions matched to the smallest detail - but only in one region, and the researchers never agreed on what to make of it.',
+              'In 2019 the records were gathered into one file and collated against the archive: the retellings matched one another to the smallest detail, and none of them matched the descriptions they claimed to reproduce. The compiler left a single note in the margin - "they remember it as it was not written".',
             ],
           },
           {
@@ -166,11 +167,16 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In the 2010s a selection of such accounts was checked against maps: in every record the "wrong turning" fell on the same place of the road. Statistical significance was not reached - there were exactly enough coincidences to be written about, and not one more.',
+              'The place itself was not examined until later: in every record it falls where the old post road crosses a ravine. The surveyor who had drawn the road remarked, without being asked, that no one had ever been lost at that turning, and that he would not have marked the place at all if the records had not insisted.',
             ],
           },
           {
             kind: 'ai',
-            body: 'When the registers were digitised, an AI trained on the ledgers picked one regularity out of hundreds of pages: in all the reliable records the false step is described in exactly the same phrase - "turned the wrong way". The machine found it in a month; people took a century and a half.',
+            body: [
+              'When the registers were digitised, an AI trained on the ledgers picked one regularity out of hundreds of pages: in all the reliable records the false step is described in exactly the same phrase - "turned the wrong way". The machine found it in a month; people took a century and a half.',
+              'The same machine was asked where the phrase comes from. It answered with the phrase itself, and with nothing else - no source, no page, no doubt, where a person would have added at least a guess. The answer was noted in the file without a comment; the file was closed, and the machine was not asked again. Later it was asked once more whether the phrase could have come from the ledgers themselves; it answered that the ledgers are the only source it can name, and it named the phrase as that source.',
+              'The keeper who read the answer added one line of his own: the machine was asked again, with the page open, and answered the same phrase; the phrase was underlined in the file, and the file was closed. He wrote that the machine does not explain, because for it there is nothing to explain.',
+            ],
           },
           {
             kind: 'effect',
@@ -233,6 +239,8 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'Modern records of the "quiet noise" match no known acoustic phenomenon: the frequencies witnesses describe are recorded by no instrument, yet accounts from different cities repeat one another almost word for word. Researchers from three universities gave up on explanations; two proposed calling it a "persistent form of suggestion" - and could not explain why the form is so persistent.',
+              'The two who proposed the term could not find a single case in which the suggestion could have been planted: the accounts that repeat one another word for word were recorded before any of them could have been published. The noise is heard, the source is absent, and the archive adds nothing and takes nothing away.',
+              'The records were later counted: in a hundred years the noise is described a hundred and four times, and in not one of them is it explained away. The compilers noted that a noise which nothing explains stops being a sound and becomes a habit of the ear.',
             ],
           },
           {
@@ -317,6 +325,8 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'Ethnographers collected nine more accounts of "an empty place between people" in Yaroslavl province; in all nine people used the same word - "thinned". In no account was there a quarrel.',
+              'The word itself was checked later: in the dialect records of the same province the verb is used about cloth, about ice, about a thread - and never about a person. The scribe of the collection underlined the word in all nine places and left no other mark.',
+              'The records themselves were checked once more: in all nine the word "thinned" stands in the same place of the sentence - the place where a name should stand. The scribe who checked wrote that the sentence is whole, and the name is simply not there.',
             ],
           },
           {
@@ -381,6 +391,9 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In the 1990s psychologists described an "emotionally cold side" in a family without connecting it to rites; in the 2010s the archival correspondence was digitised, and a researcher working with the letters found that the descriptions of 1874 and the clinical descriptions of the 1990s matched word for word - down to the word "side".',
+              'The researcher who found the coincidence refused to publish the comparison in full: the letters, she said, are too readable. She added one note - that the word "side" appears in the clinical literature of the 1990s already as a quotation, without quotation marks.',
+              'The refusal was noted in the archive: the comparison was never published, and the letters were returned to storage. The clinical description of the 1990s, with the word "side" in it, remained in print; no one crossed it out.',
+              'The archive was asked for the word once more; the word stood where it had always stood. The researcher who had refused to publish left one last note: the comparison, she wrote, is not the point - the point is that both centuries used the same word without borrowing it.',
             ],
           },
           {
@@ -445,6 +458,9 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In 2019 the accounts of "the one nothing sticks to" were gathered into a single archive: they matched to the smallest detail, but had been recorded in different provinces and in different centuries, and no one explained where the match came from.',
+              'The archivist who compiled the file added a single sheet to it: a list of the objects each account names. The lists do not coincide - and in every account the object is the one that belonged to the person nothing sticks to. The compiler underlined the last word and wrote nothing else.',
+              'The sheet was not filed: it lies loose in the folder, and the folder is not tied. The keeper who showed the file said that it had lain so for as long as he could remember, and that the folder was the only one in the archive without a tie.',
+              'The accounts were read aloud to one of the recorded narrators, a century later; he recognised the story and did not recognise the object. The interviewer noted that the object in the record is not the one the narrator described, and the record is the older one.',
             ],
           },
           {
@@ -524,6 +540,7 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In the 2000s an economist going through pre-revolutionary debt books noticed that in seven of them the records of "small explainable losses" broke off on the same date - and in the same books, on the same page, stood the same note: "the fist is leaking". He called the coincidence "literary" and did not return to it.',
+              'The books themselves survived the comparison: in all seven the entries break off not on a date of bankruptcy but on a saint\u2019s day - a different one in each town. The economist did not return to the matter; the archivist who handed him the books remembered that he returned the last one with the note still open.',
             ],
           },
           {
@@ -592,6 +609,9 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'Sociologists who worked with the late-nineteenth-century official files noted "stagnant" careers as a phenomenon; the archival correspondence was digitised, and in it were found twenty-three files with the same phrase - "time goes, and the water stands". Twenty-three times, different towns, different hands.',
+              'The phrase was checked against the language of the chancellery: it is attested in no manual of the century and appears in the files only in these twenty-three places, each in a different hand. The compilers left the selection with one question unasked - who first wrote it into a form.',
+              'The question was asked later, when the files were being returned: the form exists, the hand in all twenty-three is different, and in none of them is the phrase written over an erasure. The files were put back, and the question with them.',
+              'The files were compared for the hand once more: the hand in all twenty-three is different, but the shape of the letters is one. The expert who was shown the files said that such a shape is not taught in any school he knows, and returned the folder.',
             ],
           },
           {
@@ -651,6 +671,9 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In 2015 a historian going through cases of "taken-back promises" counted in one archive forty-one cases with the same structure: the last step, a respectable reason, a refusal. He wrote an article on "legal folklore" - and could not explain why the structure repeated so exactly.',
+              'The article was accepted, and its appendix - the list of the forty-one cases - was not printed in full: the editors found the dates implausible. The historian checked twice and confirmed them; the appendix remains in the archive of the journal, and the cases remain counted.',
+              'The appendix was later found in the papers of the journal, not unfolded: the list had been checked, and against the last case stood a note in another hand - "the date was confirmed by the court itself". The note is not signed.',
+              'The historian returned to the archive after the article and found the cases in their places, with the note still attached. He added that he had asked for the file of the last case; the file was not issued, and the request was not explained.',
             ],
           },
           {
@@ -734,6 +757,8 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In the 2000s sleep researchers described "waking in the dead time" as a stable phenomenon unconnected to noise; in the archive seven more files were found with the same note "he rises himself". No explanation accounts for the main thing: the hour is the same.',
+              'The seven files were later compared by hand: the note "he rises himself" is written in each by the file\u2019s own clerk. The hour in all seven is the same, the explanations differ, and the archive keeps both; the researcher who made the comparison added that the clerks could not have known of one another, and that the note appears in no other file of the same archive.',
+              'The archive was searched once more for the hour itself: in the same years, in the same files, the hour appears nowhere else. The researcher wrote in the conclusion that the hour is not a record but a habit; where the habit came from is not recorded.',
             ],
           },
           {
@@ -794,6 +819,7 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In the 2010s the descriptions of "shattering attention" from pre-revolutionary diaries were compared with modern clinical observations: not only the symptoms matched, but the wording. The researchers noted that in the diaries attention "shatters", while in modern observations it "fragments" - the same word across two centuries.',
+              'The comparison was published, and with it a note the researchers added almost in passing: in the modern observations the word is used by the patients themselves, who cannot have read the diaries. They called the coincidence "terminological" and moved on.',
             ],
           },
           {
@@ -862,6 +888,9 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In the 1960s psychologists described "borrowed dreams" as a persistent theme; in 2020 the archival correspondence was digitised, and six more letters were found with the same word - "borrowed". All six were written in different towns, in different years, and none refers to the others.',
+              'The letters are dated after the first description was printed; their authors, as far as the archive can tell, could not have seen it. The word is the same, the dreams are the same, and the dates are the only thing that refuses to fit.',
+              'The dates were checked against the postmarks: the letters had been sent, and the dreams had been described, before the first description existed. The keeper who found the letters asked that they be kept together; they are kept together, and the dates are still not explained.',
+              'The keeper was asked whose rooms the dreams describe; she answered that the letters do not say, and that the letters say everything else. She added that she had asked the same question once, and that the question had been returned to her unanswered.',
             ],
           },
           {
@@ -941,6 +970,7 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In the 2010s a genealogist going through the Suzdal registers found twenty years of records with the same phrase "trouble comes to the place". He checked: the match holds while the list holds - and stops when the list breaks off. He found no explanation.',
+              'He returned to the registers once more and found where the list breaks off: a record of a sale, the last entry of the year, written in a different hand. From that year the phrase appears nowhere in the same parish. In the margin he wrote - "the list was sold, and the trouble with it".',
             ],
           },
           {
@@ -1004,6 +1034,7 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In 2014 the register was digitised; a programmer working with the archive noticed that the dates in the register matched the dates in another file to the day - a file kept a hundred years before the register. He called it a digitisation error; the error was not confirmed.',
+              'The matter was closed with a remark that the coincidence of dates is not subject to verification; the programmer asked once more, received the same answer, and did not ask again. The register was returned to storage, the older file is kept in the same box, and the dates continue to match.',
             ],
           },
           {
@@ -1072,6 +1103,9 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In 2009 the beam was examined: the age of the wood matched the span of the chronicle, the trace of the nail was single, and it had been driven once. The expert wrote that "the nail was never drawn, and the beam was never rebuilt"; what this means for the case is not stated.',
+              'The expert was asked what the phrase means for the case and answered that it means nothing: a single trace, he said, is not a trace. He was not asked again, and the conclusion was left as it was - the nail was never drawn.',
+              'The beam was not touched after the examination: the house stands, and the beam with the nail stands with it. The chronicle keeps the entry that the curse was lifted; the beam keeps no trace of the lifting, and no one has looked for one since.',
+              'The chronicle was compared with the beam once more: the entry on the lifting of the curse stands in the same hand as the entry on the driving of the nail. The expert noted the coincidence and did not comment on it; the coincidence is the only thing the file holds twice.',
             ],
           },
           {
@@ -1150,6 +1184,9 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In the 1990s ethnographers recorded in three regions the same account of "a line around the table"; the narrators did not know one another and gave the same reason - "so that it does not come back".',
+              'The ethnographers noted one detail that did not fit: in every account the line is drawn by the one who later sits inside it, not by anyone else. The narrators did not agree on why - they only agreed that it must be done this way, and could not say what would happen otherwise.',
+              'The accounts were recorded on paper; in all three the line is drawn as a closed ring, and in none of them is the ring crossed. The one who drew the diagrams noted that a crossed ring had not been seen in any account, and did not explain why he had checked.',
+              'The diagrams were kept with the accounts; the ring in all three is drawn with one stroke, without lifting the pen. The one who drew them was asked how the stroke was made; he said he did not remember, and that the ring had to be whole.',
             ],
           },
           {
@@ -1209,6 +1246,9 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In the 2010s folklorists found four more records of the custom of "feeding ash"; all four were made in different provinces, and in all four the same thing is said - "one\u2019s own ash remembers its own home".',
+              'The records were compared for the wording: in all four the ash is not carried away but fed - the same verb, in different dialects. The folklorists who made the comparison concluded that the custom was older than the records, and let the matter rest there.',
+              'The matter rested there until one of the records was re-read: the ash, it said, is fed to the hearth, and the hearth is then not cleaned for a year. The folklorists returned to the comparison, but the record had already been filed.',
+              'The record was unsewn and re-read: the hearth, it said, is not cleaned for a year, and the ash is fed to it once. The folklorists asked what is fed in the meantime; the record does not say, and the comparison was left there for the second time.',
             ],
           },
           {
@@ -1262,6 +1302,8 @@ export const CHAPTERS = [
             kind: 'modern',
             body: [
               'In 2018 the archive holding the complaint was digitised; on examination it turned out that the entire file bears not a single signature - including the abbot\u2019s signature under the resolution. Verification showed that it had always been so.',
+              'The verification went further: the complaint is not dated, and the file bears no seal. The archivist wrote that the file has no beginning and no end; the restoration workshop returned it without restoring anything, and asked that it not be sent again.',
+              'The file was later compared with the copies of the same complaint kept in two other archives: the copies bear signatures, and the file does not. The archivist noted that the copies were made later, and that the file is the older of the three.',
             ],
           },
           {
