@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useCart } from './lib/useCart.js'
 import { useCatalog } from './lib/useCatalog.js'
 import { usePageTurn } from './lib/usePageTurn.js'
@@ -23,7 +23,8 @@ import OrderSummary from './components/OrderSummary.jsx'
 import LaunchForm from './components/LaunchForm.jsx'
 import TitlePage from './components/TitlePage.jsx'
 import Contents from './components/Contents.jsx'
-import SuccessPage from './components/SuccessPage.jsx'
+import ProcessingPage from './components/ProcessingPage.jsx'
+import FailedPage from './components/FailedPage.jsx'
 import LanguageScreen from './components/LanguageScreen.jsx'
 
 /** Space between two blocks: margin + rule + padding of `.page-blocks > * + *`. */
@@ -41,7 +42,7 @@ export default function App() {
   const bookRef = useRef(null)
   const apiOk = useApiHealth()
   const { catalog, available } = useCatalog(apiOk)
-  const { items, toggle, remove, clear, isSelected } = useCart()
+  const { items, toggle, remove, isSelected } = useCart()
 
   const spread = useMedia('(min-width: 900px)')
   const geom = useBookGeometry(bookRef, spread)
@@ -131,6 +132,40 @@ export default function App() {
   // Re-pagination can shorten the book under an index that is already past the end.
   const current = Math.min(index, spreads.length - 1)
   const { turning, goTo } = usePageTurn(spreads.length, current, setIndex)
+
+  // /?page=order (the interrupted-rite retry) lands on the order sheet. The
+  // book re-paginates as fonts and measures arrive, so while the param is
+  // present the index is pinned to the closing spread; a manual turn away from
+  // it hands control back to the reader and drops the param.
+  const [deepLinkOrder, setDeepLinkOrder] = useState(
+    () => new URLSearchParams(window.location.search).get('page') === 'order'
+  )
+  const deepLinkLen = useRef(0)
+  useEffect(() => {
+    if (!deepLinkOrder || spreads.length === 0) return
+    if (spread && !measured) return
+    if (index === spreads.length - 1) {
+      // Landed: give the book a moment to stop re-paginating, then hand over.
+      const timer = setTimeout(() => {
+        setDeepLinkOrder(false)
+        const url = new URL(window.location.href)
+        url.searchParams.delete('page')
+        window.history.replaceState(null, '', url)
+      }, 800)
+      return () => clearTimeout(timer)
+    }
+    if (deepLinkLen.current !== spreads.length) {
+      // The book was rewritten under us: follow it to the closing spread.
+      deepLinkLen.current = spreads.length
+      setIndex(spreads.length - 1)
+      return
+    }
+    // The reader turned away on their own: let them keep the page.
+    setDeepLinkOrder(false)
+    const url = new URL(window.location.href)
+    url.searchParams.delete('page')
+    window.history.replaceState(null, '', url)
+  }, [deepLinkOrder, index, spreads.length, spread, measured])
 
   const toggleSound = () => {
     const next = !sound
@@ -256,12 +291,14 @@ export default function App() {
 
   const activeId = onOrder ? 'order' : CHAPTERS[openChapter]?.id
 
-  // Stripe's success_url lands on /success (nginx and the Vite preview both fall
-  // back to index.html). The payment has gone through, so the book yields to a
-  // confirmation page that clears the cart; every other path leaves it alone.
-  if (window.location.pathname === '/success') {
-    return <SuccessPage onClearCart={clear} />
-  }
+  // Stripe's success_url lands on /success and its cancel_url on /cancelled
+  // (nginx and the Vite preview both fall back to index.html). Success shows
+  // the theatrical processing sequence, then the confirmation that clears the
+  // cart; a cancelled checkout shows the interrupted-rite page and leaves the
+  // cart alone, so retrying starts from the same order sheet.
+  const pathname = window.location.pathname
+  if (pathname === '/success') return <ProcessingPage />
+  if (pathname === '/cancelled') return <FailedPage />
 
   return (
     <div className="desk flex min-h-dvh flex-col" onPointerDown={primePageTurn}>
