@@ -103,12 +103,12 @@ const MESSAGES = {
   },
 
   en: {
-    'meta.title': 'Proklinator - a book of curses read by an agent',
+    'meta.title': 'Proklinator - a book of curses read by an AI',
     'meta.description':
-      'The agent is trained on dark ledgers: lists copied by hand, networks with no way out, and books that were burned and yet did not burn. Open a chapter, circle what you need - the rest it does itself.',
-    'meta.ogTitle': 'Proklinator - a book of curses read by an agent',
+      'Trained on dark ledgers: lists copied by hand, networks with no way out, and books that were burned and yet did not burn. Open a chapter, circle what you need - the rest it does itself.',
+    'meta.ogTitle': 'Proklinator - a book of curses read by an AI',
     'meta.ogDescription':
-      'A book you turn, while the agent picks the word. Six chapters: dimming, severing, waning, unrest, inheritance, warding.',
+      'A book you turn, while the AI picks the word. Six chapters: dimming, severing, waning, unrest, inheritance, warding.',
 
     'order.tab': 'Order',
     'order.empty': 'empty',
@@ -151,13 +151,13 @@ const MESSAGES = {
     'success.rubric': 'Payment',
     'success.heading': 'Payment received',
     'success.body':
-      'The order is accepted and the agent takes the word to work. The receipt will come from Stripe, and from then on it does everything.',
+      'The order is accepted and the AI takes the word to work. The receipt will come from Stripe, and from then on it does everything.',
     'success.back': 'Return to the book',
 
     'order.summaryRubric': 'Order sheet',
     'order.yourChoice': 'Your choice',
     'order.emptySheet':
-      'Empty for now. Open any chapter and circle what you need: it will land here, and the agent will know about it before you do.',
+      'Empty for now. Open any chapter and circle what you need: it will land here, and the AI will know about it before you do.',
     'order.toFirstChapter': 'To the first chapter',
     'order.removeLine': 'Remove: {spell}, {option}',
     'order.oneTime': 'One-time payment',
