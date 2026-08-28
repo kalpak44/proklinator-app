@@ -5,7 +5,7 @@ import PageBlock from './PageBlock.jsx'
  * The blocks that ended up on one page. The first block on a page drops its
  * separating rule: it has nothing above it to be separated from.
  */
-export default function PageContent({ page, isSelected, onToggle }) {
+export default function PageContent({ page, isSelected, onToggle, optionFor }) {
   if (!page || page.blocks.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -22,6 +22,7 @@ export default function PageContent({ page, isSelected, onToggle }) {
           block={block}
           isSelected={isSelected}
           onToggle={onToggle}
+          optionFor={optionFor}
         />
       ))}
     </div>

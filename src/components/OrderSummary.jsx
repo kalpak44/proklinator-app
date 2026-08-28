@@ -3,7 +3,7 @@ import Ornament from './Ornament.jsx'
 import Sigil from './Sigil.jsx'
 import { useLanguage } from '../lib/i18n.js'
 
-/** Verso of the closing spread: exactly what is being handed to the agent. */
+/** Verso of the closing spread: exactly what is being paid for. */
 export default function OrderSummary({ totals, onRemove, onBrowse }) {
   const { t } = useLanguage()
   const byChapter = totals.lines.reduce((acc, line) => {
@@ -43,33 +43,33 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
               <p className="rubric text-[0.6rem]">{chapter}</p>
               <ul className="mt-1.5 space-y-1.5">
                 {lines.map((line) => (
-                  <li key={line.key} className="flex items-baseline gap-2">
+                  <li
+                    key={`${line.curseId}/${line.optionId}`}
+                    className="flex items-baseline gap-2"
+                  >
                     <button
                       type="button"
-                      onClick={() => onRemove(line.key)}
+                      onClick={() => onRemove(line.curseId, line.optionId)}
                       aria-label={t('order.removeLine', {
-                        spell: line.spellName,
-                        tier: line.tierLabel,
+                        spell: line.curseName,
+                        option: line.optionLabel,
                       })}
                       className="font-mono text-ink-faint hover:text-marker shrink-0 cursor-pointer text-[0.9rem] transition-colors"
                     >
                       ×
                     </button>
                     <span className="min-w-0">
-                      <span className="text-ink text-[0.98rem]">{line.spellName}</span>
+                      <span className="text-ink text-[0.98rem]">{line.curseName}</span>
                       <span className="text-ink-soft text-[0.85rem]">
                         {' '}
-                        · {line.tierLabel}
+                        · {line.optionLabel}
                       </span>
                     </span>
                     <span className="leader" aria-hidden="true" />
                     <span className="font-mono text-ink shrink-0 text-[0.88rem]">
-                      {formatMoney(line.price)}
-                      {line.recurring && (
-                        <span className="text-ink-soft text-[0.75rem]">
-                          {t('order.perMonth')}
-                        </span>
-                      )}
+                      {line.unitAmount == null
+                        ? '—'
+                        : formatMoney(line.unitAmount, line.currency)}
                     </span>
                   </li>
                 ))}
@@ -83,18 +83,9 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
         <div className="flex items-baseline justify-between">
           <span className="rubric text-[0.62rem]">{t('order.oneTime')}</span>
           <span className="font-display text-ink text-[1.9rem] leading-none">
-            {formatMoney(totals.dueNow)}
+            {totals.known ? formatMoney(totals.dueNow) : '—'}
           </span>
         </div>
-
-        {totals.monthly > 0 && (
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="rubric text-[0.62rem]">{t('order.monthly')}</span>
-            <span className="font-display text-ink text-[1.25rem] leading-none">
-              {formatMoney(totals.monthly)}
-            </span>
-          </div>
-        )}
 
         <p className="font-mono text-ink-soft mt-3 text-[0.7rem] leading-snug">
           {t('order.footnote')}

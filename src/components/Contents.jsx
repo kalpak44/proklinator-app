@@ -12,7 +12,7 @@ const folioOf = (spreadIndex) => 2 * spreadIndex + 1
  *
  * @param {number[]} openings spread index each chapter opens on
  */
-export default function Contents({ openings, orderIndex, onOpen }) {
+export default function Contents({ openings, orderIndex, onOpen, fromByChapter }) {
   const { t, catalogue } = useLanguage()
   const { BOOK, CONTENTS } = catalogue
 
@@ -48,7 +48,10 @@ export default function Contents({ openings, orderIndex, onOpen }) {
                 <span className="text-ink-faint font-mono block text-[0.68rem] tracking-[0.06em]">
                   {t('contents.count', {
                     count: chapter.count,
-                    amount: formatMoney(chapter.from),
+                    amount:
+                      fromByChapter[chapter.id] == null
+                        ? '—'
+                        : formatMoney(fromByChapter[chapter.id]),
                   })}
                 </span>
               </span>

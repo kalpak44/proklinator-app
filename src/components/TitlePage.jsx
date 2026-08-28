@@ -8,9 +8,10 @@ import { useLanguage } from '../lib/i18n.js'
  * it says what it costs, which is the one place in the app allowed to do that.
  *
  * Fixed content, like the order sheet: it is not paginated, so everything here
- * has to fit one page on its own.
+ * has to fit one page on its own. `cheapest` is the lowest one-time price in
+ * the backend catalog — null while the catalog has not loaded.
  */
-export default function TitlePage() {
+export default function TitlePage({ cheapest }) {
   const { t, catalogue } = useLanguage()
   const { AGENT, BOOK, BOOK_STATS } = catalogue
 
@@ -63,7 +64,7 @@ export default function TitlePage() {
         <div>
           <dt className="rubric text-[0.6rem]">{t('title.from')}</dt>
           <dd className="font-display text-ink mt-0.5 text-[1.05rem] leading-tight">
-            {formatMoney(BOOK_STATS.cheapest)}
+            {cheapest == null ? '—' : formatMoney(cheapest)}
           </dd>
         </div>
       </dl>

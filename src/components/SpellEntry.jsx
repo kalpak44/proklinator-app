@@ -2,13 +2,13 @@ import PriceRow from './PriceRow.jsx'
 import { useLanguage } from '../lib/i18n.js'
 
 /**
- * One curse: name, a paragraph of description, and its list of tiers.
+ * One curse: name, a paragraph of description, and its list of options.
  *
  * The rule between entries belongs to the page, not to the block: a block has
  * to measure the same height wherever it lands, including at the top of a page
  * where there is nothing to rule it off from.
  */
-export default function SpellEntry({ chapterId, spell, isSelected, onToggle }) {
+export default function SpellEntry({ spell, isSelected, onToggle, optionFor }) {
   const { t } = useLanguage()
 
   return (
@@ -30,8 +30,9 @@ export default function SpellEntry({ chapterId, spell, isSelected, onToggle }) {
           <PriceRow
             key={price.id}
             price={price}
-            selected={isSelected(chapterId, spell.id, price.id)}
-            onToggle={() => onToggle(chapterId, spell.id, price.id)}
+            commerce={optionFor(spell.id, price.id)}
+            selected={isSelected(spell.id, price.id)}
+            onToggle={() => onToggle(spell.id, price.id)}
           />
         ))}
       </ul>
