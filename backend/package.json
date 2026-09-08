@@ -12,6 +12,6 @@
   },
   "dependencies": {
     "express": "^5.2.0",
-    "stripe": "^22.6.0"
+    "stripe": "^22.6.1"
   }
 }
