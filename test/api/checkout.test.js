@@ -22,7 +22,9 @@ let create
 let app
 
 function stripeDouble(impl) {
-  create = vi.fn(impl ?? (async () => ({ url: 'https://checkout.stripe.test/s/1' })))
+  create = vi.fn(
+    impl ?? (async () => ({ url: 'https://checkout.stripe.com/c/pay/cs_test_a1' }))
+  )
   return { checkout: { sessions: { create } } }
 }
 
@@ -120,7 +122,7 @@ describe('POST /api/checkout/session session creation', () => {
       })
 
     expect(res.status).toBe(200)
-    expect(res.body).toEqual({ url: 'https://checkout.stripe.test/s/1' })
+    expect(res.body).toEqual({ url: 'https://checkout.stripe.com/c/pay/cs_test_a1' })
 
     expect(create).toHaveBeenCalledTimes(1)
     expect(create.mock.calls[0][0]).toEqual({

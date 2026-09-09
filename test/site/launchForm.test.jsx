@@ -63,7 +63,7 @@ describe('LaunchForm', () => {
       vi.fn(async () => ({
         ok: true,
         status: 200,
-        json: async () => ({ url: 'https://checkout.stripe.test/s/9' }),
+        json: async () => ({ url: 'https://checkout.stripe.com/c/pay/cs_test_b9' }),
       }))
     )
 
@@ -73,7 +73,7 @@ describe('LaunchForm', () => {
     await user.click(pay)
 
     await waitFor(() =>
-      expect(assign).toHaveBeenCalledWith('https://checkout.stripe.test/s/9')
+      expect(assign).toHaveBeenCalledWith('https://checkout.stripe.com/c/pay/cs_test_b9')
     )
   })
 

@@ -73,10 +73,19 @@ export function primePageTurn() {
   if (enabled) load()
 }
 
+/**
+ * Uniform in [0, 1). Web Crypto rather than Math.random so nobody reading this has to
+ * work out whether the jitter is security-relevant. It is not.
+ */
+function jitter() {
+  const [n] = crypto.getRandomValues(new Uint32Array(1))
+  return n / 2 ** 32
+}
+
 function play(decoded, ac) {
   const source = ac.createBufferSource()
   source.buffer = decoded
-  source.playbackRate.value = 0.94 + Math.random() * 0.12
+  source.playbackRate.value = 0.94 + jitter() * 0.12
 
   const gain = ac.createGain()
   gain.gain.value = VOLUME

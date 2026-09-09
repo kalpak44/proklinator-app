@@ -12,7 +12,10 @@ function respond(body, ok = true, status = 200) {
 
 describe('startCheckout', () => {
   it('posts the selected ids and nothing else', async () => {
-    vi.stubGlobal('fetch', respond({ url: 'https://checkout.stripe.test/s/1' }))
+    vi.stubGlobal(
+      'fetch',
+      respond({ url: 'https://checkout.stripe.com/c/pay/cs_test_a1' })
+    )
     stubLocation()
 
     const items = [{ curseId: 'veil', optionId: 'once' }]
@@ -27,11 +30,14 @@ describe('startCheckout', () => {
   })
 
   it('navigates to the Stripe session', async () => {
-    vi.stubGlobal('fetch', respond({ url: 'https://checkout.stripe.test/s/2' }))
+    vi.stubGlobal(
+      'fetch',
+      respond({ url: 'https://checkout.stripe.com/c/pay/cs_test_a2' })
+    )
     const assign = stubLocation()
 
     await expect(startCheckout({ items: [] })).resolves.toEqual({ status: 'redirect' })
-    expect(assign).toHaveBeenCalledWith('https://checkout.stripe.test/s/2')
+    expect(assign).toHaveBeenCalledWith('https://checkout.stripe.com/c/pay/cs_test_a2')
   })
 
   it('throws with the status when the backend refuses the cart', async () => {
@@ -47,6 +53,25 @@ describe('startCheckout', () => {
     const assign = stubLocation()
 
     await expect(startCheckout({ items: [] })).rejects.toThrow('checkout returned no url')
+    expect(assign).not.toHaveBeenCalled()
+  })
+
+  const refused = [
+    ['a host that is not Stripe', 'https://checkout.stripe.com.evil.test/c/pay/x'],
+    ['a lookalike host', 'https://checkoutstripe.com/c/pay/x'],
+    ['plain http on the right host', 'http://checkout.stripe.com/c/pay/x'],
+    ['a javascript: url', 'javascript:alert(1)'],
+    ['a relative path', '/c/pay/x'],
+  ]
+
+  // The backend is the only thing that sets this url today, and that is a property of
+  // the current backend rather than of this function. Navigating anywhere the response
+  // asks would be an open redirect on the payment flow.
+  it.each(refused)('refuses to navigate to %s', async (_label, url) => {
+    vi.stubGlobal('fetch', respond({ url }))
+    const assign = stubLocation()
+
+    await expect(startCheckout({ items: [] })).rejects.toThrow(/malformed|outside Stripe/)
     expect(assign).not.toHaveBeenCalled()
   })
 
