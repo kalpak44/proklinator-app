@@ -16,6 +16,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "npm run test:site && npm run test:api",
+    "test:site": "vitest run --config vitest.site.config.js --coverage",
+    "test:api": "vitest run --config vitest.api.config.js --coverage",
+    "test:watch": "vitest --config vitest.site.config.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
@@ -29,15 +33,21 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "@vitest/coverage-v8": "^5.0.0",
     "eslint": "^10.10.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.6",
     "globals": "^17.12.0",
+    "jsdom": "^29.1.1",
     "prettier": "^3.9.6",
+    "supertest": "^7.2.2",
     "tailwindcss": "^4.3.3",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "vitest": "^5.0.0"
   }
 }
