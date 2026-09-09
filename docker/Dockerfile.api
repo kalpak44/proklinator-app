@@ -1,11 +1,11 @@
-FROM node:24-slim AS deps
+FROM node:24-alpine AS deps
 
 WORKDIR /app
 
 COPY backend/package.json backend/package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund
 
-FROM node:24-slim
+FROM node:24-alpine
 
 ENV NODE_ENV=production
 
@@ -13,6 +13,19 @@ ENV NODE_ENV=production
 # build-arg by the publish workflow; "unknown" for a plain local build.
 ARG GIT_SHA=unknown
 ENV GIT_SHA=$GIT_SHA
+
+# Alpine, not Debian: a Debian base carries wont-fix CVEs in perl-base and glibc that
+# a pure-JavaScript service never touches and no upgrade removes.
+#
+# `apk upgrade` is not a no-op here. The base is rebuilt on Node's release schedule, so
+# it ships whatever OpenSSL it was built against, and one patch of drift in
+# libssl3/libcrypto3 is the entire Critical/High surface of this image.
+#
+# npm goes with it: its vendored tree — tar, pacote, brace-expansion and the rest — is
+# a large advisory surface that no change to backend/package-lock.json can reach, and
+# nothing at runtime uses it. The deps stage above still has it.
+RUN apk upgrade --no-cache \
+ && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 WORKDIR /app
 
@@ -24,8 +37,10 @@ USER node
 
 EXPOSE 3000
 
-# node:24-slim ships neither wget nor curl, so probe with node's own fetch.
+# node:24-alpine ships neither wget nor curl, so probe with node's own fetch.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
+# Exec form, so node is PID 1 and its own SIGTERM handler drains the server on a
+# rolling update instead of the shell swallowing the signal.
 CMD ["node", "src/server.js"]
