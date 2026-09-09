@@ -15,36 +15,9 @@ const ENDPOINT = import.meta.env.VITE_CHECKOUT_URL ?? '/api/checkout/session'
 
 /**
  * The only host a session URL may send the buyer to. A Stripe Checkout custom domain
- * would have to be added here as well as configured at Stripe. The allowlist is a
- * plain array checked with `includes` on purpose: Sonar's taint analysis only reads
- * that literal shape as clearing the url before it reaches `location.assign`, so a
- * Set here reopens its open-redirect blocker on identical behaviour.
+ * would have to be added here as well as configured at Stripe.
  */
-const CHECKOUT_HOSTS = ['checkout.stripe.com']
-
-/**
- * Navigating to whatever the response says is an open redirect on a payment flow — the
- * worst place to have one. The URL is our own backend's today, but that is a property of
- * the current backend rather than of this function, and one route that ever echoes input
- * would turn this line into a phishing primitive.
- *
- * The href is re-derived from the parsed URL rather than passed through, so the value
- * that reaches the browser provably came from the check and not from the response.
- */
-function stripeCheckoutUrl(value) {
-  let url
-  try {
-    url = new URL(value)
-  } catch {
-    throw new Error('checkout returned a malformed url')
-  }
-
-  if (url.protocol !== 'https:' || !CHECKOUT_HOSTS.includes(url.hostname)) {
-    throw new Error(`checkout returned a url outside Stripe: ${url.origin}`)
-  }
-
-  return url.href
-}
+const CHECKOUT_HOSTS = new Set(['checkout.stripe.com'])
 
 /**
  * @param {{ items: Array<{ curseId: string, optionId: string }> }} payload
@@ -67,6 +40,23 @@ export async function startCheckout({ items }) {
     throw new Error('checkout returned no url')
   }
 
-  window.location.assign(stripeCheckoutUrl(data.url))
+  // Navigating to whatever the response says would be an open redirect on a payment
+  // flow — the worst place to have one. The URL is our own backend's today, but that
+  // is a property of the current backend rather than of this request, and one route
+  // that ever echoes input would turn this line into a phishing primitive. The check
+  // sits next to the navigation on purpose: the value that reaches the browser is the
+  // parsed, allowlisted url rather than the raw response field.
+  let sessionUrl
+  try {
+    sessionUrl = new URL(data.url)
+  } catch {
+    throw new Error('checkout returned a malformed url')
+  }
+
+  if (sessionUrl.protocol !== 'https:' || !CHECKOUT_HOSTS.has(sessionUrl.hostname)) {
+    throw new Error(`checkout returned a url outside Stripe: ${sessionUrl.origin}`)
+  }
+
+  window.location.assign(sessionUrl.href)
   return { status: 'redirect' }
 }
