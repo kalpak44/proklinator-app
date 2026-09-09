@@ -89,9 +89,7 @@ describe('the book', () => {
 
     await user.click(footer().getByRole('button', { name: t('nav.prev') }))
 
-    await waitFor(() => expect(screen.getByText(t('footer.home'))).toBeTruthy(), {
-      timeout: 3000,
-    })
+    expect(await screen.findByText(t('footer.home'), {}, { timeout: 3000 })).toBeTruthy()
   })
 
   it('cannot turn back from the title page or on from the order sheet', async () => {
