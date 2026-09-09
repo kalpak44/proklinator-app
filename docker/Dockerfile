@@ -15,9 +15,16 @@ RUN npm run build
 
 FROM nginx:1.31-alpine
 
-# Fixed upstream but not yet in the base: libuuid alone accounts for every fixable
-# High finding this image reports.
-RUN apk upgrade --no-cache
+# The official image ships every optional module (acme, geoip, image-filter, njs,
+# xslt) and curl for debugging. This config loads none of them — the server block
+# below uses no module directive — and their dependency trees are the whole fixable
+# High surface of this image: image-filter drags in libgd and with it tiff, whose
+# Highs (CVE-2023-52356, CVE-2026-4775) no Alpine build fixes yet, and curl drags
+# in libcurl and nghttp2-libs. Delete the modules and curl so those packages never
+# ship; `apk upgrade` first still picks up every fixable package the base lags on.
+RUN apk upgrade --no-cache \
+ && apk del nginx-module-acme nginx-module-geoip nginx-module-image-filter \
+          nginx-module-njs nginx-module-xslt curl
 
 WORKDIR /usr/share/nginx/html
 
