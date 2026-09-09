@@ -12,8 +12,11 @@ const CATALOG_URL = '/api/curses'
  * Returns null when the backend is missing or the payload is unparseable.
  */
 async function fetchCatalog() {
-  const response = await fetch(CATALOG_URL, { cache: 'no-store' })
-  if (!response.ok) return null
+  // A rejected fetch is the normal state while the API pod is restarting, and it has to
+  // resolve to null like every other failure here: the callers only ever `.then` this,
+  // so a rejection would surface as an uncaught promise error on every page load.
+  const response = await fetch(CATALOG_URL, { cache: 'no-store' }).catch(() => null)
+  if (!response?.ok) return null
   const body = await response.json().catch(() => null)
   const curses = body?.curses
   if (!Array.isArray(curses)) return null
