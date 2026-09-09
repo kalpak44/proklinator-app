@@ -101,7 +101,7 @@ describe('the phone book', () => {
     expect(single.querySelector('.folio').textContent).toBe('5')
 
     const leaf = container.querySelector('.leaf')
-    expect(leaf.querySelectorAll('.paper--single').length).toBe(2)
+    expect(leaf.querySelectorAll('.paper--single')).toHaveLength(2)
     expect(leaf.querySelector('.face').textContent).toContain('verso:p1')
     expect(leaf.querySelector('.face--back').textContent).toContain('recto:p2')
   })
@@ -125,7 +125,7 @@ describe('the corner turns', () => {
     expect(container.querySelector('.dogear--next')).toBeTruthy()
 
     const turning = renderBook({ index: 1, turning: { from: 1, to: 2, dir: 'next' } })
-    expect(turning.container.querySelectorAll('.dogear').length).toBe(0)
+    expect(turning.container.querySelectorAll('.dogear')).toHaveLength(0)
   })
 })
 
