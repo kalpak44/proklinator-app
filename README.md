@@ -97,7 +97,7 @@ ids.
 `POST /api/checkout/session` takes `{ items: [{ curseId, optionId }] }` — ids only — and
 creates a one-time Stripe Checkout Session. Every item is validated against the catalog
 and every line item is named `{Curse Name} — {Option Name}` from backend-owned names.
-`success_url` is `/success` on the caller's origin, `cancel_url` is the origin root; both
+`success_url` is `/success` on the caller's origin and `cancel_url` is `/cancelled`; both
 are built from the request's `Origin` header, the one thing the API pod cannot know about
 itself. Without Stripe keys the route answers `503` and the app says payments are
 temporarily unavailable.
