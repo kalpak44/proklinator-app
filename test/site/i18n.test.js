@@ -15,7 +15,7 @@ beforeEach(() => {
 describe('resolveLanguage', () => {
   it('prefers a stored choice over everything else', () => {
     localStorage.setItem(LANG_KEY, 'ru')
-    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['bg-BG'])
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['en-GB'])
 
     expect(resolveLanguage()).toBe('ru')
   })
@@ -28,13 +28,13 @@ describe('resolveLanguage', () => {
   })
 
   it('falls back to the browser preference, matching on the primary subtag', () => {
-    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['en-GB', 'ru-RU'])
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['de-DE', 'ru-RU'])
 
     expect(resolveLanguage()).toBe('ru')
   })
 
   it('falls back to the default when nothing matches', () => {
-    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['en-GB', 'fr'])
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['fr-FR', 'de'])
 
     expect(resolveLanguage()).toBe(DEFAULT_LANG)
   })
@@ -43,9 +43,9 @@ describe('resolveLanguage', () => {
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('private mode')
     })
-    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['bg'])
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['ru'])
 
-    expect(resolveLanguage()).toBe('bg')
+    expect(resolveLanguage()).toBe('ru')
   })
 })
 
@@ -90,16 +90,16 @@ describe('translate', () => {
 
 describe('the catalogues', () => {
   it('translates the book wholesale, chapter for chapter', () => {
-    expect(Object.keys(CATALOGUES)).toEqual(['ru', 'bg'])
-    expect(CATALOGUES.bg.CHAPTERS).toHaveLength(CATALOGUES.ru.CHAPTERS.length)
+    expect(Object.keys(CATALOGUES)).toEqual(['ru', 'en'])
+    expect(CATALOGUES.en.CHAPTERS).toHaveLength(CATALOGUES.ru.CHAPTERS.length)
   })
 
   it('keeps the same ids in both, since the cart and the catalog key off them', () => {
     const ids = (catalogue) =>
       catalogue.CHAPTERS.flatMap((chapter) => chapter.spells.map((spell) => spell.id))
 
-    expect(ids(CATALOGUES.bg)).toEqual(ids(CATALOGUES.ru))
-    expect(Object.keys(CATALOGUES.bg.OPTION_CONTENT)).toEqual(
+    expect(ids(CATALOGUES.en)).toEqual(ids(CATALOGUES.ru))
+    expect(Object.keys(CATALOGUES.en.OPTION_CONTENT)).toEqual(
       Object.keys(CATALOGUES.ru.OPTION_CONTENT)
     )
   })

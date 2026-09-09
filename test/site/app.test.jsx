@@ -2,6 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../../src/App.jsx'
+import FailedPage from '../../src/components/FailedPage.jsx'
 import { CATALOGUES, LANG_KEY, translate } from '../../src/lib/i18n.js'
 import { renderWithLanguage, stubLocation } from './helpers.js'
 
@@ -113,30 +114,52 @@ describe('the book', () => {
     const badge = header().getByRole('button', { name: /Заказ/ })
     expect(badge.textContent).toContain(t('order.empty'))
 
-    // Price rows only exist inside a chapter, and only once the backend catalog has
-    // arrived — a row with no price renders as plain text and cannot be chosen. The
-    // query is scoped to <main> because MeasureLayer renders every row off-screen too.
-    await user.click(
-      screen.getAllByRole('button', { name: CATALOGUES.ru.CHAPTERS[0].tab })[0]
-    )
-    const rows = await waitFor(() => {
-      const found = within(document.querySelector('main')).getAllByRole('radio')
-      expect(found.length).toBeGreaterThan(0)
-      return found
-    })
+    // A tier can only be chosen from a curse's price list, which sits some pages into
+    // the first chapter — and only once the backend catalog has arrived, since a row
+    // with no price renders as plain text. Turn until one is on the spread. Scoped to
+    // <main> because MeasureLayer renders every row off-screen as well.
+    const onSpread = () => within(document.querySelector('main')).queryAllByRole('radio')
+    const next = footer().getByRole('button', { name: t('nav.next') })
+
+    let rows = []
+    for (let turn = 0; turn < 20 && rows.length === 0; turn += 1) {
+      await user.click(next)
+      await waitFor(() => {
+        rows = onSpread()
+      })
+    }
+    expect(rows.length, 'no price list within 20 spreads').toBeGreaterThan(0)
+
     await user.click(rows[0])
 
     await waitFor(() => expect(badge.textContent).not.toContain(t('order.empty')))
   })
 
-  it('switches language and keeps the reader on the book', async () => {
+  it('switches language through the selection screen and stays on the book', async () => {
     const user = userEvent.setup()
     renderWithLanguage(<App />)
 
-    await user.click(screen.getByRole('button', { name: t('lang.current.ru') }))
+    await user.click(header().getByRole('button', { name: t('lang.current.ru') }))
 
-    await waitFor(() => expect(header().getByText(CATALOGUES.bg.BOOK.title)).toBeTruthy())
-    expect(localStorage.getItem(LANG_KEY)).toBe('bg')
+    const dialog = await screen.findByRole('dialog')
+    await user.click(within(dialog).getByRole('radio', { name: t('lang.option.en') }))
+
+    await waitFor(() => expect(header().getByText(CATALOGUES.en.BOOK.title)).toBeTruthy())
+    expect(localStorage.getItem(LANG_KEY)).toBe('en')
+    // The book is still mounted underneath — the screen is an overlay, not a route.
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('closes the language screen on Escape without changing anything', async () => {
+    const user = userEvent.setup()
+    renderWithLanguage(<App />)
+
+    await user.click(header().getByRole('button', { name: t('lang.current.ru') }))
+    await screen.findByRole('dialog')
+    await user.keyboard('{Escape}')
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(localStorage.getItem(LANG_KEY)).toBe('ru')
   })
 
   it('toggles the page-turn sound and remembers it', async () => {
@@ -198,20 +221,48 @@ describe('the book', () => {
   })
 })
 
-describe('the success page', () => {
-  it('replaces the book and clears the cart Stripe was paid for', async () => {
-    localStorage.setItem(
-      'proklinator.cart.v1',
-      JSON.stringify([{ curseId: 'veil', optionId: 'once' }])
-    )
+describe('what Stripe redirects to', () => {
+  const CART = JSON.stringify([{ curseId: 'veil', optionId: 'once' }])
+
+  it('replaces the book with the rite on /success', async () => {
+    localStorage.setItem('proklinator.cart.v1', CART)
     stubLocation({ pathname: '/success' })
 
     renderWithLanguage(<App />)
 
+    // The payment is already through; /success is the interlude, and the
+    // confirmation it hands over to is what clears the cart.
+    expect(screen.getByText(t('processing.heading'))).toBeTruthy()
+    expect(screen.queryByRole('banner')).toBeNull()
+  })
+
+  it('leaves the cart untouched on /cancelled, so retrying starts where it stopped', async () => {
+    localStorage.setItem('proklinator.cart.v1', CART)
+    stubLocation({ pathname: '/cancelled' })
+
+    renderWithLanguage(<App />)
+
+    expect(screen.getByText(t('failed.heading'))).toBeTruthy()
+    expect(localStorage.getItem('proklinator.cart.v1')).toBe(CART)
+  })
+})
+
+describe('the confirmation page', () => {
+  it('clears the cart the payment was taken for', async () => {
+    const clear = vi.fn()
+    const { default: SuccessPage } = await import('../../src/components/SuccessPage.jsx')
+
+    renderWithLanguage(<SuccessPage order={[]} onClearCart={clear} />)
+
     expect(screen.getByText(t('success.heading'))).toBeTruthy()
-    // Only a completed payment clears it — a cancelled checkout must leave it alone.
-    await waitFor(() =>
-      expect(JSON.parse(localStorage.getItem('proklinator.cart.v1'))).toEqual([])
-    )
+    await waitFor(() => expect(clear).toHaveBeenCalled())
+  })
+})
+
+describe('the interrupted rite', () => {
+  it('offers a way back to the order sheet', () => {
+    renderWithLanguage(<FailedPage />)
+
+    expect(screen.getByText(t('failed.heading'))).toBeTruthy()
   })
 })

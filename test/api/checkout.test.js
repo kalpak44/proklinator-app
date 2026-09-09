@@ -144,7 +144,9 @@ describe('POST /api/checkout/session session creation', () => {
         },
       ],
       success_url: 'https://www.proklinator.online/success',
-      cancel_url: 'https://www.proklinator.online/',
+      // Not the book's root: a cancelled payment lands on the interrupted-rite page
+      // with the cart intact, so retrying starts from the same order sheet.
+      cancel_url: 'https://www.proklinator.online/cancelled',
     })
   })
 

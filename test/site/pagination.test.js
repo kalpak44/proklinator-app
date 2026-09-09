@@ -8,54 +8,89 @@ import {
 } from '../../src/lib/pagination.js'
 
 const CHAPTERS = [
-  { id: 'a', spells: [{ id: 'a1' }, { id: 'a2' }, { id: 'a3' }] },
-  { id: 'b', spells: [{ id: 'b1' }] },
+  {
+    id: 'a',
+    spells: [
+      {
+        id: 'a1',
+        story: [
+          { kind: 'prose', text: 'one' },
+          { kind: 'accounts', items: [{ text: 'first' }, { text: 'second' }] },
+        ],
+      },
+      { id: 'a2', story: [{ kind: 'prose', text: 'two' }] },
+    ],
+  },
+  { id: 'b', spells: [{ id: 'b1', story: [{ kind: 'prose', text: 'three' }] }] },
 ]
 
-const HEIGHTS = {
-  'a/front': 100,
-  'a/a1': 100,
-  'a/a2': 100,
-  'a/a3': 100,
-  'b/front': 100,
-  'b/b1': 100,
-}
+const ids = (blocks) => blocks.map((block) => block.id)
+const HEIGHT = 100
+const heights = (blocks) => Object.fromEntries(ids(blocks).map((id) => [id, HEIGHT]))
 
 describe('buildBlocks', () => {
-  it('puts a frontispiece before each chapter and keeps the source order', () => {
-    expect(buildBlocks(CHAPTERS).map((block) => block.id)).toEqual([
+  const blocks = buildBlocks(CHAPTERS)
+
+  it('puts a frontispiece before each chapter and one block per story section', () => {
+    expect(ids(blocks)).toEqual([
       'a/front',
-      'a/a1',
-      'a/a2',
-      'a/a3',
+      'a/a1/0',
+      'a/a1/1/0',
+      'a/a1/1/1',
+      'a/a2/0',
       'b/front',
-      'b/b1',
+      'b/b1/0',
     ])
   })
 
-  it('carries the chapter index on every block, which is what pagination groups by', () => {
-    const blocks = buildBlocks(CHAPTERS)
+  it('splits an accounts section one block per case', () => {
+    // Otherwise several alleged cases crowd a page out between them and the
+    // pagination has no smaller unit to move.
+    const accounts = blocks.filter((block) => block.section?.kind === 'account')
 
-    expect(blocks.filter((block) => block.chapterIndex === 0)).toHaveLength(4)
-    expect(blocks.at(-1)).toMatchObject({ chapterIndex: 1, kind: 'spell' })
+    expect(accounts).toHaveLength(2)
+    expect(accounts[0].heading).toBe(true)
+    expect(accounts[1].heading).toBe(false)
+  })
+
+  it('marks the start of every curse as a page break', () => {
+    const breaks = blocks.filter((block) => block.breakBefore).map((block) => block.id)
+
+    expect(breaks).toEqual(['a/front', 'a/a1/0', 'a/a2/0', 'b/front', 'b/b1/0'])
+  })
+
+  it('carries the chapter index on every block, which is what pagination groups by', () => {
+    expect(blocks.filter((block) => block.chapterIndex === 0)).toHaveLength(5)
+    expect(blocks.at(-1)).toMatchObject({ chapterIndex: 1, kind: 'story' })
   })
 })
 
 describe('paginate', () => {
   const blocks = buildBlocks(CHAPTERS)
+  const H = heights(blocks)
+
+  it('opens every curse on a fresh page however much room is left', () => {
+    // A whole chapter would fit on one page at this height; breakBefore is what
+    // stops two curses running into each other.
+    const pages = paginate(blocks, H, 10_000, 10)
+
+    expect(pages[0].blocks.map((b) => b.id)).toEqual(['a/front'])
+    expect(pages[1].blocks.map((b) => b.id)).toEqual(['a/a1/0', 'a/a1/1/0', 'a/a1/1/1'])
+    expect(pages[2].blocks.map((b) => b.id)).toEqual(['a/a2/0'])
+  })
 
   it('fills a page until the next block would not fit, gap included', () => {
     // 210 fits two 100px blocks with a 10px gap and not three.
-    const pages = paginate(blocks, HEIGHTS, 210, 10)
+    const pages = paginate(blocks, H, 210, 10)
 
-    expect(pages[0].blocks.map((block) => block.id)).toEqual(['a/front', 'a/a1'])
-    expect(pages[1].blocks.map((block) => block.id)).toEqual(['a/a2', 'a/a3'])
+    expect(pages[1].blocks.map((b) => b.id)).toEqual(['a/a1/0', 'a/a1/1/0'])
+    expect(pages[2].blocks.map((b) => b.id)).toEqual(['a/a1/1/1'])
   })
 
   it('opens every chapter on a verso, inserting a blank leaf when it has to', () => {
-    // Chapter a fits on one page, so b would start on a recto: a blank leaf is what a
+    // Chapter a takes three pages, so b would start on a recto: a blank leaf is what a
     // printed book puts there, and it is what keeps a bookmark on the spread it names.
-    const pages = paginate(blocks, HEIGHTS, 500, 10)
+    const pages = paginate(blocks, H, 10_000, 10)
     const bStart = pages.findIndex((page) => page.chapterIndex === 1)
 
     expect(bStart % 2).toBe(0)
@@ -63,8 +98,8 @@ describe('paginate', () => {
   })
 
   it('always returns an even number of pages, so no spread is half a sheet', () => {
-    for (const available of [100, 150, 210, 400, 1000]) {
-      expect(paginate(blocks, HEIGHTS, available, 10).length % 2).toBe(0)
+    for (const available of [100, 150, 210, 400, 10_000]) {
+      expect(paginate(blocks, H, available, 10).length % 2).toBe(0)
     }
   })
 
@@ -75,13 +110,15 @@ describe('paginate', () => {
   })
 
   it('returns an empty book for no blocks', () => {
-    expect(paginate([], HEIGHTS, 500, 10)).toEqual([])
+    expect(paginate([], H, 500, 10)).toEqual([])
   })
 })
 
 describe('toSpreads', () => {
+  const pages = paginate(buildBlocks(CHAPTERS), heights(buildBlocks(CHAPTERS)), 210, 10)
+
   it('wraps the paginated pages in the front matter and the order sheet', () => {
-    const spreads = toSpreads(paginate(buildBlocks(CHAPTERS), HEIGHTS, 210, 10))
+    const spreads = toSpreads(pages)
 
     expect(spreads.at(0).kind).toBe('home')
     expect(spreads.at(-1).kind).toBe('order')
@@ -89,7 +126,6 @@ describe('toSpreads', () => {
   })
 
   it('pairs the pages verso then recto', () => {
-    const pages = paginate(buildBlocks(CHAPTERS), HEIGHTS, 210, 10)
     const spreads = toSpreads(pages)
 
     expect(spreads[1].verso).toBe(pages[0])
@@ -99,7 +135,8 @@ describe('toSpreads', () => {
 
 describe('chapterSpreadIndex', () => {
   it('gives the spread each chapter opens on', () => {
-    const spreads = toSpreads(paginate(buildBlocks(CHAPTERS), HEIGHTS, 210, 10))
+    const blocks = buildBlocks(CHAPTERS)
+    const spreads = toSpreads(paginate(blocks, heights(blocks), 210, 10))
     const openings = chapterSpreadIndex(spreads, CHAPTERS.length)
 
     expect(spreads[openings[0]].chapterIndex).toBe(0)
@@ -117,6 +154,6 @@ describe('naiveSpreads', () => {
 
     expect(spreads).toHaveLength(CHAPTERS.length + 2)
     expect(spreads[1].verso.blocks).toHaveLength(1)
-    expect(spreads[1].recto.blocks).toHaveLength(3)
+    expect(spreads[1].recto.blocks).toHaveLength(4)
   })
 })
