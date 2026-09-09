@@ -15,9 +15,12 @@ const ENDPOINT = import.meta.env.VITE_CHECKOUT_URL ?? '/api/checkout/session'
 
 /**
  * The only host a session URL may send the buyer to. A Stripe Checkout custom domain
- * would have to be added here as well as configured at Stripe.
+ * would have to be added here as well as configured at Stripe. The allowlist is a
+ * plain array checked with `includes` on purpose: Sonar's taint analysis only reads
+ * that literal shape as clearing the url before it reaches `location.assign`, so a
+ * Set here reopens its open-redirect blocker on identical behaviour.
  */
-const CHECKOUT_HOSTS = new Set(['checkout.stripe.com'])
+const CHECKOUT_HOSTS = ['checkout.stripe.com']
 
 /**
  * Navigating to whatever the response says is an open redirect on a payment flow — the
@@ -36,7 +39,7 @@ function stripeCheckoutUrl(value) {
     throw new Error('checkout returned a malformed url')
   }
 
-  if (url.protocol !== 'https:' || !CHECKOUT_HOSTS.has(url.hostname)) {
+  if (url.protocol !== 'https:' || !CHECKOUT_HOSTS.includes(url.hostname)) {
     throw new Error(`checkout returned a url outside Stripe: ${url.origin}`)
   }
 
