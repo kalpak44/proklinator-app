@@ -15,10 +15,14 @@ const ENDPOINT = import.meta.env.VITE_CHECKOUT_URL ?? '/api/checkout/session'
 
 /**
  * The only host a session URL may send the buyer to. A Stripe Checkout custom domain
- * would have to be added here as well as configured at Stripe. A Set is the right
- * shape for an allowlist that is only ever asked whether a host is on it.
+ * would have to be added here as well as configured at Stripe. There is exactly one,
+ * so the check is an exact comparison against this constant rather than a membership
+ * test: an array `includes` allowlist is what Sonar's S7776 flags, and a `Set.has`
+ * membership test is not read by Sonar's taint analysis as constraining the
+ * response-controlled URL before the navigation (it reopens the open-redirect
+ * blocker on code that behaves identically).
  */
-const CHECKOUT_HOSTS = new Set(['checkout.stripe.com'])
+const CHECKOUT_HOST = 'checkout.stripe.com'
 
 /**
  * Navigating to whatever the response says is an open redirect on a payment flow — the
@@ -37,7 +41,7 @@ function stripeCheckoutUrl(value) {
     throw new Error('checkout returned a malformed url')
   }
 
-  if (url.protocol !== 'https:' || !CHECKOUT_HOSTS.has(url.hostname)) {
+  if (url.protocol !== 'https:' || url.hostname !== CHECKOUT_HOST) {
     throw new Error(`checkout returned a url outside Stripe: ${url.origin}`)
   }
 
