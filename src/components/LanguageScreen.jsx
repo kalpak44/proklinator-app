@@ -9,6 +9,14 @@ const LANGUAGES = [
   { id: 'ru', label: 'Русский' },
 ]
 
+/** How far an arrow key moves through the options; every direction wraps. */
+const ARROW_STEP = {
+  ArrowDown: 1,
+  ArrowRight: 1,
+  ArrowUp: -1,
+  ArrowLeft: -1,
+}
+
 /**
  * Full-page language selection, opened from the header. The book stays mounted
  * underneath, so closing the screen puts the reader back exactly where they
@@ -16,16 +24,33 @@ const LANGUAGES = [
  */
 export default function LanguageScreen({ onSelect, onClose }) {
   const { lang, t } = useLanguage()
-  const dialogRef = useRef(null)
+  const groupRef = useRef(null)
 
-  // The overlay takes focus on open so keyboard users can leave it with Esc.
+  // A radio group is one tab stop: opening the screen lands keyboard focus on
+  // the checked language, where the arrow keys below can move it.
   useEffect(() => {
-    dialogRef.current?.focus()
+    groupRef.current?.querySelector('[role="radio"][aria-checked="true"]')?.focus()
   }, [])
+
+  // Arrow keys follow the radio-group pattern: move from the focused option to
+  // its neighbour, wrapping past either end, and select it — exactly as
+  // clicking that option would.
+  function handleKeyDown(event) {
+    const step = ARROW_STEP[event.key]
+    if (!step) return
+
+    const options = Array.from(groupRef.current?.querySelectorAll('[role="radio"]') ?? [])
+    const index = options.indexOf(event.target.closest('[role="radio"]'))
+    if (index === -1) return
+
+    event.preventDefault()
+    const nextIndex = (index + step + LANGUAGES.length) % LANGUAGES.length
+    options[nextIndex].focus()
+    onSelect(LANGUAGES[nextIndex].id)
+  }
 
   return (
     <div
-      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={t('lang.screen.heading')}
@@ -37,9 +62,12 @@ export default function LanguageScreen({ onSelect, onClose }) {
       className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-desk/85 px-4 py-10"
     >
       <div
+        ref={groupRef}
         role="radiogroup"
         aria-label={t('lang.screen.heading')}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
         className="relative w-full max-w-md bg-paper px-8 pt-10 pb-12 shadow-[0_42px_60px_rgba(0,0,0,0.68)]"
       >
         <p className="rubric relative">{t('lang.screen.rubric')}</p>
@@ -59,6 +87,7 @@ export default function LanguageScreen({ onSelect, onClose }) {
                 type="button"
                 role="radio"
                 aria-checked={selected}
+                tabIndex={selected ? 0 : -1}
                 aria-label={t(`lang.option.${id}`)}
                 onClick={() => onSelect(id)}
                 className="group relative block w-full cursor-pointer px-3 py-3 text-left"
