@@ -22,7 +22,9 @@ export default function MeasureLayer({ blocks, geom, onMeasured, optionFor }) {
       if (!live || !body) return
       const style = getComputedStyle(body)
       const available =
-        body.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)
+        body.clientHeight -
+        Number.parseFloat(style.paddingTop) -
+        Number.parseFloat(style.paddingBottom)
       const heights = {}
       for (const el of body.querySelectorAll('[data-block]')) {
         heights[el.dataset.block] = el.getBoundingClientRect().height

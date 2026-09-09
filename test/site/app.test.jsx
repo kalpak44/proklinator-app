@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../../src/App.jsx'
@@ -232,6 +232,35 @@ describe('what Stripe redirects to', () => {
     // confirmation it hands over to is what clears the cart.
     expect(screen.getByText(t('processing.heading'))).toBeTruthy()
     expect(screen.queryByRole('banner')).toBeNull()
+  })
+
+  it('walks the rite through its stages, announcing each as the status', async () => {
+    localStorage.setItem('proklinator.cart.v1', CART)
+    stubLocation({ pathname: '/success' })
+    vi.useFakeTimers()
+
+    try {
+      const { container } = renderWithLanguage(<App />)
+
+      // The sealing line announces the current stage to assistive tech as a status.
+      expect(screen.getByRole('status').textContent).toContain(
+        t('processing.stage.recover')
+      )
+
+      await act(async () => {
+        vi.advanceTimersByTime(6000)
+      })
+
+      const steps = container.querySelectorAll('.processing-log li')
+      expect(steps[0].className).toContain('is-past')
+      expect(steps[1].className).toContain('is-past')
+      expect(steps[2].className).toContain('is-current')
+      expect(screen.getByRole('status').textContent).toContain(
+        t('processing.stage.archive')
+      )
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('leaves the cart untouched on /cancelled, so retrying starts where it stopped', async () => {

@@ -7,7 +7,9 @@ import { useLanguage } from '../lib/i18n.js'
 export default function OrderSummary({ totals, onRemove, onBrowse }) {
   const { t } = useLanguage()
   const byChapter = totals.lines.reduce((acc, line) => {
-    ;(acc[line.chapterTitle] ??= []).push(line)
+    const chapterLines = acc[line.chapterTitle] ?? []
+    chapterLines.push(line)
+    acc[line.chapterTitle] = chapterLines
     return acc
   }, {})
 

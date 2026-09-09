@@ -21,7 +21,7 @@ export function useBookGeometry(ref, spread) {
         pageH: Math.round(height),
       }
       setGeom((prev) =>
-        prev && prev.pageW === next.pageW && prev.pageH === next.pageH ? prev : next
+        prev?.pageW === next.pageW && prev?.pageH === next.pageH ? prev : next
       )
     })
 

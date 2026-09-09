@@ -34,6 +34,13 @@ function ProcessingGlyph({ index }) {
   )
 }
 
+/** The log slot's state: the current stage, a finished one, or one still ahead. */
+function logStageClass(i, stageIndex) {
+  if (i === stageIndex) return 'is-current'
+  if (i < stageIndex) return 'is-past'
+  return ''
+}
+
 /**
  * What `/success` shows after Stripe has confirmed the payment. This is a
  * theatrical interlude, not payment processing: the payment is already through,
@@ -66,18 +73,20 @@ export default function ProcessingPage() {
   // Three generic steps are replaced by the selected curse's own lines, so the
   // rite never reads like a generic loader; an empty cart falls back to spares.
   const themed = catalogue.PROCESSING?.[order[0]?.curseId] ?? []
+  // Each slot keeps a fixed id so the log never keys by position; the themed
+  // lines simply replace the spare ones in the same slots.
   const stages = [
-    t('processing.stage.recover'),
-    t('processing.stage.examine'),
-    t('processing.stage.archive'),
-    themed[0] ?? t('processing.stage.spare.1'),
-    t('processing.stage.fragments'),
-    themed[1] ?? t('processing.stage.spare.2'),
-    t('processing.stage.connection'),
-    t('processing.stage.ai'),
-    themed[2] ?? t('processing.stage.spare.3'),
-    t('processing.stage.write'),
-    t('processing.stage.seal'),
+    { id: 'recover', text: t('processing.stage.recover') },
+    { id: 'examine', text: t('processing.stage.examine') },
+    { id: 'archive', text: t('processing.stage.archive') },
+    { id: 'theme-1', text: themed[0] ?? t('processing.stage.spare.1') },
+    { id: 'fragments', text: t('processing.stage.fragments') },
+    { id: 'theme-2', text: themed[1] ?? t('processing.stage.spare.2') },
+    { id: 'connection', text: t('processing.stage.connection') },
+    { id: 'machine', text: t('processing.stage.ai') },
+    { id: 'theme-3', text: themed[2] ?? t('processing.stage.spare.3') },
+    { id: 'write', text: t('processing.stage.write') },
+    { id: 'seal', text: t('processing.stage.seal') },
   ]
   const stageIndex = Math.min(Math.floor(progress * stages.length), stages.length - 1)
 
@@ -119,15 +128,10 @@ export default function ProcessingPage() {
             <Ornament className="mt-4" />
 
             <ol className="processing-log relative mt-5" aria-hidden="true">
-              {stages.map((text, i) => (
-                <li
-                  key={i}
-                  className={
-                    i === stageIndex ? 'is-current' : i < stageIndex ? 'is-past' : ''
-                  }
-                >
+              {stages.map((stage, i) => (
+                <li key={stage.id} className={logStageClass(i, stageIndex)}>
                   <ProcessingGlyph index={i} />
-                  <span>{text}</span>
+                  <span>{stage.text}</span>
                 </li>
               ))}
             </ol>
@@ -160,7 +164,7 @@ export default function ProcessingPage() {
             </div>
 
             <div className="processing-seal relative mt-auto pt-7">
-              <div className="processing-progress" role="presentation" aria-hidden="true">
+              <div className="processing-progress" aria-hidden="true">
                 <div className="processing-progress__track">
                   <div
                     className="processing-progress__fill"
@@ -173,10 +177,10 @@ export default function ProcessingPage() {
                 />
               </div>
 
-              <p role="status" className="processing-status mt-3">
+              <output className="processing-status mt-3">
                 <ProcessingGlyph key={stageIndex} index={stageIndex} />
-                <span>{stages[stageIndex]}</span>
-              </p>
+                <span>{stages[stageIndex].text}</span>
+              </output>
             </div>
           </div>
         </section>

@@ -17,7 +17,7 @@ const ENDPOINT = import.meta.env.VITE_CHECKOUT_URL ?? '/api/checkout/session'
  * The only host a session URL may send the buyer to. A Stripe Checkout custom domain
  * would have to be added here as well as configured at Stripe.
  */
-const CHECKOUT_HOSTS = ['checkout.stripe.com']
+const CHECKOUT_HOSTS = new Set(['checkout.stripe.com'])
 
 /**
  * Navigating to whatever the response says is an open redirect on a payment flow — the
@@ -36,7 +36,7 @@ function stripeCheckoutUrl(value) {
     throw new Error('checkout returned a malformed url')
   }
 
-  if (url.protocol !== 'https:' || !CHECKOUT_HOSTS.includes(url.hostname)) {
+  if (url.protocol !== 'https:' || !CHECKOUT_HOSTS.has(url.hostname)) {
     throw new Error(`checkout returned a url outside Stripe: ${url.origin}`)
   }
 

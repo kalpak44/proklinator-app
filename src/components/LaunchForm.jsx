@@ -55,13 +55,7 @@ export default function LaunchForm({ totals, items, available }) {
           disabled={!canPay}
           className="font-mono border-marker bg-marker text-paper hover:bg-rubric w-full cursor-pointer border px-5 py-3 text-[0.78rem] tracking-[0.12em] uppercase transition-colors disabled:cursor-not-allowed disabled:border-ink-faint/40 disabled:bg-transparent disabled:text-ink-faint"
         >
-          {state === 'sending'
-            ? t('checkout.sending')
-            : totals.count === 0
-              ? t('checkout.cta.empty')
-              : !available
-                ? t('checkout.cta.unavailable')
-                : t('checkout.cta.pay', { amount: formatMoney(totals.dueNow) })}
+          {submitLabel(t, totals, available, state)}
         </button>
 
         <p className="font-mono text-ink-soft mt-3 text-center text-[0.68rem] leading-snug">
@@ -70,4 +64,12 @@ export default function LaunchForm({ totals, items, available }) {
       </div>
     </form>
   )
+}
+
+/** The pay button's copy: sending beats every availability state. */
+function submitLabel(t, totals, available, state) {
+  if (state === 'sending') return t('checkout.sending')
+  if (totals.count === 0) return t('checkout.cta.empty')
+  if (!available) return t('checkout.cta.unavailable')
+  return t('checkout.cta.pay', { amount: formatMoney(totals.dueNow) })
 }

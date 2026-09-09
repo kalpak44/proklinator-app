@@ -54,8 +54,11 @@ function ProseSection({ block }) {
         </>
       )}
 
-      {section.body.map((paragraph, i) => (
-        <p key={i} className="text-ink/90 relative mt-3 text-[0.95rem] leading-[1.6]">
+      {section.body.map((paragraph) => (
+        <p
+          key={paragraph}
+          className="text-ink/90 relative mt-3 text-[0.95rem] leading-[1.6]"
+        >
           {paragraph}
         </p>
       ))}
@@ -101,16 +104,14 @@ function AiSection({ section }) {
         <span className="agent-dot bg-marker size-1.5 shrink-0 rounded-full" />
         {t('story.aiRubric')}
       </p>
-      {(Array.isArray(section.body) ? section.body : [section.body]).map(
-        (paragraph, i) => (
-          <p
-            key={i}
-            className="text-ink/90 relative mt-1.5 text-[0.95rem] leading-[1.6] italic"
-          >
-            {paragraph}
-          </p>
-        )
-      )}
+      {(Array.isArray(section.body) ? section.body : [section.body]).map((paragraph) => (
+        <p
+          key={paragraph}
+          className="text-ink/90 relative mt-1.5 text-[0.95rem] leading-[1.6] italic"
+        >
+          {paragraph}
+        </p>
+      ))}
     </aside>
   )
 }
@@ -132,8 +133,11 @@ function EffectSection({ spell, section, isSelected, onToggle, optionFor }) {
         {spell.name}
       </h3>
 
-      {section.intro.map((paragraph, i) => (
-        <p key={i} className="text-ink/90 relative mt-3 text-[0.95rem] leading-[1.6]">
+      {section.intro.map((paragraph) => (
+        <p
+          key={paragraph}
+          className="text-ink/90 relative mt-3 text-[0.95rem] leading-[1.6]"
+        >
           {paragraph}
         </p>
       ))}
