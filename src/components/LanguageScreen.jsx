@@ -24,12 +24,41 @@ const ARROW_STEP = {
  */
 export default function LanguageScreen({ onSelect, onClose }) {
   const { lang, t } = useLanguage()
+  const dialogRef = useRef(null)
   const groupRef = useRef(null)
 
-  // A radio group is one tab stop: opening the screen lands keyboard focus on
-  // the checked language, where the arrow keys below can move it.
+  // The close callback lives behind a ref: the mount effect below registers
+  // document listeners once, so a re-render of the parent (health polls) must
+  // not re-open an already open dialog.
+  const onCloseRef = useRef(onClose)
   useEffect(() => {
+    onCloseRef.current = onClose
+  })
+
+  // A modal dialog gets its own top layer. Opening is native; Escape is the
+  // dialog's own cancel path; and a backdrop click lands on the dialog element
+  // itself. All three are wired on the document so the dialog element carries
+  // no JSX handlers, and so they behave the same in jsdom, which models none
+  // of the top layer.
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+    dialog.showModal()
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') onCloseRef.current()
+    }
+    const onClick = (event) => {
+      if (event.target === dialog) onCloseRef.current()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    document.addEventListener('click', onClick)
     groupRef.current?.querySelector('[role="radio"][aria-checked="true"]')?.focus()
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('click', onClick)
+    }
   }, [])
 
   // Arrow keys follow the radio-group pattern: move from the focused option to
@@ -50,15 +79,9 @@ export default function LanguageScreen({ onSelect, onClose }) {
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
+    <dialog
+      ref={dialogRef}
       aria-label={t('lang.screen.heading')}
-      tabIndex={-1}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') onClose()
-      }}
-      onClick={onClose}
       className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-desk/85 px-4 py-10"
     >
       <div
@@ -123,6 +146,6 @@ export default function LanguageScreen({ onSelect, onClose }) {
           {t('lang.screen.back')}
         </button>
       </div>
-    </div>
+    </dialog>
   )
 }

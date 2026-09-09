@@ -23,6 +23,118 @@ const folioOf = (i) => ({ verso: 2 * i + 1, recto: 2 * i + 2 })
 
 const SWIPE_MIN_PX = 55
 
+/** A phone page shows both halves stacked in reading order under one folio. */
+function SingleStack({ page }) {
+  return (
+    <>
+      {page.verso}
+      <hr className="border-ink-faint/30 my-8" />
+      {page.recto}
+    </>
+  )
+}
+
+/** The sheet lying still under a turn: the open pages, or the destination ones. */
+function BookSheets({ turning, forward, from, to, fromFolio, toFolio }) {
+  const back = turning && !forward
+  const front = turning && forward
+  return (
+    <>
+      <Paper side="verso" folio={back ? toFolio.verso : fromFolio.verso}>
+        {(back ? to : from).verso}
+      </Paper>
+      <Paper side="recto" folio={front ? toFolio.recto : fromFolio.recto}>
+        {(front ? to : from).recto}
+      </Paper>
+    </>
+  )
+}
+
+/** The phone layout during a turn: the destination page slides in underneath. */
+function PhoneSheet({ turning, from, to, fromFolio, toFolio }) {
+  const sheet = turning ? to : from
+  const folio = turning ? toFolio.verso : fromFolio.verso
+  return (
+    <Paper side="single" folio={folio}>
+      <SingleStack page={sheet} />
+    </Paper>
+  )
+}
+
+/** The creased corners: the page ahead and the page behind, both turnable. */
+function Dogears({ turning, index, count, goTo, prevLabel, nextLabel }) {
+  const canGoPrev = !turning && index > 0
+  const canGoNext = !turning && index < count - 1
+  return (
+    <>
+      {canGoPrev && (
+        <button
+          type="button"
+          className="dogear dogear--prev"
+          onClick={() => goTo(index - 1)}
+          aria-label={prevLabel}
+        />
+      )}
+      {canGoNext && (
+        <button
+          type="button"
+          className="dogear dogear--next"
+          onClick={() => goTo(index + 1)}
+          aria-label={nextLabel}
+        />
+      )}
+    </>
+  )
+}
+
+/** The paper side the leaf's front face shows; a phone always shows the single page. */
+function frontSide(spread, forward) {
+  if (!spread) return 'single'
+  return forward ? 'recto' : 'verso'
+}
+
+/** The paper side the leaf's back face shows; a phone always shows the single page. */
+function backSide(spread, forward) {
+  if (!spread) return 'single'
+  return forward ? 'verso' : 'recto'
+}
+
+/** The front face carries the page the reader is leaving, on the side this turn shows. */
+function frontPage(spread, forward, page) {
+  if (!spread) return <SingleStack page={page} />
+  return forward ? page.recto : page.verso
+}
+
+/** The back face carries the page the reader is arriving at, on the side this turn shows. */
+function backPage(spread, forward, page) {
+  if (!spread) return <SingleStack page={page} />
+  return forward ? page.verso : page.recto
+}
+
+/** The sheet rotating over the spread, one page on each face. */
+function TurnLeaf({ turning, spread, forward, from, to, fromFolio, toFolio }) {
+  return (
+    <div className={`leaf leaf--${turning.dir}`} aria-hidden="true">
+      <div className="face">
+        <Paper
+          side={frontSide(spread, forward)}
+          folio={forward ? fromFolio.recto : fromFolio.verso}
+        >
+          {frontPage(spread, forward, from)}
+        </Paper>
+      </div>
+      <div className="face face--back">
+        <Paper
+          side={backSide(spread, forward)}
+          folio={forward ? toFolio.verso : toFolio.recto}
+        >
+          {backPage(spread, forward, to)}
+        </Paper>
+      </div>
+    </div>
+  )
+}
+
 /**
  * The book: a two-page spread that actually turns.
  *
@@ -55,21 +167,13 @@ export default function Book({ bookRef, pages, index, turning, goTo }) {
     goTo(dx < 0 ? index + 1 : index - 1)
   }
 
-  const fromIndex = turning ? turning.from : index
-  const toIndex = turning ? turning.to : index
+  const fromIndex = turning?.from ?? index
+  const toIndex = turning?.to ?? index
   const from = pages[fromIndex]
   const to = pages[toIndex]
   const forward = turning?.dir === 'next'
   const fromFolio = folioOf(fromIndex)
   const toFolio = folioOf(toIndex)
-
-  const single = (page) => (
-    <>
-      {page.verso}
-      <hr className="border-ink-faint/30 my-8" />
-      {page.recto}
-    </>
-  )
 
   return (
     <div
@@ -83,64 +187,44 @@ export default function Book({ bookRef, pages, index, turning, goTo }) {
 
       <div className={`spread ${turning ? 'spread--turning' : ''}`}>
         {spread ? (
-          <>
-            <Paper
-              side="verso"
-              folio={turning && !forward ? toFolio.verso : fromFolio.verso}
-            >
-              {(turning && !forward ? to : from).verso}
-            </Paper>
-            <Paper
-              side="recto"
-              folio={turning && forward ? toFolio.recto : fromFolio.recto}
-            >
-              {(turning && forward ? to : from).recto}
-            </Paper>
-          </>
+          <BookSheets
+            turning={turning}
+            forward={forward}
+            from={from}
+            to={to}
+            fromFolio={fromFolio}
+            toFolio={toFolio}
+          />
         ) : (
-          <Paper side="single" folio={turning ? toFolio.verso : fromFolio.verso}>
-            {single(turning ? to : from)}
-          </Paper>
+          <PhoneSheet
+            turning={turning}
+            from={from}
+            to={to}
+            fromFolio={fromFolio}
+            toFolio={toFolio}
+          />
         )}
       </div>
 
-      {/* Creased corners: the page ahead and the page behind, both turnable. */}
-      {!turning && index > 0 && (
-        <button
-          type="button"
-          className="dogear dogear--prev"
-          onClick={() => goTo(index - 1)}
-          aria-label={t('nav.prev')}
-        />
-      )}
-      {!turning && index < pages.length - 1 && (
-        <button
-          type="button"
-          className="dogear dogear--next"
-          onClick={() => goTo(index + 1)}
-          aria-label={t('nav.next')}
-        />
-      )}
+      <Dogears
+        turning={turning}
+        index={index}
+        count={pages.length}
+        goTo={goTo}
+        prevLabel={t('nav.prev')}
+        nextLabel={t('nav.next')}
+      />
 
       {turning && (
-        <div className={`leaf leaf--${turning.dir}`} aria-hidden="true">
-          <div className="face">
-            <Paper
-              side={spread ? (forward ? 'recto' : 'verso') : 'single'}
-              folio={forward ? fromFolio.recto : fromFolio.verso}
-            >
-              {spread ? (forward ? from.recto : from.verso) : single(from)}
-            </Paper>
-          </div>
-          <div className="face face--back">
-            <Paper
-              side={spread ? (forward ? 'verso' : 'recto') : 'single'}
-              folio={forward ? toFolio.verso : toFolio.recto}
-            >
-              {spread ? (forward ? to.verso : to.recto) : single(to)}
-            </Paper>
-          </div>
-        </div>
+        <TurnLeaf
+          turning={turning}
+          spread={spread}
+          forward={forward}
+          from={from}
+          to={to}
+          fromFolio={fromFolio}
+          toFolio={toFolio}
+        />
       )}
     </div>
   )

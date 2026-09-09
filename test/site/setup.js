@@ -2,10 +2,10 @@ import { afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 
 /**
- * The browser APIs the book depends on and jsdom does not implement. Stubbed once here
- * rather than per test, because every render of App reaches all three: a spread only
- * exists behind a media query, page size comes from a ResizeObserver, and a page turn
- * plays through Web Audio.
+ * The browser APIs the app depends on and jsdom does not implement. Stubbed once here
+ * rather than per test: a spread only exists behind a media query, page size comes from
+ * a ResizeObserver, the language screen's modal opens through the dialog element, and a
+ * page turn plays through Web Audio.
  *
  * matchMedia is answered by `window.__media`, which a test replaces to render the phone
  * layout instead of the spread.
@@ -36,6 +36,17 @@ window.ResizeObserver = class {
   }
   unobserve() {}
   disconnect() {}
+}
+
+// A modal lives in the top layer, which jsdom does not model: the element exists but
+// showModal and close do not, so a dialog can never leave its default closed state.
+// These mirror what a browser does, so the language screen's modal behaves in tests.
+window.HTMLDialogElement.prototype.showModal = function showModal() {
+  this.setAttribute('open', '')
+}
+window.HTMLDialogElement.prototype.close = function close() {
+  this.removeAttribute('open')
+  this.dispatchEvent(new window.Event('close'))
 }
 
 // Enough of Web Audio for pageSound to build a graph against. It never asserts on

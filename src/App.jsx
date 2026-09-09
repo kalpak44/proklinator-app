@@ -29,7 +29,21 @@ import LanguageScreen from './components/LanguageScreen.jsx'
 
 /** Space between two blocks: margin + rule + padding of `.page-blocks > * + *`. */
 function blockGap() {
-  return 1.75 * parseFloat(getComputedStyle(document.documentElement).fontSize) + 1
+  return 1.75 * Number.parseFloat(getComputedStyle(document.documentElement).fontSize) + 1
+}
+
+/** The order tab's label: the running total once anything is on the sheet. */
+function orderTab(t, totals) {
+  if (totals.count === 0) return t('order.empty')
+  const amount = totals.known ? formatMoney(totals.dueNow) : '—'
+  return `${totals.count} · ${amount}`
+}
+
+/** The footer's label for wherever the reader is: home, the order sheet, or a chapter. */
+function positionLabel(t, CHAPTERS, openChapter, onHome, onOrder) {
+  if (onHome) return t('footer.home')
+  if (onOrder) return t('footer.order')
+  return t('footer.chapter', { numeral: CHAPTERS[openChapter]?.numeral ?? '' })
 }
 
 export default function App() {
@@ -378,9 +392,7 @@ export default function App() {
               {t('order.tab')}
               <span className="text-paper/40"> · </span>
             </span>
-            {totals.count === 0
-              ? t('order.empty')
-              : `${totals.count} · ${totals.known ? formatMoney(totals.dueNow) : '—'}`}
+            {orderTab(t, totals)}
           </button>
         </div>
       </header>
@@ -426,11 +438,7 @@ export default function App() {
         </button>
 
         <span className="font-mono text-paper/35 text-[0.64rem] tracking-[0.16em] whitespace-nowrap uppercase sm:text-[0.68rem]">
-          {onHome
-            ? t('footer.home')
-            : onOrder
-              ? t('footer.order')
-              : t('footer.chapter', { numeral: CHAPTERS[openChapter]?.numeral ?? '' })}
+          {positionLabel(t, CHAPTERS, openChapter, onHome, onOrder)}
         </span>
 
         <button
