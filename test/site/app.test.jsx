@@ -2,7 +2,7 @@ import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../../src/App.jsx'
-import FailedPage from '../../src/components/FailedPage.jsx'
+import FailedPage from '../../src/components/organisms/FailedPage.jsx'
 import { CATALOGUES, LANG_KEY, translate } from '../../src/lib/i18n.js'
 import { renderWithLanguage, stubLocation } from './helpers.js'
 
@@ -277,7 +277,8 @@ describe('what Stripe redirects to', () => {
 describe('the confirmation page', () => {
   it('clears the cart the payment was taken for', async () => {
     const clear = vi.fn()
-    const { default: SuccessPage } = await import('../../src/components/SuccessPage.jsx')
+    const { default: SuccessPage } =
+      await import('../../src/components/organisms/SuccessPage.jsx')
 
     renderWithLanguage(<SuccessPage order={[]} onClearCart={clear} />)
 

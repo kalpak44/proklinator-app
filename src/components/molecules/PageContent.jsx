@@ -1,4 +1,4 @@
-import Ornament from './Ornament.jsx'
+import Ornament from '../atoms/Ornament.jsx'
 import PageBlock from './PageBlock.jsx'
 
 /**

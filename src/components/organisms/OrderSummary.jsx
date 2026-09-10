@@ -1,7 +1,8 @@
-import { formatMoney } from '../lib/money.js'
-import Ornament from './Ornament.jsx'
-import Sigil from './Sigil.jsx'
-import { useLanguage } from '../lib/i18n.js'
+import { formatMoney } from '../../lib/money.js'
+import Ornament from '../atoms/Ornament.jsx'
+import Sigil from '../atoms/Sigil.jsx'
+import LineName from '../molecules/LineName.jsx'
+import { useLanguage } from '../../lib/i18n.js'
 
 /** Verso of the closing spread: exactly what is being paid for. */
 export default function OrderSummary({ totals, onRemove, onBrowse }) {
@@ -61,11 +62,10 @@ export default function OrderSummary({ totals, onRemove, onBrowse }) {
                       ×
                     </button>
                     <span className="min-w-0">
-                      <span className="text-ink text-[0.98rem]">{line.curseName}</span>
-                      <span className="text-ink-soft text-[0.85rem]">
-                        {' '}
-                        · {line.optionLabel}
-                      </span>
+                      <LineName
+                        curseName={line.curseName}
+                        optionLabel={line.optionLabel}
+                      />
                     </span>
                     <span className="leader" aria-hidden="true" />
                     <span className="font-mono text-ink shrink-0 text-[0.88rem]">

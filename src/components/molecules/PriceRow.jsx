@@ -1,6 +1,6 @@
-import { formatMoney } from '../lib/money.js'
-import MarkerCircle from './MarkerCircle.jsx'
-import { useLanguage } from '../lib/i18n.js'
+import { formatMoney } from '../../lib/money.js'
+import MarkerCircle from '../atoms/MarkerCircle.jsx'
+import { useLanguage } from '../../lib/i18n.js'
 
 /**
  * A price list row. Tiers of one curse are mutually exclusive, so this is a

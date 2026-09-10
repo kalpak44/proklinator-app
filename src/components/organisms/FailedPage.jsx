@@ -1,6 +1,7 @@
-import Ornament from './Ornament.jsx'
-import Sigil from './Sigil.jsx'
-import { useLanguage } from '../lib/i18n.js'
+import Ornament from '../atoms/Ornament.jsx'
+import Sigil from '../atoms/Sigil.jsx'
+import SheetHeading from '../atoms/SheetHeading.jsx'
+import { useLanguage } from '../../lib/i18n.js'
 
 /**
  * Where Stripe's `cancel_url` lands when a checkout is cancelled, abandoned or
@@ -16,11 +17,7 @@ export default function FailedPage() {
       <div className="relative w-full max-w-md bg-paper px-8 pt-10 pb-12 shadow-[0_42px_60px_rgba(0,0,0,0.68)]">
         <Sigil className="pointer-events-none absolute -top-8 left-1/2 w-40 max-w-[80%] -translate-x-1/2" />
 
-        <p className="rubric relative">{t('failed.rubric')}</p>
-
-        <h1 className="font-display text-ink relative mt-2 text-[2rem] leading-[1.05] sm:text-[2.4rem]">
-          {t('failed.heading')}
-        </h1>
+        <SheetHeading rubric={t('failed.rubric')} title={t('failed.heading')} />
 
         <p className="font-mono border-marker text-marker relative mt-5 inline-block border px-3 py-1.5 text-[0.68rem] tracking-[0.16em] uppercase">
           {t('failed.status')}

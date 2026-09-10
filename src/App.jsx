@@ -6,6 +6,7 @@ import { useMedia } from './lib/useMedia.js'
 import { useApiHealth } from './lib/useApiHealth.js'
 import { useBookGeometry } from './lib/useBookGeometry.js'
 import { formatMoney } from './lib/money.js'
+import { minUnitAmount } from './lib/catalog.js'
 import { isSoundEnabled, setSoundEnabled, primePageTurn } from './lib/pageSound.js'
 import { useLanguage } from './lib/i18n.js'
 import {
@@ -15,17 +16,17 @@ import {
   paginate,
   toSpreads,
 } from './lib/pagination.js'
-import Book from './components/Book.jsx'
-import Bookmarks from './components/Bookmarks.jsx'
-import MeasureLayer from './components/MeasureLayer.jsx'
-import PageContent from './components/PageContent.jsx'
-import OrderSummary from './components/OrderSummary.jsx'
-import LaunchForm from './components/LaunchForm.jsx'
-import TitlePage from './components/TitlePage.jsx'
-import Contents from './components/Contents.jsx'
-import ProcessingPage from './components/ProcessingPage.jsx'
-import FailedPage from './components/FailedPage.jsx'
-import LanguageScreen from './components/LanguageScreen.jsx'
+import Book from './components/organisms/Book.jsx'
+import Bookmarks from './components/molecules/Bookmarks.jsx'
+import MeasureLayer from './components/organisms/MeasureLayer.jsx'
+import PageContent from './components/molecules/PageContent.jsx'
+import OrderSummary from './components/organisms/OrderSummary.jsx'
+import LaunchForm from './components/organisms/LaunchForm.jsx'
+import TitlePage from './components/organisms/TitlePage.jsx'
+import Contents from './components/organisms/Contents.jsx'
+import ProcessingPage from './components/organisms/ProcessingPage.jsx'
+import FailedPage from './components/organisms/FailedPage.jsx'
+import LanguageScreen from './components/organisms/LanguageScreen.jsx'
 
 /** Space between two blocks: margin + rule + padding of `.page-blocks > * + *`. */
 function blockGap() {
@@ -105,30 +106,20 @@ export default function App() {
   // catalog has loaded, which the page renders as an em dash.
   const cheapest = useMemo(() => {
     if (!catalog) return null
-    let min = null
-    for (const curse of Object.values(catalog.byId)) {
-      for (const option of Object.values(curse.options)) {
-        if (option.unitAmount > 0 && (min == null || option.unitAmount < min)) {
-          min = option.unitAmount
-        }
-      }
-    }
-    return min
+    return minUnitAmount(
+      Object.values(catalog.byId).flatMap((curse) => Object.values(curse.options))
+    )
   }, [catalog])
 
   // The same per chapter, for the contents page rows.
   const fromByChapter = useMemo(() => {
     const map = {}
     for (const chapter of CHAPTERS) {
-      let min = null
-      for (const spell of chapter.spells) {
-        for (const option of Object.values(catalog?.byId[spell.id]?.options ?? {})) {
-          if (option.unitAmount > 0 && (min == null || option.unitAmount < min)) {
-            min = option.unitAmount
-          }
-        }
-      }
-      map[chapter.id] = min
+      map[chapter.id] = minUnitAmount(
+        chapter.spells.flatMap((spell) =>
+          Object.values(catalog?.byId[spell.id]?.options ?? {})
+        )
+      )
     }
     return map
   }, [catalog, CHAPTERS])

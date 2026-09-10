@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import PageBlock from './PageBlock.jsx'
+import PageBlock from '../molecules/PageBlock.jsx'
 
 const noop = () => {}
 

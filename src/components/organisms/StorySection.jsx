@@ -1,6 +1,6 @@
-import PriceRow from './PriceRow.jsx'
-import Ornament from './Ornament.jsx'
-import { useLanguage } from '../lib/i18n.js'
+import PriceRow from '../molecules/PriceRow.jsx'
+import Ornament from '../atoms/Ornament.jsx'
+import { useLanguage } from '../../lib/i18n.js'
 
 /**
  * One story block of a curse. The curse is a short multi-page chapter: a

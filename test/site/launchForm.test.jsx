@@ -1,8 +1,8 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import LaunchForm from '../../src/components/LaunchForm.jsx'
-import OrderSummary from '../../src/components/OrderSummary.jsx'
+import LaunchForm from '../../src/components/organisms/LaunchForm.jsx'
+import OrderSummary from '../../src/components/organisms/OrderSummary.jsx'
 import { translate } from '../../src/lib/i18n.js'
 import { renderWithLanguage, stubLocation } from './helpers.js'
 

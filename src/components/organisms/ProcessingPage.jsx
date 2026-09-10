@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import Sigil from './Sigil.jsx'
-import Ornament from './Ornament.jsx'
+import Sigil from '../atoms/Sigil.jsx'
+import Ornament from '../atoms/Ornament.jsx'
 import SuccessPage from './SuccessPage.jsx'
-import { useCart } from '../lib/useCart.js'
-import { useLanguage } from '../lib/i18n.js'
-import { useMedia } from '../lib/useMedia.js'
+import { useCart } from '../../lib/useCart.js'
+import { useLanguage } from '../../lib/i18n.js'
+import { useMedia } from '../../lib/useMedia.js'
 
 /** The theatrical sequence runs for roughly thirty seconds, then the confirmation takes over. */
 const TOTAL_MS = 30000

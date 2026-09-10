@@ -1,5 +1,5 @@
-import ChapterFront from './ChapterFront.jsx'
-import StorySection from './StorySection.jsx'
+import ChapterFront from '../organisms/ChapterFront.jsx'
+import StorySection from '../organisms/StorySection.jsx'
 
 /** One unit of pagination: a chapter frontispiece or one story section. */
 export default function PageBlock({ block, isSelected, onToggle, optionFor }) {
