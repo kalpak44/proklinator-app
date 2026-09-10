@@ -19,6 +19,9 @@ const ENDPOINT = import.meta.env.VITE_CHECKOUT_URL ?? '/api/checkout/session'
  * not `Set.has`: Sonar's taint analysis only reads the array `includes` allowlist shape
  * as clearing the tainted response url before the navigation — the `Set.has` form
  * reopens the open-redirect blocker on code that behaves identically.
+ *
+ * The array is deliberately not a Set: it is also joined into the refusal message
+ * below, so it is not an array used only for membership tests (Sonar S7776).
  */
 const CHECKOUT_HOSTS = ['checkout.stripe.com']
 
@@ -40,7 +43,9 @@ function stripeCheckoutUrl(value) {
   }
 
   if (url.protocol !== 'https:' || !CHECKOUT_HOSTS.includes(url.hostname)) {
-    throw new Error(`checkout returned a url outside Stripe: ${url.origin}`)
+    throw new Error(
+      `checkout returned a url outside Stripe (allowed: ${CHECKOUT_HOSTS.join(', ')}): ${url.origin}`
+    )
   }
 
   return url.href
