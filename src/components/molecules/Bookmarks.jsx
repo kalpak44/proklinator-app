@@ -1,4 +1,4 @@
-import { useLanguage } from '../lib/i18n.js'
+import { useLanguage } from '../../lib/i18n.js'
 
 /**
  * Bookmarks along the edges of the block. A chapter you have already turned

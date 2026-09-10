@@ -1,6 +1,6 @@
-import Ornament from './Ornament.jsx'
-import Sigil from './Sigil.jsx'
-import { useLanguage } from '../lib/i18n.js'
+import Ornament from '../atoms/Ornament.jsx'
+import Sigil from '../atoms/Sigil.jsx'
+import { useLanguage } from '../../lib/i18n.js'
 
 /**
  * The chapter frontispiece block: heading, opening paragraph, the numbers that

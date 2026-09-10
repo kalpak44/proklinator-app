@@ -1,9 +1,7 @@
-import Ornament from './Ornament.jsx'
-import { formatMoney } from '../lib/money.js'
-import { useLanguage } from '../lib/i18n.js'
-
-/** Spread i occupies pages 2i+1 and 2i+2 - the same rule the folios use. */
-const folioOf = (spreadIndex) => 2 * spreadIndex + 1
+import Ornament from '../atoms/Ornament.jsx'
+import { formatMoney } from '../../lib/money.js'
+import { spreadFolios } from '../../lib/pagination.js'
+import { useLanguage } from '../../lib/i18n.js'
 
 /**
  * Recto of the opening spread: what the book contains. Every row is a way in,
@@ -57,7 +55,7 @@ export default function Contents({ openings, orderIndex, onOpen, fromByChapter }
               </span>
               <span className="leader" aria-hidden="true" />
               <span className="font-mono text-ink-faint shrink-0 self-start text-[0.72rem] tracking-[0.12em]">
-                {folioOf(openings[i])}
+                {spreadFolios(openings[i]).verso}
               </span>
             </button>
           </li>

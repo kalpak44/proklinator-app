@@ -33,7 +33,7 @@ header; everything else here, code and comments included, is English.
 
 ## How the book is laid out
 
-Pages do not scroll on a spread. `src/components/MeasureLayer.jsx` renders every content
+Pages do not scroll on a spread. `src/components/organisms/MeasureLayer.jsx` renders every content
 block once, off-screen, at the exact size of a real page; `src/lib/pagination.js` then packs
 those measured heights into pages and pairs the pages into spreads. A chapter always opens
 on a left-hand page, so the bookmarks line up with the spread they name. A curse is one
@@ -352,7 +352,7 @@ product decisions were already made. Compare:
 >
 > `type:bug` `area:order` `p1`
 >
-> `canPay` in `src/components/LaunchForm.jsx` is `available && totals.count > 0 && state
+> `canPay` in `src/components/organisms/LaunchForm.jsx` is `available && totals.count > 0 && state
 !== 'sending'`. It ignores `totals.known`, which `App.jsx` computes as "every line has a
 > `unitAmount`". A cart entry whose ids are missing from the catalog — stale
 > `localStorage`, or an option withdrawn mid-session — therefore leaves the button live
@@ -368,7 +368,7 @@ product decisions were already made. Compare:
 > - A cart where every line resolves is unaffected — the button still works.
 > - Checked at 1440×900 and on an iPhone 13.
 >
-> **Files:** `src/components/LaunchForm.jsx`.
+> **Files:** `src/components/organisms/LaunchForm.jsx`.
 > **Out of scope:** letting the user remove the unknown row from the order sheet. That is
 > a real gap and it needs a design decision, so it gets its own issue.
 

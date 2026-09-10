@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import App from '../../src/App.jsx'
-import LanguageScreen from '../../src/components/LanguageScreen.jsx'
+import LanguageScreen from '../../src/components/organisms/LanguageScreen.jsx'
 import { CATALOGUES, LANG_KEY, translate } from '../../src/lib/i18n.js'
 import { renderWithLanguage, stubLocation } from './helpers.js'
 

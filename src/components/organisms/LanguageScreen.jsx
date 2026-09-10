@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
-import MarkerCircle from './MarkerCircle.jsx'
-import Ornament from './Ornament.jsx'
-import { useLanguage } from '../lib/i18n.js'
+import MarkerCircle from '../atoms/MarkerCircle.jsx'
+import Ornament from '../atoms/Ornament.jsx'
+import SheetHeading from '../atoms/SheetHeading.jsx'
+import { useLanguage } from '../../lib/i18n.js'
 
 /** The two supported languages, shown by their own names. */
 const LANGUAGES = [
@@ -93,11 +94,7 @@ export default function LanguageScreen({ onSelect, onClose }) {
         onKeyDown={handleKeyDown}
         className="relative w-full max-w-md bg-paper px-8 pt-10 pb-12 shadow-[0_42px_60px_rgba(0,0,0,0.68)]"
       >
-        <p className="rubric relative">{t('lang.screen.rubric')}</p>
-
-        <h1 className="font-display text-ink relative mt-2 text-[2rem] leading-[1.05] sm:text-[2.4rem]">
-          {t('lang.screen.heading')}
-        </h1>
+        <SheetHeading rubric={t('lang.screen.rubric')} title={t('lang.screen.heading')} />
 
         <Ornament className="relative mt-5" />
 

@@ -1,7 +1,7 @@
-import Ornament from './Ornament.jsx'
-import Sigil from './Sigil.jsx'
-import { formatMoney } from '../lib/money.js'
-import { useLanguage } from '../lib/i18n.js'
+import Ornament from '../atoms/Ornament.jsx'
+import Sigil from '../atoms/Sigil.jsx'
+import { formatMoney } from '../../lib/money.js'
+import { useLanguage } from '../../lib/i18n.js'
 
 /**
  * Verso of the opening spread: the title page. It says what the book is before

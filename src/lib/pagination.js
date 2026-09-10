@@ -121,6 +121,12 @@ export function toSpreads(pages) {
   return spreads
 }
 
+/** Folio numbers of spread i: verso 2i+1, recto 2i+2 - the printed-book rule. */
+export function spreadFolios(spreadIndex) {
+  const verso = 2 * spreadIndex + 1
+  return { verso, recto: verso + 1 }
+}
+
 /** Spread index each chapter opens on, for the bookmarks. */
 export function chapterSpreadIndex(spreads, chapterCount) {
   const first = new Array(chapterCount).fill(0)

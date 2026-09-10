@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent } from '@testing-library/react'
-import Book from '../../src/components/Book.jsx'
+import Book from '../../src/components/organisms/Book.jsx'
 import { renderWithLanguage } from './helpers.js'
 
 /** A two-faced page whose halves carry readable markers. */

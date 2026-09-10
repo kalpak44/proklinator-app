@@ -24,8 +24,16 @@ async function boot(env) {
   const port = await freePort()
   let output = ''
 
+  // Credentials the runner happens to export must not leak into a test that is
+  // about the credentials being absent: the entrypoint test would then assert
+  // the runner's environment instead of the entrypoint's behaviour. A test that
+  // needs a key passes it explicitly, below.
+  const base = { ...process.env }
+  delete base.STRIPE_SECRET_KEY
+  delete base.STRIPE_PUBLISHABLE_KEY
+
   child = spawn(process.execPath, [ENTRY], {
-    env: { ...process.env, PORT: String(port), ...env },
+    env: { ...base, PORT: String(port), ...env },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   child.stdout.on('data', (chunk) => (output += chunk))

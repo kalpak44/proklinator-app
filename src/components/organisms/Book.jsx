@@ -1,6 +1,7 @@
 import { useRef } from 'react'
-import { useMedia } from '../lib/useMedia.js'
-import { useLanguage } from '../lib/i18n.js'
+import { useMedia } from '../../lib/useMedia.js'
+import { spreadFolios } from '../../lib/pagination.js'
+import { useLanguage } from '../../lib/i18n.js'
 
 function Paper({ side, folio, children }) {
   return (
@@ -17,9 +18,6 @@ function Paper({ side, folio, children }) {
     </div>
   )
 }
-
-/** Book pagination: spread i occupies pages 2i+1 and 2i+2. */
-const folioOf = (i) => ({ verso: 2 * i + 1, recto: 2 * i + 2 })
 
 const SWIPE_MIN_PX = 55
 
@@ -172,8 +170,8 @@ export default function Book({ bookRef, pages, index, turning, goTo }) {
   const from = pages[fromIndex]
   const to = pages[toIndex]
   const forward = turning?.dir === 'next'
-  const fromFolio = folioOf(fromIndex)
-  const toFolio = folioOf(toIndex)
+  const fromFolio = spreadFolios(fromIndex)
+  const toFolio = spreadFolios(toIndex)
 
   return (
     <div

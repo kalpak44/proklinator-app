@@ -4,6 +4,7 @@ import {
   chapterSpreadIndex,
   naiveSpreads,
   paginate,
+  spreadFolios,
   toSpreads,
 } from '../../src/lib/pagination.js'
 
@@ -155,5 +156,12 @@ describe('naiveSpreads', () => {
     expect(spreads).toHaveLength(CHAPTERS.length + 2)
     expect(spreads[1].verso.blocks).toHaveLength(1)
     expect(spreads[1].recto.blocks).toHaveLength(4)
+  })
+})
+
+describe('spreadFolios', () => {
+  it('numbers a spread the way a printed book does: verso 2i+1, recto 2i+2', () => {
+    expect(spreadFolios(0)).toEqual({ verso: 1, recto: 2 })
+    expect(spreadFolios(3)).toEqual({ verso: 7, recto: 8 })
   })
 })

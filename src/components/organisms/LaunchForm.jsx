@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { startCheckout } from '../lib/checkout.js'
-import { formatMoney } from '../lib/money.js'
-import Ornament from './Ornament.jsx'
-import { useLanguage } from '../lib/i18n.js'
+import { startCheckout } from '../../lib/checkout.js'
+import { formatMoney } from '../../lib/money.js'
+import Ornament from '../atoms/Ornament.jsx'
+import { useLanguage } from '../../lib/i18n.js'
 
 /**
  * Recto of the closing spread: the total and the way to pay it.
