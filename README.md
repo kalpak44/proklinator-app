@@ -5,10 +5,11 @@
 The catalogue is presented as a real book: a two-page spread, bookmarks along the fore
 edge, and page turns that actually rotate a leaf. Every curse is its own short
 multi-page chapter - a legend, an origin, the objects and their symbolism, alleged
-accounts, a modern investigation, and a closing choice. Choosing an option circles it
-in marker and drops it onto the order sheet, where a one-time Stripe checkout sends it
-to the AI. The interface is localised into English and Russian, switchable from the
-header; everything else here, code and comments included, is English.
+accounts, a modern investigation, an occasional note from the machine, and a closing
+choice. Choosing an option circles it in marker and drops it onto the order sheet, where
+a one-time Stripe checkout sends it to the AI. The interface is localised into English
+and Russian, switchable from the header; everything else here, code and comments
+included, is English.
 
 ## Features
 
@@ -30,6 +31,33 @@ header; everything else here, code and comments included, is English.
 - Vitest 5 — jsdom for the site, node for the API
 - nginx 1.31-alpine runtime image
 - Express 5 on Node 24 for the API in `backend/`
+
+## How it fits together
+
+Two images run side by side on one host, so the browser only ever speaks to one origin and
+there is no CORS to configure. Traefik sends `PathPrefix(/api)` to the Express pod and
+everything else to nginx. The prefix is not stripped, which is why the routes in
+`backend/src/app.js` are declared with `/api` already on them:
+
+```mermaid
+flowchart LR
+    SPA["React book · src/<br/>cart of ids in localStorage"]
+    EDGE["Traefik<br/>same host"]
+    SITE["nginx<br/>proklinator-app image"]
+    API["Express<br/>proklinator-api image · backend/src"]
+    STRIPE["Stripe Checkout"]
+
+    SPA -->|"GET /"| EDGE
+    SPA -->|"GET /api/curses<br/>POST /api/checkout/session"| EDGE
+    EDGE -->|"everything but /api"| SITE
+    EDGE -->|"/api/*"| API
+    API -->|"one-time session,<br/>catalog-owned names and prices"| STRIPE
+    STRIPE -->|"redirect to /success or /cancelled"| SPA
+```
+
+The browser only ever sends selected ids; `backend/src/catalog.js` is the single source of
+the names, prices and currency that reach Stripe. Both images are built from the same
+commit and carry the same 7-character tag, so the site and its API always move together.
 
 ## How the book is laid out
 
@@ -77,11 +105,11 @@ it: Traefik matches `PathPrefix(/api)` on the same host and sends those requests
 pod, everything else to nginx. Same origin, so there is no CORS to configure, and the
 prefix is not stripped — routes in `backend/src/app.js` are declared with `/api` on them.
 
-`app.js` builds the Express app and holds every route; `server.js` only reads the
-environment, constructs the Stripe client and listens. The split exists so the routes can
-be tested: with `listen()` at module scope, importing the API bound a port and demanded
-its configuration, and nothing that decides what a buyer is charged could be reached by a
-test.
+`app.js` builds the Express app and holds every route; `config.js` reads the environment;
+`server.js` constructs the Stripe client and listens. The split exists so the routes — and
+the configuration that decides which Stripe client they get — can be tested: with
+`listen()` at module scope, importing the API bound a port and demanded its configuration,
+and nothing that decides what a buyer is charged could be reached by a test.
 
 `GET /api/health` returns the short SHA of the commit the image was built from, which is
 also its tag. That is the quickest way to tell whether a deploy actually landed. It also
@@ -104,9 +132,9 @@ temporarily unavailable.
 
 ### Configuration
 
-The API takes its configuration from the environment. Nothing is read from a file and
-nothing is baked into the image; a build arg would end up in the layer history of a public
-image.
+The API takes its configuration from the environment in `backend/src/config.js`. Nothing
+is read from a file and nothing is baked into the image; a build arg would end up in the
+layer history of a public image.
 
 | Variable                 | What it is                                    |
 | :----------------------- | :-------------------------------------------- |
@@ -297,7 +325,7 @@ clicks the first control it finds to catch the class of bug that renders fine an
 on touch. An uncaught exception, a console error, a failed request, a bad response or an
 empty page is blocking. CI does not run a browser, so without this a change that builds
 cleanly and is broken on screen would merge green. Screenshots and logs are uploaded to
-the run as a `qa-<issue>` artifact.
+the run as a `qa-<issue>-<run_attempt>` artifact.
 
 **The check run**, in a separate job that runs no model at all. It waits for `publish.yml`
 to conclude, then requires: the pull request open and not a draft, its branch one this
