@@ -25,6 +25,32 @@ function renderScreen(lang) {
   return { user, onSelect, onClose, dialog }
 }
 
+describe('the language screen overlay', () => {
+  it('sizes the dialog to the viewport so the panel lands in the middle', () => {
+    // A modal dialog carries `width/height: fit-content` and its own max sizes
+    // from the UA stylesheet. Left alone that box shrinks to the panel and sits
+    // in the top-left corner, so the flex centring below has nothing to centre
+    // within and the scrim covers only the panel. jsdom models none of the UA
+    // box, so the guard here is the classes that neutralise it.
+    const { dialog } = renderScreen('en')
+    const classes = dialog.className.split(/\s+/)
+
+    expect(classes).toEqual(
+      expect.arrayContaining([
+        'fixed',
+        'inset-0',
+        'h-full',
+        'w-full',
+        'max-h-none',
+        'max-w-none',
+      ])
+    )
+    expect(classes).toEqual(
+      expect.arrayContaining(['flex', 'items-center', 'justify-center'])
+    )
+  })
+})
+
 describe('the language screen keyboard contract', () => {
   it('opens with focus on the checked language, not on the overlay', () => {
     const { dialog } = renderScreen('ru')
