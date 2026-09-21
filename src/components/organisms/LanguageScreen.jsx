@@ -79,11 +79,18 @@ export default function LanguageScreen({ onSelect, onClose }) {
     onSelect(LANGUAGES[nextIndex].id)
   }
 
+  // The element is a modal, so the browser gives it `width/height: fit-content`
+  // and its own max sizes from the UA stylesheet. Those shrink the dialog box to
+  // the panel and pin it to the top-left corner, which leaves the flex centring
+  // below nothing to centre within and stops the backdrop covering the page.
+  // Sizing the box to the viewport and dropping the UA limits makes the whole
+  // surface the dialog, so the panel lands in the middle on both sides of the
+  // 900px breakpoint.
   return (
     <dialog
       ref={dialogRef}
       aria-label={t('lang.screen.heading')}
-      className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-desk/85 px-4 py-10"
+      className="fixed inset-0 z-40 flex h-full w-full max-h-none max-w-none items-center justify-center overflow-y-auto bg-desk/85 px-4 py-10"
     >
       <div
         ref={groupRef}
