@@ -51,15 +51,19 @@ export function useCatalog(apiOk) {
 
   useEffect(() => {
     let cancelled = false
-    fetchCatalog().then((next) => {
-      if (cancelled) return
-      if (next) {
-        setCatalog(next)
-        setAvailable(true)
-      } else {
-        setAvailable(false)
-      }
-    })
+    fetchCatalog()
+      .then((next) => {
+        if (cancelled) return
+        if (next) {
+          setCatalog(next)
+          setAvailable(true)
+        } else {
+          setAvailable(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setAvailable(false)
+      })
     return () => {
       cancelled = true
     }
@@ -74,15 +78,19 @@ export function useCatalog(apiOk) {
     if (!apiOk || wasUp) return
 
     let cancelled = false
-    fetchCatalog().then((next) => {
-      if (cancelled) return
-      if (next) {
-        setCatalog(next)
-        setAvailable(true)
-      } else {
-        setAvailable(false)
-      }
-    })
+    fetchCatalog()
+      .then((next) => {
+        if (cancelled) return
+        if (next) {
+          setCatalog(next)
+          setAvailable(true)
+        } else {
+          setAvailable(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setAvailable(false)
+      })
     return () => {
       cancelled = true
     }

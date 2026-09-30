@@ -30,7 +30,7 @@ export function useApiHealth() {
       }
     }
 
-    check()
+    check().catch(() => setOk(false))
     timer = setInterval(check, POLL_MS)
     return () => {
       cancelled = true

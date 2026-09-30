@@ -164,6 +164,50 @@ describe('useCatalog', () => {
     rerender({ ok: true })
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
+
+  it('stays unavailable when the catalog payload makes the parser throw', async () => {
+    // A curse with no options array reaches `curse.options.map` inside fetchCatalog and
+    // throws there. That rejection has to be handled like any other missing catalog: no
+    // prices, and no unhandled rejection escaping to the browser.
+    vi.stubGlobal(
+      'fetch',
+      fetchReturning({ '/api/curses': { curses: [{ id: 'veil' }] } })
+    )
+
+    const { result } = renderHook(() => useCatalog(false))
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+
+    expect(result.current.available).toBe(false)
+    expect(result.current.catalog).toBeNull()
+  })
+
+  it('drops the catalog when a re-fetch makes the parser throw', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => CATALOG_RESPONSE,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ curses: [{ id: 'veil' }] }),
+      })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { result, rerender } = renderHook(({ ok }) => useCatalog(ok), {
+      initialProps: { ok: false },
+    })
+    await waitFor(() => expect(result.current.available).toBe(true))
+
+    rerender({ ok: true })
+
+    await waitFor(() => expect(result.current.available).toBe(false))
+  })
 })
 
 describe('useApiHealth', () => {

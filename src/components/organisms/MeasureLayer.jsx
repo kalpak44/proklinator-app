@@ -37,7 +37,7 @@ export default function MeasureLayer({ blocks, geom, onMeasured, optionFor }) {
     // unpaginated spread first. Measured again once the book faces have loaded,
     // since every height changes when the fallback serif is replaced.
     measure()
-    document.fonts?.ready.then(measure)
+    document.fonts?.ready.then(measure).catch(noop)
 
     return () => {
       live = false
