@@ -22,7 +22,13 @@ FROM nginx:1.31-alpine
 # Highs (CVE-2023-52356, CVE-2026-4775) no Alpine build fixes yet, and curl drags
 # in libcurl and nghttp2-libs. Delete the modules and curl so those packages never
 # ship; `apk upgrade` first still picks up every fixable package the base lags on.
+# pcre2 is named explicitly because the base's package index is not re-read while the
+# `apk upgrade` layer is served from the build cache: nginx:1.31-alpine still carries
+# 10.48-r0, and Alpine published the fix for CVE-2026-103111 in 10.49-r0. The floor
+# also fails the build rather than silently shipping the vulnerable build if the fixed
+# version ever stops being available.
 RUN apk upgrade --no-cache \
+ && apk add --no-cache "pcre2>=10.49-r0" \
  && apk del nginx-module-acme nginx-module-geoip nginx-module-image-filter \
           nginx-module-njs nginx-module-xslt curl
 
